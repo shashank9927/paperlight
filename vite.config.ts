@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import { readdirSync, readFileSync, existsSync } from 'node:fs';
+import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 
@@ -16,7 +16,7 @@ const securityHeaders = {
   'X-Frame-Options': 'DENY',
 };
 
-export default defineConfig({
+export default defineConfig(({ isSsrBuild }) => ({
   // Worker-only imports are not found by the normal entry-point scan. Include
   // them up front so the first PDF job cannot trigger an optimizer page reload.
   optimizeDeps: {
@@ -30,11 +30,21 @@ export default defineConfig({
       configurePreviewServer(server) {
         server.middlewares.use((request, response, next) => {
           const path = (request.url || '').split('?')[0];
+          const file = resolve('dist', path.slice(1));
+          const isFile = existsSync(file) && statSync(file).isFile();
+          const toolPath = path.match(
+            /^\/tools\/(merge|split|compress|organize|rotate|images-to-pdf|pdf-to-images|watermark|page-numbers|protect|unlock|sign)(?:\/|\/index\.html|\.html)?$/,
+          );
+          if (path === '/index.html' || (toolPath && path !== `/tools/${toolPath[1]}`)) {
+            response.statusCode = 308;
+            response.setHeader('Location', toolPath ? `/tools/${toolPath[1]}` : '/');
+            response.end();
+            return;
+          }
+          if (toolPath) request.url = `/tools/${toolPath[1]}.html`;
           if (
             /^\/(assets|pdf-assets|licenses)\//.test(path) &&
-            (!/^\/[A-Za-z0-9_./-]+$/.test(path) ||
-              path.includes('..') ||
-              !existsSync(resolve('dist', path.slice(1))))
+            (!/^\/[A-Za-z0-9_./-]+$/.test(path) || path.includes('..') || !isFile)
           ) {
             response.statusCode = 404;
             response.end('Asset not found');
@@ -47,6 +57,18 @@ export default defineConfig({
             path.startsWith('/tools/')
           )
             response.setHeader('Cache-Control', 'no-cache');
+          if (
+            path !== '/' &&
+            !toolPath &&
+            !isFile &&
+            !path.startsWith('/assets/') &&
+            !path.startsWith('/pdf-assets/')
+          ) {
+            response.statusCode = 404;
+            response.setHeader('Content-Type', 'text/html; charset=utf-8');
+            response.end(readFileSync(resolve('dist/404.html')));
+            return;
+          }
           next();
         });
       },
@@ -71,6 +93,7 @@ export default defineConfig({
         });
       },
       generateBundle(_options, bundle) {
+        if (isSsrBuild) return;
         const allowed = Object.keys(bundle)
           .filter((name) => name.startsWith('assets/'))
           .map((name) => `/${name}`);
@@ -94,7 +117,7 @@ export default defineConfig({
           type: 'asset',
           fileName: 'sw.js',
           source: `
-const CACHE = 'paperlight-${version}';
+const CACHE = 'paperlight-pages-v2-${version}';
 const SHELL = ${JSON.stringify(['/', '/favicon.svg', ...shell])};
 const ASSETS = new Set(${JSON.stringify(['/favicon.svg', ...allowed])});
 const TOOLS = new Set(['merge','split','compress','organize','rotate','images-to-pdf','pdf-to-images','watermark','page-numbers','protect','unlock','sign'].map(tool => '/tools/' + tool));
@@ -108,8 +131,9 @@ self.addEventListener('fetch', event => {
   if (!asset && !appNavigation) return;
   event.respondWith(caches.open(CACHE).then(async cache => {
     if (asset) { const cached = await cache.match(event.request); if (cached) return cached; }
-    try { const response = await fetch(event.request); if (response.ok) await cache.put(event.request.mode === 'navigate' ? '/' : event.request, response.clone()); return response; }
-    catch (error) { const cached = await cache.match(event.request.mode === 'navigate' ? '/' : event.request); if (cached) return cached; throw error; }
+    const key = appNavigation ? url.pathname : event.request;
+    try { const response = await fetch(event.request); if (response.ok) await cache.put(key, response.clone()); return response; }
+    catch (error) { const cached = await cache.match(key); if (cached) return cached; throw error; }
   }));
 });`,
         });
@@ -121,4 +145,4 @@ self.addEventListener('fetch', event => {
   worker: { format: 'es' },
   server: { host: '0.0.0.0' },
   preview: { headers: securityHeaders },
-});
+}));

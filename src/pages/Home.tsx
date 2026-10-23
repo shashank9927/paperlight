@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { categories, tools } from '../lib/tools';
 import type { Category } from '../lib/tools';
+import { homeSeo } from '../lib/seo';
 const privacyItems = [
   {
     icon: HardDrive,
@@ -34,7 +35,6 @@ export default function Home() {
   const [query, setQuery] = useState('');
   const search = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    document.title = 'Paperlight — PDF tools, privately';
     const shortcut = (e: KeyboardEvent) => {
       if (
         e.key === '/' &&
@@ -62,9 +62,9 @@ export default function Home() {
             <span className="status-dot" /> YOUR DOCUMENTS. YOUR DEVICE.
           </div>
           <h1>
-            Less friction.
+            Free PDF tools.
             <br />
-            <span>More finished.</span>
+            <span>Private by design.</span>
           </h1>
           <p>
             Everything you need to work with PDFs.
@@ -232,8 +232,10 @@ export default function Home() {
             leave your device.
           </h2>
           <p>
-            Paperlight processes documents locally in your browser. No uploads, document history,
-            accounts, or analytics.
+            Paperlight processes documents locally in your browser. No document uploads, document
+            history, or accounts. The public site uses Vercel Web Analytics for page-view
+            statistics. Documents, passwords, signatures, and editing data are never sent to
+            analytics.
           </p>
         </div>
         <div className="privacy-features">
@@ -251,6 +253,7 @@ export default function Home() {
       <section id="faq" className="container faq-section">
         <h2>A few useful details.</h2>
         {[
+          ...homeSeo.faqs.map(({ question, answer }) => [question, answer]),
           [
             'Are my files really private?',
             'Yes. We never upload your documents or passwords. Processing stays in your browser, and no document history is stored.',

@@ -1,1 +1,16 @@
-/* /index.html 200
+/index.html / 301
+/tools/:tool/index.html /tools/:tool 301
+/tools/:tool/ /tools/:tool 301
+/tools/merge /tools/merge.html 200
+/tools/split /tools/split.html 200
+/tools/compress /tools/compress.html 200
+/tools/organize /tools/organize.html 200
+/tools/rotate /tools/rotate.html 200
+/tools/images-to-pdf /tools/images-to-pdf.html 200
+/tools/pdf-to-images /tools/pdf-to-images.html 200
+/tools/watermark /tools/watermark.html 200
+/tools/page-numbers /tools/page-numbers.html 200
+/tools/protect /tools/protect.html 200
+/tools/unlock /tools/unlock.html 200
+/tools/sign /tools/sign.html 200
+/* /404.html 404

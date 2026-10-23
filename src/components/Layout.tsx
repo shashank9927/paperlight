@@ -15,9 +15,13 @@ export function Brand() {
 }
 export function Header() {
   const [open, setOpen] = useState(false);
-  const [theme, setTheme] = useState<Theme>(readTheme);
+  // Keep the first render identical to generated HTML; restore preferences after hydration.
+  const [theme, setTheme] = useState<Theme>('dark');
   const [resolvedTheme, setResolvedTheme] = useState(() => resolveTheme(theme));
   const location = useLocation();
+  useEffect(() => {
+    setTheme(readTheme());
+  }, []);
   useEffect(() => {
     setOpen(false);
   }, [location]);
@@ -79,7 +83,9 @@ export function Footer() {
       </div>
       <div className="container footer-bottom">
         <span>© {new Date().getFullYear()} Paperlight</span>
-        <span>No uploads. No accounts. No tracking.</span>
+        <span>
+          No document uploads. No accounts. <Link to="/#privacy">Usage analytics</Link>.
+        </span>
       </div>
     </footer>
   );

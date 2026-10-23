@@ -1,6 +1,6 @@
 # Paperlight
 
-A private PDF toolkit with twelve real tools and a restrained interface with a dark/light theme toggle. A previously saved system theme continues to follow the operating system until the user toggles it. Every document operation runs in the browser. There is no upload endpoint, account system, database, analytics service, or conversion API.
+A private PDF toolkit with twelve real tools and a restrained interface with a dark/light theme toggle. A previously saved system theme continues to follow the operating system until the user toggles it. Every document operation runs in the browser. There is no document upload endpoint, account system, database, or conversion API. The production Vercel site uses Vercel Web Analytics for public page-view statistics; documents, passwords, signatures, and editing data are never sent to analytics.
 
 ## Develop
 
@@ -111,6 +111,10 @@ The offline packaging command requires the base image to be cached already. Reus
 Test the deployed host’s deep links, worker/WASM loading, fonts, downloads, and service-worker updates before announcing a release. Public deployment is separate from preparing this checkout or saving cloud setup instructions.
 
 Third-party notices and bundled license texts are included under `public/licenses/` and copied into the production build.
+
+## Search visibility and Vercel Analytics
+
+Build-time HTML, canonical URLs, the sitemap, indexing environments, analytics privacy boundaries, and Google Search Console setup are documented in [docs/SEO.md](docs/SEO.md). Vercel production enables indexing and analytics; local and preview builds remain non-indexable and do not collect page views.
 
 ## Redesign release
 

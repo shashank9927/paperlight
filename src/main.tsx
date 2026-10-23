@@ -8,13 +8,16 @@ import App from './App';
 
 applyTheme(readTheme());
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+const root = document.getElementById('root')!;
+const app = (
   <React.StrictMode>
     <BrowserRouter>
       <App />
     </BrowserRouter>
-  </React.StrictMode>,
+  </React.StrictMode>
 );
+if (root.hasChildNodes()) ReactDOM.hydrateRoot(root, app);
+else ReactDOM.createRoot(root).render(app);
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     void navigator.serviceWorker.register('/sw.js').catch(() => {

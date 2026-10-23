@@ -40,3 +40,6 @@ https://sources.debian.org/src/fonts-liberation/1%3A1.07.4-11/
 
 Fontkit's browser distribution includes component notices in its source.
 The full upstream notices are provided in fontkit.txt.
+
+@vercel/analytics 2.0.1: MIT (see vercel-analytics.txt)
+https://github.com/vercel/analytics
