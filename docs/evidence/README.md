@@ -1,8 +1,10 @@
 # Verification evidence
 
-The final production artifact is tested with Linux Chromium, Firefox and WebKit plus Chromium mobile emulation. See `../AUDIT.md` for the release decision and exact counts.
+The redesign release is documented in `../REDESIGN.md`. Files beginning `redesign-` describe that release. Other files below retain the earlier hardening evidence and must not be used as the new artifact identity.
 
-Current evidence:
+Redesign evidence includes the exact static manifest/image ID, production build/package logs, browser matrix report, separate benchmarks, hosting contract, and representative dark/light screenshots. Full synthetic documents and screenshots remain in ignored `.cache` directories and the cached verification container.
+
+Pre-redesign evidence (retained for history):
 
 - `production-e2e-final.txt`: latest full functional run against Nginx: 145 passed, one fast-job cancellation test timing failure. `reset-verification.txt` records the corrected test passing 9/9 repeated checks across all three engines. Together they cover all 146 unique scenarios; the full run is not relabeled as entirely green.
 - `password-verification.txt`: nine repeated WebKit password-boundary, retry and CSP checks after fixing the actual WASM error classification.

@@ -4,6 +4,7 @@ import type { ToolOptions } from '../lib/types';
 import { SignatureEditor } from './SignatureEditor';
 import { AlertTriangle, LockKeyhole, Move } from 'lucide-react';
 import { useCallback } from 'react';
+import { ExtraSettings, SignFields } from './ExtraSettings';
 
 function Field({ label, children, hint }: { label: string; children: ReactNode; hint?: string }) {
   return (
@@ -54,20 +55,21 @@ export function ToolSettings({
   options: o,
   onChange,
   onError,
-  pages,
 }: {
   tool: ToolId;
   options: ToolOptions;
   onChange: (options: Partial<ToolOptions>) => void;
   onError: (message: string) => void;
-  pages: number;
 }) {
   const signatureChanged = useCallback(
     (signature: Uint8Array | undefined) => onChange({ signature }),
     [onChange],
   );
   const range = (
-    <Field label="Pages" hint={`Leave blank for all ${pages || ''} pages. Example: 1-3, 5`}>
+    <Field
+      label="Pages"
+      hint="Leave blank for all pages. Ranges apply separately to each PDF. Example: 1-3, 5"
+    >
       <input
         aria-label="Pages"
         placeholder="All pages"
@@ -103,16 +105,17 @@ export function ToolSettings({
   );
   return (
     <div className="tool-settings">
+      <ExtraSettings tool={tool} options={o} onChange={onChange} onError={onError} />
       {tool === 'merge' && (
         <div className="settings-explainer">
-          <h4>A perfect little stack</h4>
+          <h4>Merge in order</h4>
           <p>Files are merged in the order shown. Drag a file or use its arrows to move it.</p>
           <p>All pages from every file will be included.</p>
         </div>
       )}
       {tool === 'organize' && (
         <div className="settings-explainer">
-          <h4>Everything in its place</h4>
+          <h4>Arrange your document</h4>
           <p>Reorder, rotate, duplicate, or remove pages using the controls on each card.</p>
           <p>
             Select pages to extract them into a separate PDF. The original file stays untouched.
@@ -131,6 +134,9 @@ export function ToolSettings({
             >
               <option value="extract">Extract into one PDF</option>
               <option value="individual">Separate PDF for each page</option>
+              <option value="ranges">Custom range groups</option>
+              <option value="fixed">Fixed page groups</option>
+              <option value="size">Maximum file size</option>
             </select>
           </Field>
           {range}
@@ -386,6 +392,7 @@ export function ToolSettings({
               <option value="number">1, 2, 3</option>
               <option value="page">Page 1, Page 2</option>
               <option value="total">1 / 10, 2 / 10</option>
+              <option value="custom">Custom text template</option>
             </select>
           </Field>
           <Range
@@ -443,7 +450,7 @@ export function ToolSettings({
       )}
       {tool === 'unlock' && (
         <div className="settings-explainer">
-          <h4>A little less friction</h4>
+          <h4>Remove password protection</h4>
           <p>
             If this file is password protected, you’ll be asked for its current password when you
             select it.
@@ -457,17 +464,22 @@ export function ToolSettings({
       {tool === 'sign' && (
         <>
           <SignatureEditor onChange={signatureChanged} onError={onError} />
-          {range}
-          <Range
-            label="Signature width"
-            min={0.1}
-            max={0.7}
-            step={0.02}
-            value={o.signatureWidth}
-            display={`${Math.round(o.signatureWidth * 100)}% of page`}
-            onChange={(signatureWidth) => onChange({ signatureWidth })}
-          />
-          {position}
+          <SignFields options={o} onChange={onChange} onError={onError} />
+          {!o.annotations.length && (
+            <>
+              {range}
+              <Range
+                label="Signature width"
+                min={0.1}
+                max={0.7}
+                step={0.02}
+                value={o.signatureWidth}
+                display={`${Math.round(o.signatureWidth * 100)}% of page`}
+                onChange={(signatureWidth) => onChange({ signatureWidth })}
+              />
+              {position}
+            </>
+          )}
         </>
       )}
     </div>

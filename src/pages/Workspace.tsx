@@ -22,10 +22,13 @@ import {
   ShieldCheck,
   Trash2,
   Undo2,
+  Redo2,
+  SlidersHorizontal,
   Upload,
   X,
 } from 'lucide-react';
 import { getTool } from '../lib/tools';
+import { configureJob } from '../lib/tool-config';
 import { defaultOptions, MAX_BYTES, MAX_PAGES } from '../lib/types';
 import type { PageRef, ProcessingResult, ToolOptions, WorkerResponse } from '../lib/types';
 import type { PreviewFile } from '../lib/preview';
@@ -49,7 +52,9 @@ const rearrange = <T,>(items: T[], from: number, to: number) => {
 };
 const initialOptions = (tool: string): ToolOptions => ({
   ...defaultOptions,
-  ...(tool === 'page-numbers' ? { fontSize: 12, color: '#4a4658', y: 0.92, textAngle: 0 } : {}),
+  ...(tool === 'page-numbers'
+    ? { fontSize: 12, color: '#30343b', y: 0.92, textAngle: 0, opacity: 1 }
+    : {}),
   ...(tool === 'sign' ? { range: '1', x: 0.7, y: 0.82 } : {}),
 });
 
@@ -60,6 +65,8 @@ export default function Workspace() {
   const filesRef = useRef<PreviewFile[]>([]);
   const [pages, setPages] = useState<PageRef[]>([]);
   const [history, setHistory] = useState<PageRef[][]>([]);
+  const [future, setFuture] = useState<PageRef[][]>([]);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [options, setOptions] = useState<ToolOptions>(() => initialOptions(toolId));
   const [settingsEpoch, setSettingsEpoch] = useState(0);
@@ -151,7 +158,8 @@ export default function Workspace() {
     );
 
   const isImages = tool.id === 'images-to-pdf';
-  const multiple = isImages || tool.id === 'merge';
+  const multiple = !['split', 'sign'].includes(tool.id);
+  const fileList = isImages || tool.id === 'merge';
   const busy = adding || !!progress;
   const totalBytes = files.reduce((sum, file) => sum + file.file.size, 0);
   const count = files.reduce((sum, file) => sum + file.pages.length, 0);
@@ -166,6 +174,7 @@ export default function Workspace() {
   const selectedSet = new Set(rangeIndices);
   const pageChange = (next: PageRef[]) => {
     setHistory((previous) => [...previous.slice(-19), pages]);
+    setFuture([]);
     setPages(next);
     setResult(null);
   };
@@ -178,6 +187,7 @@ export default function Workspace() {
     replaceFiles([]);
     setPages([]);
     setHistory([]);
+    setFuture([]);
     setSelectedIds(new Set());
     setProgress(null);
     setAdding(false);
@@ -279,6 +289,9 @@ export default function Workspace() {
     const removed = files.find((file) => file.id === id);
     replaceFiles(files.filter((file) => file.id !== id));
     setPages((previous) => previous.filter((page) => page.sourceId !== id));
+    setHistory([]);
+    setFuture([]);
+    setFocus(0);
     void removed?.dispose?.();
     setResult(null);
   };
@@ -296,12 +309,13 @@ export default function Workspace() {
         parseRange(options.range, count);
       if (
         tool.id === 'protect' &&
+        (!options.advancedProtection || options.restrictAccess) &&
         (!options.password || options.password !== options.confirmPassword)
       )
         throw new Error('Enter a password and make sure both passwords match.');
-      if (tool.id === 'watermark' && !options.text.trim())
+      if (tool.id === 'watermark' && options.watermarkType === 'text' && !options.text.trim())
         throw new Error('Add some text for your watermark.');
-      if (tool.id === 'sign' && !options.signature)
+      if (tool.id === 'sign' && !options.signature && !options.annotations.length)
         throw new Error('Draw, type, or upload your signature first.');
       if (
         tool.id === 'page-numbers' &&
@@ -333,7 +347,13 @@ export default function Workspace() {
           setProgress(null);
           if (event.data.type === 'result') {
             setResult(event.data.result);
-            setOptions((previous) => ({ ...previous, password: '', confirmPassword: '' }));
+            setOptions((previous) => ({
+              ...previous,
+              password: '',
+              confirmPassword: '',
+              ownerPassword: '',
+              confirmOwnerPassword: '',
+            }));
           } else setError(event.data.message);
           stopWorker();
         }
@@ -349,12 +369,12 @@ export default function Workspace() {
       };
       instance.postMessage({
         type: 'process',
-        job: {
+        job: configureJob({
           tool: tool.id,
           sources: files.map(({ id, file, password }) => ({ id, file, password })),
           pages: references,
           options,
-        },
+        }),
       });
       requestAnimationFrame(() => progressRegion.current?.focus());
     } catch (failure) {
@@ -370,22 +390,59 @@ export default function Workspace() {
   };
   const focusIndex = Math.min(focus, pages.length - 1);
   const focusPage = pages[focusIndex];
-  const focusSource = files.find((file) => file.id === focusPage?.sourceId);
-  const sourceFor = (page: PageRef) => files.find((file) => file.id === page.sourceId)!;
-  const preview = (page: PageRef, large = false) => (
-    <PagePreview
-      key={page.id}
-      source={sourceFor(page)}
-      page={page}
-      large={large}
-      tool={tool.id}
-      options={options}
-      selected={selectedSet.has(page.index)}
-      pageOrdinal={Math.max(0, rangeIndices.indexOf(page.index))}
-      selectedCount={rangeIndices.length}
-      onPosition={large && !busy ? (x, y) => onOptionsChange({ x, y }) : undefined}
-    />
-  );
+  const focusSource = files.find((file) => file.id === focusPage?.sourceId) || focusPage?.blank;
+  const blankSource: PreviewFile = {
+    id: 'blank',
+    file: new File([], 'Blank page'),
+    pages: [{ width: 595.28, height: 841.89, rotation: 0 }],
+  };
+  const sourceFor = (page: PageRef) =>
+    page.blank
+      ? { ...blankSource, pages: [{ ...page.blank, rotation: 0 }] }
+      : files.find((file) => file.id === page.sourceId)!;
+  const preview = (page: PageRef, large = false) => {
+    let previewIndices: number[] = [];
+    try {
+      previewIndices = parseRange(options.range, sourceFor(page).pages.length).filter(
+        (index) => !(tool.id === 'page-numbers' && options.coverPage && index === 0),
+      );
+    } catch {
+      /* Validation occurs on export. */
+    }
+    return (
+      <PagePreview
+        key={page.id}
+        source={sourceFor(page)}
+        page={page}
+        large={large}
+        tool={tool.id}
+        options={options}
+        selected={(() => {
+          try {
+            return (
+              parseRange(options.range, sourceFor(page).pages.length).includes(page.index) &&
+              !(tool.id === 'page-numbers' && options.coverPage && page.index === 0)
+            );
+          } catch {
+            return false;
+          }
+        })()}
+        pageOrdinal={Math.max(0, previewIndices.indexOf(page.index))}
+        selectedCount={previewIndices.length}
+        onPosition={large && !busy ? (x, y) => onOptionsChange({ x, y }) : undefined}
+        onAnnotationChange={
+          large && !busy
+            ? (id, patch) =>
+                onOptionsChange({
+                  annotations: options.annotations.map((a) =>
+                    a.id === id ? { ...a, ...patch } : a,
+                  ),
+                })
+            : undefined
+        }
+      />
+    );
+  };
   return (
     <main id="main" className="workspace-page">
       <div className="container workspace-container">
@@ -419,11 +476,11 @@ export default function Workspace() {
           </span>
           <div />
           <span className={files.length && !result ? 'current' : result ? 'complete' : ''}>
-            <i>{result ? <Check size={11} /> : '2'}</i>Make it yours
+            <i>{result ? <Check size={11} /> : '2'}</i>Configure
           </span>
           <div />
           <span className={result ? 'current' : ''}>
-            <i>3</i>Download & go
+            <i>3</i>Download
           </span>
         </div>
         <input
@@ -481,10 +538,10 @@ export default function Workspace() {
                 </div>
                 <h2>
                   {adding
-                    ? 'Taking a look at your file…'
+                    ? 'Opening your document…'
                     : isImages
-                      ? 'Your images, a little more together.'
-                      : 'Good things start with a file.'}
+                      ? 'Drop your images here.'
+                      : 'Drop your PDFs here.'}
                 </h2>
                 <p>
                   {adding
@@ -510,7 +567,7 @@ export default function Workspace() {
                   500 pages
                 </span>
                 <div className="dropzone-privacy">
-                  <ShieldCheck size={14} /> Your files stay right here. Always.
+                  <ShieldCheck size={14} /> Processed locally. Never uploaded.
                 </div>
               </div>
             ) : (
@@ -528,7 +585,7 @@ export default function Workspace() {
                     </span>
                   </div>
                   <div className="document-toolbar-actions">
-                    {!multiple && (
+                    {!fileList && (
                       <div className="view-switch" role="group" aria-label="Preview layout">
                         <button
                           aria-label="Page grid"
@@ -547,6 +604,56 @@ export default function Workspace() {
                           <LayoutPanelLeft size={16} />
                         </button>
                       </div>
+                    )}
+                    {fileList && (
+                      <button
+                        type="button"
+                        className="button small secondary"
+                        disabled={busy}
+                        onClick={() =>
+                          replaceFiles(
+                            [...files].sort((a, b) =>
+                              a.file.name.localeCompare(b.file.name, undefined, { numeric: true }),
+                            ),
+                          )
+                        }
+                      >
+                        Sort A–Z
+                      </button>
+                    )}
+                    {tool.id === 'rotate' && (
+                      <button
+                        type="button"
+                        className="button small secondary"
+                        disabled={busy}
+                        onClick={() => {
+                          pageChange(pages.map((p) => ({ ...p, rotation: 0 })));
+                          onOptionsChange({ angle: 0, range: '', rotationTarget: 'all' });
+                        }}
+                      >
+                        Reset all
+                      </button>
+                    )}
+                    {tool.id === 'organize' && (
+                      <button
+                        type="button"
+                        className="button small secondary"
+                        disabled={busy || pages.length >= MAX_PAGES}
+                        onClick={() =>
+                          pageChange([
+                            ...pages,
+                            {
+                              id: uuid(),
+                              sourceId: 'blank',
+                              index: 0,
+                              rotation: 0,
+                              blank: { width: 595.28, height: 841.89 },
+                            },
+                          ])
+                        }
+                      >
+                        Add blank page
+                      </button>
                     )}
                     {multiple && (
                       <button
@@ -567,7 +674,64 @@ export default function Workspace() {
                     </button>
                   </div>
                 </div>
-                {multiple ? (
+                {multiple && !fileList && (
+                  <div className="document-file-navigation">
+                    <label className="field">
+                      <span>Active document</span>
+                      <select
+                        aria-label="Active document"
+                        value={
+                          focusPage?.sourceId === 'blank' ? '' : focusPage?.sourceId || files[0]?.id
+                        }
+                        onChange={(e) => {
+                          setFocus(
+                            Math.max(
+                              0,
+                              pages.findIndex((p) => p.sourceId === e.target.value),
+                            ),
+                          );
+                          setPreviewMode('focus');
+                        }}
+                      >
+                        {focusPage?.blank && <option value="">Blank page</option>}
+                        {files.map((file) => (
+                          <option key={file.id} value={file.id}>
+                            {file.file.name} · {file.pages.length} pages
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    {tool.id === 'rotate' && (
+                      <button
+                        type="button"
+                        className="button small secondary"
+                        disabled={busy}
+                        onClick={() => {
+                          const sourceId = focusPage?.sourceId || files[0].id;
+                          pageChange(
+                            pages.map((p) =>
+                              p.sourceId === sourceId
+                                ? { ...p, rotation: (p.rotation + 90) % 360 }
+                                : p,
+                            ),
+                          );
+                        }}
+                      >
+                        <RotateCw size={15} /> Rotate document
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="icon-button"
+                      disabled={busy || !!focusPage?.blank}
+                      aria-label="Remove active document"
+                      onClick={() => removeFile(focusPage?.sourceId || files[0].id)}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                )}
+                {fileList ? (
                   <SortableList
                     className="file-list"
                     ids={files.map((file) => file.id)}
@@ -592,7 +756,12 @@ export default function Workspace() {
                         >
                           <PagePreview
                             source={source}
-                            page={{ id: source.id, sourceId: source.id, index: 0, rotation: 0 }}
+                            page={{
+                              id: source.id,
+                              sourceId: source.id,
+                              index: 0,
+                              rotation: pages.find((p) => p.sourceId === source.id)?.rotation || 0,
+                            }}
                           />
                         </button>
                         <div className="file-card-info">
@@ -604,6 +773,23 @@ export default function Workspace() {
                           </p>
                         </div>
                         <div className="file-card-actions">
+                          <button
+                            type="button"
+                            className="icon-button"
+                            aria-label={'Rotate ' + source.file.name}
+                            disabled={busy}
+                            onClick={() =>
+                              pageChange(
+                                pages.map((p) =>
+                                  p.sourceId === source.id
+                                    ? { ...p, rotation: (p.rotation + 90) % 360 }
+                                    : p,
+                                ),
+                              )
+                            }
+                          >
+                            <RotateCw size={15} />
+                          </button>
                           <button
                             className="icon-button"
                             aria-label={`Move ${source.file.name} earlier`}
@@ -659,11 +845,27 @@ export default function Workspace() {
                             disabled={!history.length || busy}
                             onClick={() => {
                               const previous = history[history.length - 1];
+                              setResult(null);
+                              setFuture((f) => [pages, ...f]);
                               setPages(previous);
                               setHistory(history.slice(0, -1));
                             }}
                           >
                             <Undo2 size={14} /> Undo
+                          </button>
+                          <button
+                            type="button"
+                            className="text-link small"
+                            disabled={!future.length || busy}
+                            onClick={() => {
+                              setHistory((h) => [...h, pages]);
+                              setResult(null);
+                              setPages(future[0]);
+                              setFuture((f) => f.slice(1));
+                            }}
+                          >
+                            <Redo2 size={14} />
+                            Redo
                           </button>
                           <button
                             className="button small secondary"
@@ -810,21 +1012,43 @@ export default function Workspace() {
                     ) : (
                       <div className="page-grid">
                         {pages.map((page, index) => (
-                          <button
-                            key={page.id}
-                            className={`page-card preview-page-button ${selectedSet.has(page.index) ? 'in-range' : ''}`}
-                            aria-label={`View page ${index + 1}`}
-                            onClick={() => {
-                              setFocus(index);
-                              setPreviewMode('focus');
-                            }}
-                          >
-                            {preview(page)}
-                            <span className="simple-page-number">
-                              {index + 1}
-                              {selectedSet.has(page.index) && <Check size={11} />}
-                            </span>
-                          </button>
+                          <div key={page.id} className="page-grid-item">
+                            <button
+                              key={page.id}
+                              className={`page-card preview-page-button ${selectedSet.has(page.index) ? 'in-range' : ''}`}
+                              aria-label={`View page ${index + 1}`}
+                              onClick={() => {
+                                setFocus(index);
+                                setPreviewMode('focus');
+                              }}
+                            >
+                              {preview(page)}
+                              <span className="simple-page-number">
+                                {index + 1}
+                                {selectedSet.has(page.index) && <Check size={11} />}
+                              </span>
+                            </button>
+                            {tool.id === 'rotate' && (
+                              <button
+                                type="button"
+                                className="button secondary small"
+                                aria-label={'Rotate page ' + (index + 1)}
+                                disabled={busy}
+                                onClick={() =>
+                                  pageChange(
+                                    pages.map((p) =>
+                                      p.id === page.id
+                                        ? { ...p, rotation: (p.rotation + 90) % 360 }
+                                        : p,
+                                    ),
+                                  )
+                                }
+                              >
+                                <RotateCw size={13} />
+                                Rotate page
+                              </button>
+                            )}
+                          </div>
                         ))}
                       </div>
                     )}
@@ -853,7 +1077,7 @@ export default function Workspace() {
                 <span className="processing-icon">
                   <span className="spinner" />
                 </span>
-                <h2>A little work. All on your device.</h2>
+                <h2>Processing on your device.</h2>
                 <p>{progress.message}</p>
                 {progress.total !== undefined && progress.completed !== undefined && (
                   <progress
@@ -878,9 +1102,28 @@ export default function Workspace() {
                 <span className="result-icon">
                   <CheckCheck size={29} />
                 </span>
-                <span className="eyebrow">ONE LESS THING ON YOUR LIST</span>
-                <h2>All done. Looking good.</h2>
-                <p>{result.note || 'Your file is ready. That was refreshingly simple.'}</p>
+                <span className="eyebrow">PROCESSING COMPLETE</span>
+                <h2>
+                  {result.files.length ? 'Your files are ready.' : 'Processing could not complete.'}
+                </h2>
+                <p>{result.note || 'Your file is ready to download.'}</p>
+                {result.entries && (
+                  <ul className="batch-status">
+                    {result.entries.map((entry, i) => (
+                      <li key={i} className={entry.status === 'failed' ? 'failed' : ''}>
+                        <strong>{entry.name}</strong> ·{' '}
+                        {entry.status === 'success' ? 'Completed' : 'Failed'}
+                        {entry.outputBytes !== undefined
+                          ? ' · ' +
+                            formatBytes(entry.inputBytes) +
+                            ' → ' +
+                            formatBytes(entry.outputBytes)
+                          : ''}
+                        {entry.message && <div>{entry.message}</div>}
+                      </li>
+                    ))}
+                  </ul>
+                )}
                 {result.files.map((file) => (
                   <div className="result-file" key={file.name}>
                     <FileText size={22} />
@@ -888,8 +1131,10 @@ export default function Workspace() {
                       <strong>{file.name}</strong>
                       <span>
                         {formatBytes(file.data.length)}
-                        {tool.id === 'compress' ? ` output · ${formatBytes(totalBytes)} input` : ''}
-                        {tool.id === 'compress' && file.data.length < totalBytes
+                        {tool.id === 'compress' && !result.entries
+                          ? ` output · ${formatBytes(totalBytes)} input`
+                          : ''}
+                        {tool.id === 'compress' && !result.entries && file.data.length < totalBytes
                           ? ` · ${Math.round((1 - file.data.length / totalBytes) * 100)}% smaller`
                           : ''}
                       </span>
@@ -903,23 +1148,23 @@ export default function Workspace() {
                   </div>
                 ))}
                 <div className="result-actions">
-                  {tool.id === 'compress' && (
-                    <a
-                      className="text-link"
-                      href="#"
-                      onClick={(event) => {
-                        event.preventDefault();
-                        const url = URL.createObjectURL(files[0].file);
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.download = files[0].file.name;
-                        link.click();
-                        setTimeout(() => URL.revokeObjectURL(url), 1000);
-                      }}
-                    >
-                      Keep original file
-                    </a>
-                  )}
+                  {tool.id === 'compress' &&
+                    files.map((source) => (
+                      <button
+                        key={source.id}
+                        className="text-link"
+                        onClick={() => {
+                          const url = URL.createObjectURL(source.file);
+                          const link = document.createElement('a');
+                          link.href = url;
+                          link.download = source.file.name;
+                          link.click();
+                          setTimeout(() => URL.revokeObjectURL(url), 1000);
+                        }}
+                      >
+                        Keep original{files.length > 1 ? ' — ' + source.file.name : ' file'}
+                      </button>
+                    ))}
                   <button
                     className="text-link"
                     onClick={() => {
@@ -939,12 +1184,21 @@ export default function Workspace() {
               </div>
             )}
           </section>
-          <aside className="settings-panel">
+          <button
+            type="button"
+            className="button mobile-settings-toggle"
+            aria-expanded={settingsOpen}
+            onClick={() => setSettingsOpen((v) => !v)}
+          >
+            <SlidersHorizontal size={16} />
+            {settingsOpen ? 'Hide settings' : 'Settings & export'}
+          </button>
+          <aside className={'settings-panel ' + (!settingsOpen ? 'mobile-collapsed' : '')}>
             <div className="settings-title" ref={settingsTitle} tabIndex={-1}>
               <span className="settings-step">02</span>
               <div>
-                <h2>Make it yours</h2>
-                <p>A few details. Just right.</p>
+                <h2>Tool settings</h2>
+                <p>Configure your output.</p>
               </div>
             </div>
             <form
@@ -960,7 +1214,6 @@ export default function Workspace() {
                   options={options}
                   onChange={onOptionsChange}
                   onError={onError}
-                  pages={count}
                 />
                 {!isImages && (
                   <p className="field-hint compatibility-note">
@@ -1018,13 +1271,13 @@ export default function Workspace() {
       <Modal
         open={help}
         onClose={() => setHelp(false)}
-        title={`A little help with ${tool.title.toLowerCase()}`}
+        title={`Help with ${tool.title.toLowerCase()}`}
         description={tool.detail}
       >
         <div className="help-content">
           <p>
-            Select a file, adjust your settings, and use the violet action button. Your original is
-            never overwritten.
+            Select a file, adjust your settings, and use the export button. Your original is never
+            overwritten.
           </p>
           <p>
             Work with up to 100 MB and 500 pages per job. Modern browsers are supported; large files
@@ -1087,7 +1340,7 @@ export default function Workspace() {
       <Modal
         open={!!passwordRequest}
         onClose={() => closePassword(null)}
-        title="This PDF has a little lock."
+        title="Password required"
         description={passwordRequest?.message || 'Enter the current document password.'}
       >
         <form

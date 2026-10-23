@@ -12,7 +12,10 @@ reader = PdfReader(path, strict=True)
 encrypted = reader.is_encrypted
 if encrypted:
     password = request['password']
-    assert PdfReader(path).decrypt('') == 0, 'Empty password bypass'
+    if request.get('allowEmptyPassword', False):
+        assert password == '' and PdfReader(path).decrypt('') == 1, 'Expected deliberate permissions-only encryption'
+    else:
+        assert PdfReader(path).decrypt('') == 0, 'Empty password bypass'
     assert PdfReader(path).decrypt('definitely-incorrect-password') == 0, 'Wrong password accepted'
     assert reader.decrypt(password) == 1, 'Expected opening password, not owner password'
     encryption = reader.trailer['/Encrypt']
@@ -36,7 +39,7 @@ for page in reader.pages:
         'media': [float(v) for v in page.mediabox],
         'crop': [float(v) for v in page.cropbox], 'annotations': annotations,
     })
-report = {'encrypted': encrypted, 'count': len(pages), 'pages': pages,
+report = {'permissions': int(reader.trailer['/Encrypt']['/P']) if encrypted else None, 'encrypted': encrypted, 'count': len(pages), 'pages': pages,
           'fields': {name: str(value.get('/V', '')) for name, value in (reader.get_fields() or {}).items()}}
 if not encrypted:
     info = subprocess.run(['pdfinfo', str(path)], capture_output=True, check=True)

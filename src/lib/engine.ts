@@ -7,13 +7,24 @@ import {
   rectangle,
   clip,
   endPath,
+  PDFArray,
+  PDFName,
+  PDFRawStream,
+  PDFNumber,
 } from 'pdf-lib';
 import type { PDFPage, PDFFont } from 'pdf-lib';
 import { zipSync } from 'fflate';
-import type { OutputFile, ProcessingJob, ProcessingResult, WorkerResponse } from './types';
+import type {
+  OutputFile,
+  ProcessingJob,
+  ProcessingResult,
+  WorkerResponse,
+  TextStyle,
+  Annotation,
+} from './types';
 import { MAX_BYTES, MAX_PAGES } from './types';
 import { parseRange, safeStem } from './utils';
-import { pageNumber, viewToPdf, visibleSize, visibleBox, annotationPosition } from './geometry';
+import { viewToPdf, visibleSize, visibleBox, annotationPosition } from './geometry';
 import { qpdfSession } from './qpdf';
 import { checkDocument } from './preservation';
 import { loadPdfSafely } from './safe-pdf';
@@ -21,7 +32,8 @@ import { validatePassword } from './password';
 import { validateJob } from './validate-job';
 import { validateKind } from './utils';
 import { checkCanvas, checkOutput, imageDimensions, MAX_RASTER_PIXELS } from './limits';
-import annotationFontUrl from 'pdfjs-dist/standard_fonts/LiberationSans-Regular.ttf?url';
+import { fontAsset, numberText, numberPosition, tilePositions } from './annotation-style';
+import { extractImages } from './extract-images';
 
 type Progress = (message: Extract<WorkerResponse, { type: 'progress' }>) => void;
 const pdfFile = (name: string, data: Uint8Array): OutputFile => ({
@@ -29,10 +41,10 @@ const pdfFile = (name: string, data: Uint8Array): OutputFile => ({
   data,
   type: 'application/pdf',
 });
-async function loadFont(document: PDFDocument): Promise<PDFFont> {
+async function loadFont(document: PDFDocument, style: TextStyle): Promise<PDFFont> {
   const { default: fontkit } = await import('@pdf-lib/fontkit');
   document.registerFontkit(fontkit);
-  const response = await fetch(annotationFontUrl);
+  const response = await fetch(fontAsset(style));
   if (!response.ok)
     throw new Error('The local annotation font could not be loaded. Please reload and try again.');
   return document.embedFont(await response.arrayBuffer(), { subset: true });
@@ -42,7 +54,7 @@ function drawText(
   page: PDFPage,
   text: string,
   font: PDFFont,
-  options: ProcessingJob['options'],
+  options: TextStyle,
   size: number,
   opacity: number,
   angle = 0,
@@ -63,18 +75,53 @@ function drawText(
   const y = cy - (width / 2) * Math.sin(theta) + size * 0.34 * Math.cos(theta);
   const anchor = viewToPdf(x, y, box, rotation);
   const color = /^#[0-9a-f]{6}$/i.test(options.color) ? options.color : '#7560d5';
-  page.drawText(text, {
-    ...anchor,
-    font,
-    size,
-    opacity,
-    rotate: degrees(rotation - angle),
-    color: rgb(
-      parseInt(color.slice(1, 3), 16) / 255,
-      parseInt(color.slice(3, 5), 16) / 255,
-      parseInt(color.slice(5, 7), 16) / 255,
-    ),
-  });
+  const paint = (fill: string, dx = 0, dy = 0) =>
+    page.drawText(text, {
+      x: anchor.x + dx,
+      y: anchor.y + dy,
+      font,
+      size,
+      opacity,
+      rotate: degrees(rotation - angle),
+      color: rgb(
+        parseInt(fill.slice(1, 3), 16) / 255,
+        parseInt(fill.slice(3, 5), 16) / 255,
+        parseInt(fill.slice(5, 7), 16) / 255,
+      ),
+    });
+  if (options.background) {
+    const bw = width + 4,
+      bh = size + 4;
+    const origin = viewToPdf(
+      cx - (bw / 2) * Math.cos(theta) - (bh / 2) * Math.sin(theta),
+      cy - (bw / 2) * Math.sin(theta) + (bh / 2) * Math.cos(theta),
+      box,
+      rotation,
+    );
+    const bg = options.background;
+    page.drawRectangle({
+      ...origin,
+      width: width + 4,
+      height: size + 4,
+      rotate: degrees(rotation - angle),
+      opacity,
+      color: rgb(
+        parseInt(bg.slice(1, 3), 16) / 255,
+        parseInt(bg.slice(3, 5), 16) / 255,
+        parseInt(bg.slice(5, 7), 16) / 255,
+      ),
+    });
+  }
+  if (options.shadow) {
+    const shadow = viewToPdf(
+      x + Math.cos(theta) - Math.sin(theta),
+      y + Math.sin(theta) + Math.cos(theta),
+      box,
+      rotation,
+    );
+    paint('#777777', shadow.x - anchor.x, shadow.y - anchor.y);
+  }
+  paint(color);
 }
 
 function requireCanvas() {
@@ -101,19 +148,28 @@ async function bitmap(file: Blob) {
     throw new Error('An image could not be decoded. Try a smaller JPEG, PNG, or WebP file.');
   }
 }
-async function canvasImage(file: Blob) {
+async function canvasImage(file: Blob, rotation = 0) {
   requireCanvas();
   const image = await bitmap(file);
-  const originalWidth = image.width,
-    originalHeight = image.height;
+  const turned = rotation % 180 !== 0;
+  const originalWidth = turned ? image.height : image.width,
+    originalHeight = turned ? image.width : image.height;
   const scale = Math.min(1, 4096 / Math.max(image.width, image.height));
   const canvas = new OffscreenCanvas(
-    Math.max(1, Math.round(image.width * scale)),
-    Math.max(1, Math.round(image.height * scale)),
+    Math.max(1, Math.round(originalWidth * scale)),
+    Math.max(1, Math.round(originalHeight * scale)),
   );
   const context = canvas.getContext('2d');
   if (!context) throw new Error('Your browser could not create an image canvas.');
-  context.drawImage(image, 0, 0, canvas.width, canvas.height);
+  context.translate(canvas.width / 2, canvas.height / 2);
+  context.rotate((rotation * Math.PI) / 180);
+  context.drawImage(
+    image,
+    (-image.width * scale) / 2,
+    (-image.height * scale) / 2,
+    image.width * scale,
+    image.height * scale,
+  );
   image.close();
   const blob = await canvas.convertToBlob({ type: 'image/png' });
   const result = {
@@ -179,6 +235,7 @@ async function rasterize(
   data: Uint8Array,
   job: ProcessingJob,
   progress: Progress,
+  budget: { pixels: number },
 ): Promise<OutputFile[]> {
   requireCanvas();
   const { getPdfJs, pdfOptions } = await import('./pdf-assets');
@@ -227,6 +284,9 @@ async function rasterize(
       );
       checkCanvas(canvas.width, canvas.height);
       pixels += canvas.width * canvas.height;
+      budget.pixels += canvas.width * canvas.height;
+      if (budget.pixels > MAX_RASTER_PIXELS)
+        throw new Error('Raster work exceeds 120 megapixels per batch.');
       if (pixels > MAX_RASTER_PIXELS)
         throw new Error(
           'Raster output exceeds 120 megapixels per job. Choose fewer pages or lower resolution.',
@@ -273,11 +333,14 @@ async function rasterize(
   }
 }
 
-export async function processJob(
+async function processSingle(
   job: ProcessingJob,
-  progress: Progress = () => {},
+  progress: Progress,
+  pack: boolean,
+  budget: { pages: number; pixels: number },
 ): Promise<ProcessingResult> {
-  const { tool, sources, options } = job;
+  const { tool, options } = job;
+  const sources = [...job.sources];
   validateJob(job);
   if (!sources.length) throw new Error('Choose a file to get started.');
   if (sources.reduce((total, source) => total + source.file.size, 0) > MAX_BYTES)
@@ -308,9 +371,30 @@ export async function processJob(
       }
       const document = await loadPdfSafely(bytes);
       inputPages += document.getPageCount();
+      budget.pages += document.getPageCount();
+      if (budget.pages > MAX_PAGES) throw new Error('Choose no more than 500 pages per batch.');
       if (!document.getPageCount() || inputPages > MAX_PAGES)
         throw new Error('Choose 1–500 pages per job.');
       checkDocument(document, job);
+      if (
+        (tool === 'compress' && options.compression === 'optimized') ||
+        (tool === 'split' && options.splitMode === 'size' && options.splitCompress)
+      ) {
+        for (const [, object] of document.context.enumerateIndirectObjects())
+          if (
+            object instanceof PDFRawStream &&
+            object.dict.get(PDFName.of('Subtype')) === PDFName.of('Image')
+          ) {
+            const w = object.dict.lookupMaybe(PDFName.of('Width'), PDFNumber)?.asNumber() || 0,
+              h = object.dict.lookupMaybe(PDFName.of('Height'), PDFNumber)?.asNumber() || 0;
+            checkCanvas(w, h);
+            budget.pixels += w * h;
+            if (w * h > 16_000_000 || budget.pixels > MAX_RASTER_PIXELS)
+              throw new Error(
+                'Image optimization exceeds the safe pixel limit. Choose fewer images or use lossless optimization.',
+              );
+          }
+      }
       documents.push(document);
       input.push(bytes);
     }
@@ -327,12 +411,29 @@ export async function processJob(
       if (sources[0].password === undefined)
         note = 'This PDF already opens without a password. Your unprotected copy is ready.';
     } else if (tool === 'protect') {
-      if (!options.password || options.password !== options.confirmPassword)
+      if (
+        (!options.advancedProtection || options.restrictAccess) &&
+        (!options.password || options.password !== options.confirmPassword)
+      )
         throw new Error('Enter matching passwords to protect your PDF.');
-      validatePassword(options.password, true);
-      const owner = Array.from(crypto.getRandomValues(new Uint8Array(32)), (value) =>
-        value.toString(16).padStart(2, '0'),
-      ).join('');
+      const userPassword =
+        options.advancedProtection && !options.restrictAccess ? '' : options.password;
+      validatePassword(userPassword, !!userPassword);
+      if (
+        options.advancedProtection &&
+        (!options.ownerPassword || options.ownerPassword !== options.confirmOwnerPassword)
+      )
+        throw new Error('Enter matching permissions passwords.');
+      if (options.advancedProtection) {
+        validatePassword(options.ownerPassword, true);
+        if (options.ownerPassword === userPassword)
+          throw new Error('Use different opening and permissions passwords.');
+      }
+      const owner = options.advancedProtection
+        ? options.ownerPassword
+        : Array.from(crypto.getRandomValues(new Uint8Array(32)), (value) =>
+            value.toString(16).padStart(2, '0'),
+          ).join('');
       files = [
         pdfFile(
           `${name}-protected.pdf`,
@@ -340,15 +441,25 @@ export async function processJob(
             '/input.pdf',
             '--password-mode=unicode',
             '--encrypt',
-            `--user-password=${options.password}`,
+            `--user-password=${userPassword}`,
             `--owner-password=${owner}`,
             '--bits=256',
+            ...(options.advancedProtection
+              ? [
+                  '--print=' + (options.permissions.print ? 'full' : 'none'),
+                  '--extract=' + (options.permissions.copy ? 'y' : 'n'),
+                  '--modify-other=' + (options.permissions.modify ? 'y' : 'n'),
+                  '--annotate=' + (options.permissions.annotate ? 'y' : 'n'),
+                  '--form=' + (options.permissions.forms ? 'y' : 'n'),
+                  '--assemble=' + (options.permissions.assemble ? 'y' : 'n'),
+                ]
+              : []),
             '--',
             '/output.pdf',
           ]),
         ),
       ];
-    } else if (tool === 'compress' && options.compression === 'lossless') {
+    } else if (tool === 'compress' && options.compression !== 'image') {
       progress({ type: 'progress', message: 'Optimizing PDF objects and streams…' });
       files = [
         pdfFile(
@@ -358,12 +469,17 @@ export async function processJob(
             '--object-streams=generate',
             '--recompress-flate',
             '--compression-level=9',
+            ...(options.compression === 'optimized'
+              ? ['--optimize-images', '--jpeg-quality=' + options.compressionLevel]
+              : []),
             '/output.pdf',
           ]),
         ),
       ];
-    } else if (tool === 'pdf-to-images' || (tool === 'compress' && options.compression === 'image'))
-      files = await rasterize(input[0], job, progress);
+    } else if (tool === 'pdf-to-images' && options.exportMode === 'extract')
+      files = await extractImages(input[0], job, progress, budget);
+    else if (tool === 'pdf-to-images' || (tool === 'compress' && options.compression === 'image'))
+      files = await rasterize(input[0], job, progress, budget);
     else if (tool === 'images-to-pdf') {
       const document = await PDFDocument.create();
       let pixels = 0,
@@ -377,9 +493,15 @@ export async function processJob(
         });
         const dimensions = await imageDimensions(sources[i].file);
         pixels += dimensions.width * dimensions.height;
+        budget.pixels += dimensions.width * dimensions.height;
+        if (budget.pixels > MAX_RASTER_PIXELS)
+          throw new Error('Image input exceeds 120 megapixels per batch.');
         if (pixels > MAX_RASTER_PIXELS)
           throw new Error('Image input exceeds 120 megapixels per job. Choose fewer images.');
-        const png = await canvasImage(sources[i].file);
+        const png = await canvasImage(
+          sources[i].file,
+          job.pages.find((page) => page.sourceId === sources[i].id)?.rotation || 0,
+        );
         accumulated += png.data.length;
         checkOutput(accumulated);
         const image = await document.embedPng(png.data);
@@ -416,36 +538,149 @@ export async function processJob(
         pdfFile('paperlight-images.pdf', await document.save({ updateFieldAppearances: false })),
       ];
     } else {
+      if (tool === 'organize' && job.pages.some((p) => p.blank)) {
+        const blankDoc = await PDFDocument.create();
+        const refs = job.pages.filter((p) => p.blank);
+        for (const ref of refs) {
+          const b = ref.blank!;
+          if (
+            !Number.isFinite(b.width) ||
+            !Number.isFinite(b.height) ||
+            b.width < 10 ||
+            b.height < 10 ||
+            b.width > 14400 ||
+            b.height > 14400
+          )
+            throw new Error('Invalid blank page dimensions.');
+          blankDoc.addPage([b.width, b.height]);
+        }
+        const id = 'paperlight-blank-internal';
+        const bytes = await blankDoc.save();
+        const blankSource = { id, file: new File([bytes as BlobPart], 'blank.pdf') };
+        // Work on a private job copy so the caller's document references stay intact.
+        sources.push(blankSource);
+        documents.push(blankDoc);
+        input.push(bytes);
+        let i = 0;
+        job = {
+          ...job,
+          pages: job.pages.map((ref) => (ref.blank ? { ...ref, sourceId: id, index: i++ } : ref)),
+        };
+      }
       const count = documents[0].getPageCount();
       const selected = parseRange(options.range, count);
       if (documents.reduce((sum, document) => sum + document.getPageCount(), 0) > MAX_PAGES)
         throw new Error('Choose no more than 500 pages per job.');
-      if (tool === 'split' && options.splitMode === 'individual') {
-        let accumulated = 0;
-        for (const [i, index] of selected.entries()) {
-          progress({
-            type: 'progress',
-            message: `Extracting page ${i + 1} of ${selected.length}`,
-            completed: i,
-            total: selected.length,
-          });
-          const data = await runQpdf(input[0], [
+      if (tool === 'split' && options.splitMode !== 'extract') {
+        const extract = (indices: number[]) =>
+          runQpdf(input[0], [
             '/input.pdf',
             '--pages',
             '.',
-            String(index + 1),
+            indices.map((i) => i + 1).join(','),
             '--',
+            ...(options.splitMode === 'size' && options.splitCompress
+              ? [
+                  '--object-streams=generate',
+                  '--recompress-flate',
+                  '--optimize-images',
+                  '--jpeg-quality=75',
+                ]
+              : []),
             '/output.pdf',
           ]);
-          accumulated += data.length;
-          checkOutput(accumulated);
-          files.push(pdfFile(`${name}-page-${String(index + 1).padStart(3, '0')}.pdf`, data));
+        let groups: number[][] = [];
+        if (options.splitMode === 'individual') groups = selected.map((i) => [i]);
+        if (options.splitMode === 'ranges') {
+          const ranges = options.groups.split(';').map((s) => s.trim());
+          if (ranges.some((s) => !s))
+            throw new Error('Separate nonempty page groups with semicolons.');
+          groups = ranges.map((range) => parseRange(range, count));
+          if (options.combineRanges) groups = [groups.flat()];
+        }
+        if (options.splitMode === 'fixed')
+          for (let i = 0; i < selected.length; i += options.groupSize)
+            groups.push(selected.slice(i, i + options.groupSize));
+        const keep = (data: Uint8Array, label: string) => {
+          checkOutput(files.reduce((sum, file) => sum + file.data.length, 0) + data.length);
+          files.push(pdfFile(name + '-' + label + '.pdf', data));
+        };
+        if (options.splitMode === 'size') {
+          const limit = Math.floor(options.maximumKiB * 1024);
+          let group: number[] = [],
+            accepted: Uint8Array | undefined;
+          for (const index of selected) {
+            const candidate = await extract([...group, index]);
+            if (candidate.length <= limit) {
+              group.push(index);
+              accepted = candidate;
+            } else {
+              if (accepted) keep(accepted, 'part-' + String(files.length + 1).padStart(3, '0'));
+              const single = await extract([index]);
+              if (single.length > limit)
+                throw new Error(
+                  'Page ' +
+                    (index + 1) +
+                    ' alone exceeds the requested size (' +
+                    single.length +
+                    ' bytes). Increase the limit or enable compression.',
+                );
+              group = [index];
+              accepted = single;
+            }
+            progress({
+              type: 'progress',
+              message: 'Measuring split files…',
+              completed: index + 1,
+              total: count,
+            });
+          }
+          if (accepted) keep(accepted, 'part-' + String(files.length + 1).padStart(3, '0'));
+        } else {
+          if (groups.reduce((sum, g) => sum + g.length, 0) > MAX_PAGES)
+            throw new Error('Split output exceeds 500 pages.');
+          for (const [i, group] of groups.entries()) {
+            progress({
+              type: 'progress',
+              message: 'Extracting group ' + (i + 1) + ' of ' + groups.length,
+              completed: i,
+              total: groups.length,
+            });
+            keep(
+              await extract(group),
+              options.splitMode === 'individual'
+                ? 'page-' + String(group[0] + 1).padStart(3, '0')
+                : 'part-' + String(i + 1).padStart(3, '0'),
+            );
+          }
         }
       } else if (tool === 'merge' || tool === 'organize' || tool === 'split' || tool === 'rotate') {
         let args: string[] = ['/input.pdf'];
-        if (tool === 'rotate')
-          args.push(`--rotate=+${options.angle}:${selected.map((i) => i + 1).join(',')}`);
-        else {
+        if (tool === 'rotate') {
+          const targeted = selected.filter((i) => {
+            const page = documents[0].getPage(i),
+              size = visibleSize(
+                visibleBox(page.getMediaBox(), page.getCropBox()),
+                page.getRotation().angle,
+              );
+            return (
+              options.rotationTarget === 'all' ||
+              (options.rotationTarget === 'portrait'
+                ? size.height >= size.width
+                : size.width > size.height)
+            );
+          });
+          if (targeted.length && options.angle)
+            args.push('--rotate=+' + options.angle + ':' + targeted.map((i) => i + 1).join(','));
+          for (const ref of job.pages)
+            if (ref.rotation)
+              args.push(
+                '--rotate=+' +
+                  ((ref.rotation + (targeted.includes(ref.index) ? options.angle : 0)) % 360) +
+                  ':' +
+                  (ref.index + 1),
+              );
+        } else {
           args.push('--pages');
           if (tool === 'merge')
             input.forEach((_, i) => args.push(i ? `/input-${i}.pdf` : '.', '1-z'));
@@ -467,9 +702,21 @@ export async function processJob(
             }
           }
           args.push('--');
-          if (tool === 'organize')
-            job.pages.forEach((ref, i) => {
-              if (ref.rotation) args.push(`--rotate=+${ref.rotation % 360}:${i + 1}`);
+          if (tool === 'organize' || tool === 'merge')
+            (tool === 'merge'
+              ? sources.flatMap((source) =>
+                  Array.from(
+                    { length: documents[sources.indexOf(source)].getPageCount() },
+                    (_, index) => ({
+                      rotation:
+                        job.pages.find((ref) => ref.sourceId === source.id && ref.index === index)
+                          ?.rotation || 0,
+                    }),
+                  ),
+                )
+              : job.pages
+            ).forEach((ref, i) => {
+              if (ref.rotation) args.push('--rotate=+' + (ref.rotation % 360) + ':' + (i + 1));
             });
         }
         args.push('/output.pdf');
@@ -483,55 +730,155 @@ export async function processJob(
         ];
       } else {
         const document = documents[0];
-        const font =
-          tool === 'watermark' || tool === 'page-numbers' ? await loadFont(document) : undefined;
-        const signature =
-          tool === 'sign' && options.signature
-            ? await document.embedPng(options.signature)
-            : undefined;
-        if (tool === 'sign' && !signature)
+        const fontCache = new Map<string, PDFFont>();
+        const getFont = async (style: TextStyle) => {
+          const key = fontAsset(style);
+          let font = fontCache.get(key);
+          if (!font) {
+            font = await loadFont(document, style);
+            fontCache.set(key, font);
+          }
+          return font;
+        };
+        const imageCache = new Map<Uint8Array, Awaited<ReturnType<PDFDocument['embedPng']>>>();
+        const paintImage = async (
+          page: PDFPage,
+          data: Uint8Array,
+          style: TextStyle,
+          widthFraction: number,
+        ) => {
+          if (data.length > 10 * 1024 * 1024) throw new Error('Use artwork smaller than 10 MB.');
+          await imageDimensions(new Blob([data as BlobPart]));
+          let image = imageCache.get(data);
+          if (!image) {
+            image = await document.embedPng(data);
+            imageCache.set(data, image);
+          }
+          const box = visibleBox(page.getMediaBox(), page.getCropBox()),
+            rotation = page.getRotation().angle,
+            view = visibleSize(box, rotation);
+          const width = view.width * widthFraction,
+            height = (width * image.height) / image.width;
+          const center = annotationPosition(style.x, style.y, view.width, view.height),
+            theta = (style.textAngle * Math.PI) / 180;
+          const anchor = viewToPdf(
+            center.x - (width / 2) * Math.cos(theta) - (height / 2) * Math.sin(theta),
+            center.y - (width / 2) * Math.sin(theta) + (height / 2) * Math.cos(theta),
+            box,
+            rotation,
+          );
+          page.drawImage(image, {
+            ...anchor,
+            width,
+            height,
+            rotate: degrees(rotation - style.textAngle),
+            opacity: style.opacity,
+          });
+        };
+        const targets = selected.filter(
+          (index) => tool !== 'page-numbers' || !options.coverPage || index !== 0,
+        );
+        if (tool === 'sign' && !options.signature && !options.annotations.length)
           throw new Error('Draw, type, or upload your signature first.');
-        for (const [i, index] of selected.entries()) {
+        let annotationPlacements = 0;
+        for (const [i, index] of (tool === 'sign' && options.annotations.length
+          ? Array.from({ length: count }, (_, i) => i)
+          : targets
+        ).entries()) {
           const page = document.getPage(index);
           progress({
             type: 'progress',
-            message: `Updating page ${i + 1} of ${selected.length}`,
+            message: 'Updating page ' + (i + 1) + ' of ' + count,
             completed: i,
-            total: selected.length,
+            total: count,
           });
           if (tool === 'watermark') {
-            if (!options.text.trim()) throw new Error('Enter your watermark text.');
+            if (options.watermarkType === 'text' && !options.text.trim())
+              throw new Error('Enter your watermark text.');
+            if (options.watermarkType === 'image' && !options.watermarkImage)
+              throw new Error('Choose a watermark image.');
+            const original =
+              options.layer === 'below'
+                ? page.node.normalizedEntries().Contents?.asArray() || []
+                : [];
+            for (const point of tilePositions(options.tile, options.x, options.y)) {
+              const style = { ...options, ...point };
+              if (options.watermarkType === 'image')
+                await paintImage(page, options.watermarkImage!, style, options.watermarkWidth);
+              else
+                drawText(
+                  page,
+                  options.text,
+                  await getFont(style),
+                  style,
+                  options.fontSize,
+                  options.opacity,
+                  options.textAngle,
+                );
+            }
+            if (options.layer === 'below') {
+              const contents = page.node.Contents();
+              if (contents instanceof PDFArray) {
+                const added = contents.asArray().filter((ref) => !original.includes(ref));
+                page.node.set(
+                  PDFName.of('Contents'),
+                  document.context.obj([...added, ...original]),
+                );
+              }
+            }
+          } else if (tool === 'page-numbers') {
+            const box = visibleSize(
+              visibleBox(page.getMediaBox(), page.getCropBox()),
+              page.getRotation().angle,
+            );
+            const style = {
+              ...options,
+              ...numberPosition(options, index, box.width, box.height),
+              textAngle: 0,
+            };
             drawText(
               page,
-              options.text,
-              font!,
-              options,
+              numberText(options, i, targets.length, count),
+              await getFont(style),
+              style,
               options.fontSize,
               options.opacity,
-              options.textAngle,
+              0,
             );
-          } else if (tool === 'page-numbers')
-            drawText(
-              page,
-              pageNumber(
-                options.startNumber + i,
-                options.startNumber + selected.length - 1,
-                options.numberStyle,
-              ),
-              font!,
-              options,
-              options.fontSize,
-              1,
-            );
-          else if (signature) {
-            const box = visibleBox(page.getMediaBox(), page.getCropBox());
-            const rotation = page.getRotation().angle;
-            const view = visibleSize(box, rotation);
-            const width = view.width * options.signatureWidth;
-            const height = (width * signature.height) / signature.width;
-            const center = annotationPosition(options.x, options.y, view.width, view.height);
-            const anchor = viewToPdf(center.x - width / 2, center.y + height / 2, box, rotation);
-            page.drawImage(signature, { ...anchor, width, height, rotate: degrees(rotation) });
+          } else if (tool === 'sign') {
+            const fields: Annotation[] = options.annotations.length
+              ? options.annotations.filter((a) => parseRange(a.range, count).includes(index))
+              : [
+                  {
+                    ...options,
+                    id: 'legacy',
+                    kind: 'signature',
+                    range: options.range,
+                    image: options.signature,
+                    width: options.signatureWidth,
+                    opacity: 1,
+                    textAngle: 0,
+                  },
+                ];
+            annotationPlacements += fields.length;
+            if (annotationPlacements > 2000)
+              throw new Error('Use no more than 2,000 total signature field placements.');
+            for (const field of fields) {
+              if (field.image) await paintImage(page, field.image, field, field.width);
+              else {
+                if (!field.text.trim())
+                  throw new Error('Enter text or artwork for each signature field.');
+                drawText(
+                  page,
+                  field.text,
+                  await getFont(field),
+                  field,
+                  field.fontSize,
+                  field.opacity,
+                  field.textAngle,
+                );
+              }
+            }
           }
         }
         files = [
@@ -550,7 +897,7 @@ export async function processJob(
         'This file is already well optimized. Compression did not make it smaller, so we kept the exact original, including any encryption.';
     }
     checkOutput(files.reduce((total, file) => total + file.data.length, 0));
-    if (files.length > 1) {
+    if (pack && files.length > 1) {
       progress({ type: 'progress', message: 'Packing your files into a ZIP…' });
       const packed: Record<string, Uint8Array> = {};
       files.forEach((file) => {
@@ -570,4 +917,82 @@ export async function processJob(
   } finally {
     qpdf.dispose();
   }
+}
+
+export async function processJob(
+  job: ProcessingJob,
+  progress: Progress = () => {},
+): Promise<ProcessingResult> {
+  validateJob(job);
+  if (job.sources.reduce((n, s) => n + s.file.size, 0) > MAX_BYTES)
+    throw new Error('Keep the combined input below 100 MB.');
+  const budget = { pages: 0, pixels: 0 };
+  const batch =
+    job.sources.length > 1 &&
+    !['merge', 'organize'].includes(job.tool) &&
+    (job.tool !== 'images-to-pdf' || job.options.imageOutput === 'separate');
+  if (!batch) return processSingle(job, progress, true, budget);
+  const entries: NonNullable<ProcessingResult['entries']> = [],
+    outputs: OutputFile[] = [];
+  let bytes = 0;
+  for (const [i, source] of job.sources.entries()) {
+    progress({
+      type: 'progress',
+      message: 'Processing file ' + (i + 1) + ' of ' + job.sources.length,
+      completed: i,
+      total: job.sources.length,
+    });
+    try {
+      const result = await processSingle(
+        { ...job, sources: [source], pages: job.pages.filter((p) => p.sourceId === source.id) },
+        () => {},
+        false,
+        budget,
+      );
+      const length = result.files.reduce((n, f) => n + f.data.length, 0);
+      checkOutput(bytes + length);
+      bytes += length;
+      result.files.forEach((file) =>
+        outputs.push({ ...file, name: String(i + 1).padStart(3, '0') + '-' + file.name }),
+      );
+      entries.push({
+        name: source.file.name,
+        status: 'success',
+        message: result.note,
+        inputBytes: source.file.size,
+        outputBytes: length,
+      });
+    } catch (error) {
+      entries.push({
+        name: source.file.name,
+        status: 'failed',
+        message: error instanceof Error ? error.message : 'This file could not be processed.',
+        inputBytes: source.file.size,
+      });
+    }
+  }
+  if (!outputs.length)
+    return { files: [], entries, note: 'No files could be processed. Review the errors below.' };
+  const packed = zipSync(Object.fromEntries(outputs.map((file) => [file.name, file.data])), {
+    level: 1,
+  });
+  checkOutput(packed.length);
+  const failed = entries.filter((e) => e.status === 'failed').length;
+  return {
+    files: [
+      {
+        name: 'paperlight-' + job.tool + (failed ? '-partial' : '') + '.zip',
+        type: 'application/zip',
+        data: packed,
+      },
+    ],
+    entries,
+    note: failed
+      ? 'Partial result: ' +
+        (entries.length - failed) +
+        ' succeeded, ' +
+        failed +
+        ' failed. Only successful files are included.'
+      : entries.length + ' files processed. Your results are included in the ZIP.',
+  };
 }

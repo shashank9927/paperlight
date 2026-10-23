@@ -10,7 +10,7 @@ test.beforeAll(async () => {
 test('mobile: polished home, working navigation and every tool layout', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Open navigation' }).click();
-  await page.getByRole('link', { name: 'All tools', exact: true }).click();
+  await page.locator('.main-nav').getByRole('link', { name: 'Tools', exact: true }).click();
   await expect(page.locator('.main-nav')).not.toHaveClass(/open/);
   await expect(page.locator('.tool-card')).toHaveCount(12);
   expect(

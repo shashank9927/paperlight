@@ -12,7 +12,7 @@ export function checkDocument(document: PDFDocument, job: ProcessingJob) {
   const content = ['watermark', 'page-numbers', 'sign'].includes(job.tool);
   const raster =
     job.tool === 'pdf-to-images' ||
-    (job.tool === 'compress' && job.options.compression === 'image');
+    (job.tool === 'compress' && job.options.compression !== 'lossless');
   const unsupported = new Set<string>();
   const catalog = document.catalog;
   const names = catalog.lookupMaybe(name('Names'), PDFDict);

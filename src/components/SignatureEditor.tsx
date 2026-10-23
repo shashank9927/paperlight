@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import type { PointerEvent } from 'react';
 import { Eraser, Upload } from 'lucide-react';
-import { imageDimensions } from '../lib/limits';
+import { artwork } from '../lib/artwork';
 import { validateGlyphs } from '../lib/glyphs';
-import { validateKind } from '../lib/utils';
+import { fontCss } from '../lib/annotation-style';
+import type { PdfFont } from '../lib/types';
 
 export function SignatureEditor({
   onChange,
@@ -14,6 +15,8 @@ export function SignatureEditor({
 }) {
   const [mode, setMode] = useState<'draw' | 'type' | 'upload'>('draw');
   const [name, setName] = useState('');
+  const [ink, setInk] = useState('#20242d');
+  const [family, setFamily] = useState<PdfFont>('sans');
   const [fileName, setFileName] = useState('');
   const canvas = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
@@ -33,19 +36,20 @@ export function SignatureEditor({
     }
     const timer = setTimeout(() => {
       void (async () => {
-        await validateGlyphs(name);
-        await document.fonts.load('112px "Paperlight Annotation"');
+        await validateGlyphs(name, family);
+        const fontPrefix = family === 'signature' ? 'italic ' : '';
+        await document.fonts.load(fontPrefix + '112px "' + fontCss(family) + '"');
         if (gen !== generation.current) return;
         const element = document.createElement('canvas');
         element.width = 1200;
         element.height = 260;
         const context = element.getContext('2d')!;
         let size = 112;
-        context.font = `${size}px "Paperlight Annotation"`;
+        context.font = `${fontPrefix}${size}px "${fontCss(family)}"`;
         const measured = context.measureText(name).width;
         if (measured > 1120) size *= 1120 / measured;
-        context.font = `${size}px "Paperlight Annotation"`;
-        context.fillStyle = '#272137';
+        context.font = `${fontPrefix}${size}px "${fontCss(family)}"`;
+        context.fillStyle = ink;
         context.textAlign = 'center';
         context.textBaseline = 'middle';
         context.fillText(name, 600, 130);
@@ -66,7 +70,7 @@ export function SignatureEditor({
       });
     }, 120);
     return () => clearTimeout(timer);
-  }, [name, mode, onChange, onError]);
+  }, [name, mode, family, ink, onChange, onError]);
   const clear = () => {
     generation.current++;
     canvas.current?.getContext('2d')?.clearRect(0, 0, 1000, 320);
@@ -110,6 +114,38 @@ export function SignatureEditor({
           </button>
         ))}
       </div>
+      {mode !== 'upload' && (
+        <label className="field">
+          Signature color
+          <input
+            aria-label="Signature color"
+            type="color"
+            value={ink}
+            onChange={(e) => {
+              if (mode === 'type') onChange(undefined);
+              setInk(e.target.value);
+            }}
+          />
+        </label>
+      )}
+      {mode === 'type' && (
+        <label className="field">
+          Signature font
+          <select
+            aria-label="Signature font"
+            value={family}
+            onChange={(e) => {
+              onChange(undefined);
+              setFamily(e.target.value as PdfFont);
+            }}
+          >
+            <option value="sans">Sans serif</option>
+            <option value="serif">Serif</option>
+            <option value="mono">Monospace</option>
+            <option value="signature">Signature italic</option>
+          </select>
+        </label>
+      )}
       {mode === 'draw' && (
         <>
           <div className="draw-pad">
@@ -129,7 +165,7 @@ export function SignatureEditor({
                 context.lineWidth = 4;
                 context.lineCap = 'round';
                 context.lineJoin = 'round';
-                context.strokeStyle = '#272137';
+                context.strokeStyle = ink;
               }}
               onPointerMove={(event) => {
                 if (!drawing.current) return;
@@ -161,7 +197,16 @@ export function SignatureEditor({
             }}
             maxLength={80}
           />
-          <span className="typed-preview">{name || 'Your signature'}</span>
+          <span
+            className="typed-preview"
+            style={{
+              fontFamily: fontCss(family),
+              fontStyle: family === 'signature' ? 'italic' : 'normal',
+              color: ink,
+            }}
+          >
+            {name || 'Your signature'}
+          </span>
         </label>
       )}
       {mode === 'upload' && (
@@ -171,7 +216,7 @@ export function SignatureEditor({
             type="file"
             className="visually-hidden"
             aria-label="Upload signature image"
-            accept="image/png,image/jpeg,image/webp"
+            accept="image/png,image/jpeg,image/webp,image/svg+xml"
             onChange={async (event) => {
               const file = event.target.files?.[0];
               if (!file) return;
@@ -179,26 +224,7 @@ export function SignatureEditor({
               onChange(undefined);
               setFileName('');
               try {
-                if (file.size > 10 * 1024 * 1024)
-                  throw new Error('Use a signature image smaller than 10 MB.');
-                await validateKind(file, true);
-                await imageDimensions(file);
-                const image = await createImageBitmap(file, { imageOrientation: 'from-image' });
-                if (image.width * image.height > 16_000_000) {
-                  image.close();
-                  throw new Error('Resize your signature image below 16 megapixels.');
-                }
-                const scale = Math.min(1, 1600 / Math.max(image.width, image.height));
-                const element = document.createElement('canvas');
-                element.width = Math.max(1, Math.round(image.width * scale));
-                element.height = Math.max(1, Math.round(image.height * scale));
-                element.getContext('2d')!.drawImage(image, 0, 0, element.width, element.height);
-                image.close();
-                const blob = await new Promise<Blob | null>((resolve) =>
-                  element.toBlob(resolve, 'image/png'),
-                );
-                const data = blob ? new Uint8Array(await blob.arrayBuffer()) : undefined;
-                element.width = element.height = 1;
+                const data = await artwork(file);
                 if (data && gen === generation.current) {
                   onChange(data);
                   setFileName(file.name);

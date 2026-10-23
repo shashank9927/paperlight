@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import type { CSSProperties, PointerEvent } from 'react';
+import type { PointerEvent } from 'react';
 import type { RenderTask } from 'pdfjs-dist';
 import type { PreviewFile } from '../lib/preview';
-import type { PageRef, ToolOptions } from '../lib/types';
+import type { PageRef, ToolOptions, Annotation } from '../lib/types';
 import type { ToolId } from '../lib/tools';
-import { pageNumber, annotationPosition } from '../lib/geometry';
+import { PreviewAnnotations } from './PreviewAnnotations';
 import { previewSlot, reservePreview } from '../lib/preview-budget';
-import { toBlob } from '../lib/utils';
 
 export function PagePreview({
   source,
@@ -18,6 +17,7 @@ export function PagePreview({
   pageOrdinal = 0,
   selectedCount = 1,
   onPosition,
+  onAnnotationChange,
 }: {
   source: PreviewFile;
   page: PageRef;
@@ -28,6 +28,7 @@ export function PagePreview({
   pageOrdinal?: number;
   selectedCount?: number;
   onPosition?: (x: number, y: number) => void;
+  onAnnotationChange?: (id: string, patch: Partial<Annotation>) => void;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -35,10 +36,18 @@ export function PagePreview({
   const [visible, setVisible] = useState(false);
   const [width, setWidth] = useState(220);
   const [imageUrl, setImageUrl] = useState('');
-  const [signatureUrl, setSignatureUrl] = useState('');
   const [renderError, setRenderError] = useState(false);
   const rotation =
-    (page.rotation + (tool === 'rotate' && selected ? options?.angle || 0 : 0)) % 360;
+    (page.rotation +
+      (tool === 'rotate' &&
+      selected &&
+      (options?.rotationTarget === 'all' ||
+        (options?.rotationTarget === 'portrait'
+          ? source.pages[page.index].height >= source.pages[page.index].width
+          : source.pages[page.index].width > source.pages[page.index].height))
+        ? options?.angle || 0
+        : 0)) %
+    360;
   const info = source.pages[page.index];
   const rotated = rotation % 180 !== 0;
   const aspect = rotated ? info.height / info.width : info.width / info.height;
@@ -58,20 +67,11 @@ export function PagePreview({
     };
   }, []);
   useEffect(() => {
-    if (source.document) return;
+    if (source.document || page.blank) return;
     const url = URL.createObjectURL(source.file);
     setImageUrl(url);
     return () => URL.revokeObjectURL(url);
   }, [source]);
-  useEffect(() => {
-    if (!options?.signature) {
-      setSignatureUrl('');
-      return;
-    }
-    const url = URL.createObjectURL(toBlob(options.signature, 'image/png'));
-    setSignatureUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [options?.signature]);
   useEffect(() => {
     if (!visible) {
       renderTask.current?.cancel();
@@ -111,7 +111,12 @@ export function PagePreview({
       );
       const context = element.getContext('2d');
       if (!context) return;
-      current = pdfPage.render({ canvas: element, canvasContext: context, viewport });
+      current = pdfPage.render({
+        canvas: element,
+        canvasContext: context,
+        viewport,
+        background: 'rgba(0,0,0,0)',
+      });
       renderTask.current = current;
       await current.promise;
       if (!cancelled) element.dataset.ready = 'true';
@@ -129,6 +134,7 @@ export function PagePreview({
   }, [visible, source, page.index, width, rotation, info.rotation, large]);
   const draggable =
     !!onPosition &&
+    !(tool === 'sign' && options?.annotations.length) &&
     selected &&
     (tool === 'sign' || tool === 'watermark' || tool === 'page-numbers');
   const move = (event: PointerEvent<HTMLDivElement>) => {
@@ -140,15 +146,6 @@ export function PagePreview({
     );
   };
   const visualWidth = rotated ? info.height : info.width;
-  const center = annotationPosition(options?.x || 0, options?.y || 0, width, width / aspect);
-  const text =
-    tool === 'page-numbers' && options
-      ? pageNumber(
-          options.startNumber + pageOrdinal,
-          options.startNumber + selectedCount - 1,
-          options.numberStyle,
-        )
-      : options?.text;
   return (
     <div
       ref={container}
@@ -198,7 +195,7 @@ export function PagePreview({
       }}
       aria-label={`Preview of page ${page.index + 1}${draggable ? '. Arrow keys move the annotation; Shift moves faster.' : ''}`}
     >
-      {source.document ? (
+      {page.blank ? null : source.document ? (
         <canvas ref={canvas} aria-hidden="true" />
       ) : (
         <img
@@ -207,40 +204,31 @@ export function PagePreview({
           loading="lazy"
           decoding="async"
           alt={source.file.name}
-          style={{ transform: `rotate(${rotation}deg)` }}
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            width: rotated ? `${100 / aspect}%` : '100%',
+            height: rotated ? `${100 * aspect}%` : '100%',
+            transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
+          }}
         />
       )}
       {!visible && <span className="preview-placeholder">{page.index + 1}</span>}
       {renderError && <span className="preview-error">Preview unavailable</span>}
-      {selected && options && (tool === 'watermark' || tool === 'page-numbers') && (
-        <div
-          aria-hidden="true"
-          className="annotation-overlay text-annotation"
-          style={
-            {
-              left: `${center.x}px`,
-              top: `${center.y}px`,
-              fontSize: `${(options.fontSize * width) / visualWidth}px`,
-              color: options.color,
-              opacity: tool === 'watermark' ? options.opacity : 1,
-              transform: `translate(-50%, -50%) rotate(${tool === 'watermark' ? options.textAngle : 0}deg)`,
-            } as CSSProperties
-          }
-        >
-          {text}
-        </div>
-      )}
-      {selected && tool === 'sign' && signatureUrl && options && (
-        <img
-          className="annotation-overlay signature-annotation"
-          draggable={false}
-          src={signatureUrl}
-          alt="Your signature placement"
-          style={{
-            left: `${center.x}px`,
-            top: `${center.y}px`,
-            width: `${options.signatureWidth * 100}%`,
-          }}
+      {options && (
+        <PreviewAnnotations
+          tool={tool}
+          options={options}
+          index={page.index}
+          total={source.pages.length}
+          ordinal={pageOrdinal}
+          selectedCount={selectedCount}
+          selected={selected}
+          width={width}
+          pageWidth={visualWidth}
+          pageHeight={rotated ? info.width : info.height}
+          onAnnotationChange={onAnnotationChange}
         />
       )}
     </div>

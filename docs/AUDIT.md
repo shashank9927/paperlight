@@ -1,5 +1,7 @@
 # Paperlight production-hardening audit
 
+> **Redesign update:** the current release capability map, verification results and remaining device limits are in [REDESIGN.md](REDESIGN.md). The dated audit below is retained as the pre-redesign hardening baseline; its counts and hashes describe that earlier build.
+
 **2026-10-23 — production hardening complete for the documented support scope.** The existing twelve-tool interface and client-only architecture are preserved. The production build and Nginx image are verified locally. No public deployment was made. Physical-device and provider-specific coverage limits are listed below.
 
 ## Fixed findings

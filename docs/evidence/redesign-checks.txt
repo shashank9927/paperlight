@@ -1,0 +1,68 @@
+Redesign release checks, 2026-10-23
+
+Windows Node 24:
+  npm run build: passed (see redesign-build.txt)
+  npm run format:check: passed
+  vitest run: 72 passed in 6 files, 15.16s
+
+Cached Linux verification image:
+  npm run typecheck: passed
+  npm test: 72 passed in 6 files, 9.04s
+  scripts/check-hosting.mjs: passed (see redesign-hosting.txt)
+
+Visual review:
+  Dark/light homepage and empty workspace at 390, 768 and 1440 CSS px.
+  Populated desktop preview, tablet processing, mobile error and desktop result.
+  Additional automated screenshots/axe checks cover all four populated states
+  in both themes at all three widths, with reduced motion and no overflow.
+  Original preview captures were corrected to wait for canvas data-ready=true;
+  screenshots taken before rendering are not used as release evidence.
+
+Earlier runs:
+  Initial production-server full matrix: 182 passed, 8.4m, no skips.
+  Targeted Chromium after review fixes: 7 passed, 53.5s.
+  One later expanded run was intentionally interrupted (63 passed, 2 interrupted,
+  141 not run) to add explicit SVG processing-instruction rejection. It is not
+  counted as a complete release run. The final complete run has separate logs.
+
+Packaging:
+  Reused existing verification/browser caches and cached Nginx layers.
+  No browser or Docker image layers were downloaded for the final package.
+  Inter 5.3.0 was fetched once; Serif/Mono fonts came from the existing cache.
+  A legacy-builder attempt did a registry manifest check, then failed because
+  it ignored the Dockerfile-specific build-context allowlist. BuildKit packaging
+  succeeded with --pull=false --network=none and cached image layers.
+  Public deployment was not performed.
+
+Expanded matrix before final theme fix:
+  203 passed, 3 failed, 9.0m. The failures were WebKit light-theme populated
+  state contrast at all three widths. A separate probe confirmed html color
+  had changed while body/headings still inherited the old light foreground.
+  Explicit foreground tokens on semantic text components fixed the inherited
+  color invalidation; body-level declarations alone did not fix it. Six repeated
+  WebKit light-theme state checks subsequently passed (all three widths twice).
+  The failure log
+  is retained in redesign-before-theme-fix.txt, not relabeled as a pass.
+
+Theme regression follow-up:
+  The initial explicit-color selector also reached h3 in the white homepage
+  sample document. The expanded matrix caught this contrast regression; that
+  interrupted run is retained in redesign-intermediate-theme-regression.txt.
+  Narrowing the selector restored theme-independent document colors.
+  All 24 homepage/workspace theme checks passed across Chromium, Firefox and
+  WebKit, including both themes, three widths, and populated workflow states
+  (2.5m; redesign-theme-final.txt). No contrast checks were disabled.
+
+Final accepted release:
+  Frozen candidate image: sha256:a0fcfd540d55686a6b4e60a06253c13a88084c65895587a789935b5f43b48327
+  Full production-server matrix: 206 passed, 0 failed, 0 skipped, 0 flaky;
+  no retries; 708134.409 ms (11.8m). Chromium/Firefox/WebKit: 68 each;
+  mobile Chromium emulation: 2. See redesign-e2e.txt and redesign-e2e-report.json.
+  Separate single-worker benchmarks: 3 passed (47.3s), three cold/warm pairs
+  per browser. Every load/preview/processing/event-loop measurement remained
+  within the unchanged budgets. Raw measurements are redesign-benchmark-*.json.
+  Final candidate and local loopback hosting contract: passed all 13 routes,
+  headers, 16 JavaScript/module-worker MIME types, WASM and static 404 checks.
+  Current screenshots were copied from the accepted run and visually reviewed.
+  The verified image runs at http://127.0.0.1:4180; prior image retained as
+  paperlight-production:pre-redesign. No public deployment was performed.

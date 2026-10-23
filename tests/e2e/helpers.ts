@@ -60,14 +60,18 @@ export async function openTool(page: Page, tool: string, input: Input | Input[])
   if (['images-to-pdf', 'pdf-to-images'].includes(tool)) await requireRaster(page);
   await page.goto(`/tools/${tool}`);
   await page.getByLabel('Choose files', { exact: true }).setInputFiles(input);
+  const mobileSettings = page.getByRole('button', { name: 'Settings & export', exact: true });
+  if (await mobileSettings.isVisible()) await mobileSettings.click();
   await expect(page.locator('.process-button')).toBeEnabled();
 }
 export async function finish(page: Page, action?: string) {
+  const accessControl = page.getByLabel('Require an opening password', { exact: true });
+  const permissionOnly = (await accessControl.count()) > 0 && !(await accessControl.isChecked());
   const passwordField = page.getByLabel('New password', { exact: true });
   const password = (await passwordField.count()) ? await passwordField.inputValue() : undefined;
   if (action) await page.getByRole('button', { name: action, exact: true }).click();
   else await page.locator('.process-button').click();
-  await expect(page.getByRole('heading', { name: 'All done. Looking good.' })).toBeVisible({
+  await expect(page.getByRole('heading', { name: 'Your files are ready.' })).toBeVisible({
     timeout: 45000,
   });
   const downloaded = page.waitForEvent('download');
@@ -84,6 +88,8 @@ export async function finish(page: Page, action?: string) {
       data,
       test.info().outputPath(`document-${++outputCounter}.pdf`),
       password,
+      1,
+      permissionOnly,
     );
     const pdfjs = await inspectPdf(data, password);
     expect(independent.count).toBe(pdfjs.count);

@@ -1,0 +1,79 @@
+{
+  "browser": "firefox",
+  "version": "157.0",
+  "host": {
+    "platform": "linux",
+    "release": "6.18.54.1-microsoft-standard-WSL2",
+    "cpu": "AMD Ryzen 7 7840HS w/ Radeon 780M Graphics",
+    "logicalCpus": 16,
+    "ramBytes": 7897780224
+  },
+  "fixture": {
+    "bytes": 809787,
+    "pages": 3,
+    "kinds": "text + rotated/cropped text + seeded scanned image"
+  },
+  "caveat": "Local loopback, no throttling. Page JS heap excludes workers, WASM, GPU and native allocations; not peak process memory. Automated desktop browsers are not physical mobile devices.",
+  "results": [
+    {
+      "sample": 0,
+      "warm": false,
+      "loadMs": 922.2567789999994,
+      "previewMs": 995.2368039999992,
+      "processingMs": 377.2538719999993,
+      "maxGapMs": 43,
+      "ticks": 18,
+      "pageJsHeapBytes": null
+    },
+    {
+      "sample": 0,
+      "warm": true,
+      "loadMs": 429.1444510000001,
+      "previewMs": 419.02503700000034,
+      "processingMs": 343.3822289999998,
+      "maxGapMs": 37,
+      "ticks": 17,
+      "pageJsHeapBytes": null
+    },
+    {
+      "sample": 1,
+      "warm": false,
+      "loadMs": 1140.347350000001,
+      "previewMs": 444.0301789999994,
+      "processingMs": 499.9751489999999,
+      "maxGapMs": 42,
+      "ticks": 25,
+      "pageJsHeapBytes": null
+    },
+    {
+      "sample": 1,
+      "warm": true,
+      "loadMs": 492.3549949999997,
+      "previewMs": 885.7926490000009,
+      "processingMs": 375.40736000000106,
+      "maxGapMs": 44,
+      "ticks": 18,
+      "pageJsHeapBytes": null
+    },
+    {
+      "sample": 2,
+      "warm": false,
+      "loadMs": 506.4555880000007,
+      "previewMs": 908.7884610000001,
+      "processingMs": 378.5497490000016,
+      "maxGapMs": 33,
+      "ticks": 18,
+      "pageJsHeapBytes": null
+    },
+    {
+      "sample": 2,
+      "warm": true,
+      "loadMs": 533.2205020000001,
+      "previewMs": 414.09034399999837,
+      "processingMs": 337.93132200000036,
+      "maxGapMs": 33,
+      "ticks": 18,
+      "pageJsHeapBytes": null
+    }
+  ]
+}

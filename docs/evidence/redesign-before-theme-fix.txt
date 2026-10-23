@@ -1,0 +1,399 @@
+
+Running 206 tests using 2 workers
+
+  ✓    2 [chromium] › tests/e2e/experience.spec.ts:10:1 › homepage: search, categories, keyboard navigation, FAQ and accessibility (1.8s)
+  ✓    3 [chromium] › tests/e2e/experience.spec.ts:36:1 › workspace: accessible controls and a real output with no horizontal overflow (2.9s)
+  ✓    4 [chromium] › tests/e2e/experience.spec.ts:49:1 › validation: damaged files, invalid page ranges, size and page limits preserve the workspace (2.2s)
+  ✓    5 [chromium] › tests/e2e/experience.spec.ts:81:1 › cancellation and reset release the active job and allow a clean retry (2.4s)
+  ✓    6 [chromium] › tests/e2e/experience.spec.ts:94:1 › privacy and offline: cache only app assets and process without a network connection (3.0s)
+  ✓    1 [chromium] › tests/e2e/compression.spec.ts:7:1 › compression corpus: text, scan, mixed images and already optimized input stay honest (12.9s)
+  ✓    8 [chromium] › tests/e2e/hardening.spec.ts:31:3 › watermark: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (4.0s)
+  ✓    7 [chromium] › tests/e2e/hardening.spec.ts:11:1 › password fields preserve all 127 allowed UTF-8 bytes, including confirmation and unlock (4.4s)
+  ✓    9 [chromium] › tests/e2e/hardening.spec.ts:31:3 › page-numbers: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (4.2s)
+  ✓   10 [chromium] › tests/e2e/hardening.spec.ts:31:3 › sign: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (4.0s)
+  ✓   12 [chromium] › tests/e2e/hardening.spec.ts:109:1 › PDF JavaScript and open actions never execute, and production assets have correct headers (2.6s)
+  ✓   11 [chromium] › tests/e2e/hardening.spec.ts:86:1 › unsupported forms fail explicitly before output; password and Unicode errors preserve settings (4.0s)
+  ✓   13 [chromium] › tests/e2e/hardening.spec.ts:175:3 › merge: complete warm offline processing with worker/SW network observation (3.5s)
+  ✓   14 [chromium] › tests/e2e/hardening.spec.ts:175:3 › split: complete warm offline processing with worker/SW network observation (3.0s)
+  ✓   15 [chromium] › tests/e2e/hardening.spec.ts:175:3 › compress: complete warm offline processing with worker/SW network observation (3.0s)
+  ✓   16 [chromium] › tests/e2e/hardening.spec.ts:175:3 › organize: complete warm offline processing with worker/SW network observation (3.5s)
+  ✓   17 [chromium] › tests/e2e/hardening.spec.ts:175:3 › rotate: complete warm offline processing with worker/SW network observation (2.9s)
+  ✓   18 [chromium] › tests/e2e/hardening.spec.ts:175:3 › images-to-pdf: complete warm offline processing with worker/SW network observation (2.5s)
+  ✓   19 [chromium] › tests/e2e/hardening.spec.ts:175:3 › pdf-to-images: complete warm offline processing with worker/SW network observation (3.1s)
+  ✓   20 [chromium] › tests/e2e/hardening.spec.ts:175:3 › watermark: complete warm offline processing with worker/SW network observation (3.4s)
+  ✓   21 [chromium] › tests/e2e/hardening.spec.ts:175:3 › page-numbers: complete warm offline processing with worker/SW network observation (3.0s)
+  ✓   22 [chromium] › tests/e2e/hardening.spec.ts:175:3 › protect: complete warm offline processing with worker/SW network observation (3.3s)
+  ✓   23 [chromium] › tests/e2e/hardening.spec.ts:175:3 › unlock: complete warm offline processing with worker/SW network observation (3.2s)
+  ✓   25 [chromium] › tests/e2e/hardening.spec.ts:257:1 › image exports have correct pixel dimensions and a white JPEG background (2.0s)
+  ✓   24 [chromium] › tests/e2e/hardening.spec.ts:175:3 › sign: complete warm offline processing with worker/SW network observation (3.8s)
+  ✓   26 [chromium] › tests/e2e/hardening.spec.ts:276:1 › EXIF image orientation is honored before fit-to-image page sizing (1.4s)
+  ✓   28 [chromium] › tests/e2e/hardening.spec.ts:337:1 › permissions-only encrypted input is detected and decrypted explicitly (2.3s)
+  ✓   27 [chromium] › tests/e2e/hardening.spec.ts:294:1 › rapid reset and replacement cannot publish stale previews or results (3.9s)
+  ✓   29 [chromium] › tests/e2e/hardening.spec.ts:351:3 › watermark: added content retains interactive form values and widget appearances (2.4s)
+  ✓   30 [chromium] › tests/e2e/hardening.spec.ts:351:3 › page-numbers: added content retains interactive form values and widget appearances (2.2s)
+  ✓   31 [chromium] › tests/e2e/hardening.spec.ts:351:3 › sign: added content retains interactive form values and widget appearances (2.2s)
+  ✓   32 [chromium] › tests/e2e/parity.spec.ts:13:1 › split modes: custom groups, fixed counts, and byte-bounded files (3.5s)
+  ✓   33 [chromium] › tests/e2e/parity.spec.ts:155:1 › advanced protection supports permissions-only encryption and owner credentials (2.4s)
+  ✓   34 [chromium] › tests/e2e/parity.spec.ts:34:1 › batch compression preserves text and reports each file (2.7s)
+  ✓   35 [chromium] › tests/e2e/parity.spec.ts:171:1 › sign fields have independent page targets, placement, duplication and history (2.9s)
+  ✓   36 [chromium] › tests/e2e/parity.spec.ts:45:1 › organize inserts blank and imported pages with undo and redo (2.4s)
+  ✓   37 [chromium] › tests/e2e/parity.spec.ts:192:1 › artwork rejects active SVG without requesting external resources (1.4s)
+  ✓   38 [chromium] › tests/e2e/parity.spec.ts:58:1 › batch rotation and image-to-PDF separate output retain order and orientation (4.4s)
+  ✓   40 [chromium] › tests/e2e/parity.spec.ts:89:1 › extracts embedded artwork instead of rasterizing the full page (4.4s)
+  ✓   41 [chromium] › tests/e2e/parity.spec.ts:102:1 › image watermark accepts static SVG and underlay respects opaque content (2.4s)
+  ✓   39 [chromium] › tests/e2e/parity.spec.ts:218:1 › themes remain accessible and responsive, and persist only appearance (12.3s)
+  ✓   42 [chromium] › tests/e2e/parity.spec.ts:138:1 › page-number templates, cover exclusion, fonts and facing pages export correctly (2.5s)
+  ✓   43 [chromium] › tests/e2e/parity.spec.ts:261:1 › image extraction preserves transparency, deduplicates repeated artwork, and decodes inline images and masks (1.9s)
+  ✓   44 [chromium] › tests/e2e/resources.spec.ts:7:1 › hostile expansion is rejected during admission; reset accepts a clean document (1.8s)
+  ✓   45 [chromium] › tests/e2e/parity.spec.ts:320:1 › merge alphabetical order and file rotations reach the actual output (2.3s)
+  ✓   46 [chromium] › tests/e2e/resources.spec.ts:24:1 › 500-page job bounds preview canvases, processes all pages, and clears workers (4.3s)
+  ✓   48 [chromium] › tests/e2e/resources.spec.ts:61:1 › 100 MiB input boundary completes without document bytes entering requests (3.5s)
+  ✓   47 [chromium] › tests/e2e/parity.spec.ts:330:1 › batch unlock asks for each distinct password and exports only unencrypted documents (6.8s)
+  ✓   49 [chromium] › tests/e2e/resources.spec.ts:96:1 › hung processing is terminated by the deadline and preserves settings (1.4s)
+  ✓   50 [chromium] › tests/e2e/states.spec.ts:8:5 › workspace states: dark at 390px (5.0s)
+  ✓   51 [chromium] › tests/e2e/states.spec.ts:8:5 › workspace states: dark at 768px (5.1s)
+  ✓   52 [chromium] › tests/e2e/states.spec.ts:8:5 › workspace states: dark at 1440px (5.5s)
+  ✓   53 [chromium] › tests/e2e/states.spec.ts:8:5 › workspace states: light at 390px (4.9s)
+  ✓   54 [chromium] › tests/e2e/states.spec.ts:8:5 › workspace states: light at 768px (5.0s)
+  ✓   55 [chromium] › tests/e2e/states.spec.ts:8:5 › workspace states: light at 1440px (5.5s)
+  ✓   56 [chromium] › tests/e2e/tools.spec.ts:23:1 › merge: file order controls determine the downloaded page order (2.5s)
+  ✓   57 [chromium] › tests/e2e/tools.spec.ts:138:1 › PDF to images: selected, rotated pages export as readable PNG and JPEG (3.0s)
+  ✓   58 [chromium] › tests/e2e/tools.spec.ts:43:1 › split: selected ranges, reordered extraction, and individual PDFs in ZIP (3.1s)
+  ✓   59 [chromium] › tests/e2e/tools.spec.ts:152:1 › watermark: selected page text is embedded on a cropped, rotated page (2.8s)
+  ✓   60 [chromium] › tests/e2e/tools.spec.ts:59:1 › compress: text survives optimization and already optimized files never grow (3.0s)
+  ✓   61 [chromium] › tests/e2e/tools.spec.ts:165:1 › page numbers: starting number, style, placement and selected ranges (3.0s)
+  ✓   62 [chromium] › tests/e2e/tools.spec.ts:76:1 › compress: stronger mode renders pages into smaller images with an explicit warning (2.2s)
+  ✓   64 [chromium] › tests/e2e/tools.spec.ts:91:1 › organize: reorder, rotate, duplicate, remove, undo and extract selected pages (3.3s)
+  ✓   63 [chromium] › tests/e2e/tools.spec.ts:177:1 › protect and unlock: AES-256, wrong and correct passwords, and a freely readable copy (5.0s)
+  ✓   65 [chromium] › tests/e2e/tools.spec.ts:111:1 › rotate: only selected pages change orientation (2.4s)
+  ✓   67 [chromium] › tests/e2e/tools.spec.ts:118:1 › images to PDF: PNG transparency, JPEG and WebP, page settings and reordering (1.6s)
+  ✓   66 [chromium] › tests/e2e/tools.spec.ts:210:1 › sign: typed signature placement matches the preview on a rotated, cropped page (3.3s)
+  ✓   68 [chromium] › tests/e2e/tools.spec.ts:281:1 › sign: drawn and uploaded signatures produce valid PDFs (5.6s)
+  ✓   70 [firefox] › tests/e2e/experience.spec.ts:10:1 › homepage: search, categories, keyboard navigation, FAQ and accessibility (3.3s)
+  ✓   71 [firefox] › tests/e2e/experience.spec.ts:36:1 › workspace: accessible controls and a real output with no horizontal overflow (3.5s)
+  ✓   72 [firefox] › tests/e2e/experience.spec.ts:49:1 › validation: damaged files, invalid page ranges, size and page limits preserve the workspace (2.7s)
+  ✓   69 [firefox] › tests/e2e/compression.spec.ts:7:1 › compression corpus: text, scan, mixed images and already optimized input stay honest (17.0s)
+  ✓   73 [firefox] › tests/e2e/experience.spec.ts:81:1 › cancellation and reset release the active job and allow a clean retry (2.7s)
+  ✓   75 [firefox] › tests/e2e/experience.spec.ts:94:1 › privacy and offline: cache only app assets and process without a network connection (3.1s)
+  ✓   74 [firefox] › tests/e2e/hardening.spec.ts:11:1 › password fields preserve all 127 allowed UTF-8 bytes, including confirmation and unlock (4.5s)
+  ✓   76 [firefox] › tests/e2e/hardening.spec.ts:31:3 › watermark: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (4.1s)
+  ✓   77 [firefox] › tests/e2e/hardening.spec.ts:31:3 › page-numbers: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (4.0s)
+  ✓   78 [firefox] › tests/e2e/hardening.spec.ts:31:3 › sign: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (3.6s)
+  ✓   79 [firefox] › tests/e2e/hardening.spec.ts:86:1 › unsupported forms fail explicitly before output; password and Unicode errors preserve settings (4.1s)
+  ✓   80 [firefox] › tests/e2e/hardening.spec.ts:109:1 › PDF JavaScript and open actions never execute, and production assets have correct headers (2.8s)
+  ✓   81 [firefox] › tests/e2e/hardening.spec.ts:175:3 › merge: complete warm offline processing with worker/SW network observation (2.9s)
+  ✓   82 [firefox] › tests/e2e/hardening.spec.ts:175:3 › split: complete warm offline processing with worker/SW network observation (2.9s)
+  ✓   83 [firefox] › tests/e2e/hardening.spec.ts:175:3 › compress: complete warm offline processing with worker/SW network observation (2.8s)
+  ✓   84 [firefox] › tests/e2e/hardening.spec.ts:175:3 › organize: complete warm offline processing with worker/SW network observation (3.3s)
+  ✓   85 [firefox] › tests/e2e/hardening.spec.ts:175:3 › rotate: complete warm offline processing with worker/SW network observation (2.8s)
+  ✓   86 [firefox] › tests/e2e/hardening.spec.ts:175:3 › images-to-pdf: complete warm offline processing with worker/SW network observation (2.5s)
+  ✓   87 [firefox] › tests/e2e/hardening.spec.ts:175:3 › pdf-to-images: complete warm offline processing with worker/SW network observation (3.0s)
+  ✓   88 [firefox] › tests/e2e/hardening.spec.ts:175:3 › watermark: complete warm offline processing with worker/SW network observation (3.1s)
+  ✓   89 [firefox] › tests/e2e/hardening.spec.ts:175:3 › page-numbers: complete warm offline processing with worker/SW network observation (3.1s)
+  ✓   90 [firefox] › tests/e2e/hardening.spec.ts:175:3 › protect: complete warm offline processing with worker/SW network observation (3.2s)
+  ✓   91 [firefox] › tests/e2e/hardening.spec.ts:175:3 › unlock: complete warm offline processing with worker/SW network observation (4.0s)
+  ✓   92 [firefox] › tests/e2e/hardening.spec.ts:175:3 › sign: complete warm offline processing with worker/SW network observation (3.4s)
+  ✓   93 [firefox] › tests/e2e/hardening.spec.ts:257:1 › image exports have correct pixel dimensions and a white JPEG background (2.4s)
+  ✓   94 [firefox] › tests/e2e/hardening.spec.ts:276:1 › EXIF image orientation is honored before fit-to-image page sizing (2.1s)
+  ✓   96 [firefox] › tests/e2e/hardening.spec.ts:337:1 › permissions-only encrypted input is detected and decrypted explicitly (2.4s)
+  ✓   95 [firefox] › tests/e2e/hardening.spec.ts:294:1 › rapid reset and replacement cannot publish stale previews or results (4.2s)
+  ✓   97 [firefox] › tests/e2e/hardening.spec.ts:351:3 › watermark: added content retains interactive form values and widget appearances (2.6s)
+  ✓   98 [firefox] › tests/e2e/hardening.spec.ts:351:3 › page-numbers: added content retains interactive form values and widget appearances (2.5s)
+  ✓   99 [firefox] › tests/e2e/hardening.spec.ts:351:3 › sign: added content retains interactive form values and widget appearances (2.4s)
+  ✓  100 [firefox] › tests/e2e/parity.spec.ts:13:1 › split modes: custom groups, fixed counts, and byte-bounded files (4.0s)
+  ✓  101 [firefox] › tests/e2e/parity.spec.ts:155:1 › advanced protection supports permissions-only encryption and owner credentials (2.8s)
+  ✓  102 [firefox] › tests/e2e/parity.spec.ts:34:1 › batch compression preserves text and reports each file (2.7s)
+  ✓  103 [firefox] › tests/e2e/parity.spec.ts:171:1 › sign fields have independent page targets, placement, duplication and history (3.5s)
+  ✓  104 [firefox] › tests/e2e/parity.spec.ts:45:1 › organize inserts blank and imported pages with undo and redo (2.5s)
+  ✓  105 [firefox] › tests/e2e/parity.spec.ts:192:1 › artwork rejects active SVG without requesting external resources (1.7s)
+  ✓  106 [firefox] › tests/e2e/parity.spec.ts:58:1 › batch rotation and image-to-PDF separate output retain order and orientation (5.2s)
+  ✓  108 [firefox] › tests/e2e/parity.spec.ts:89:1 › extracts embedded artwork instead of rasterizing the full page (6.5s)
+  ✓  109 [firefox] › tests/e2e/parity.spec.ts:102:1 › image watermark accepts static SVG and underlay respects opaque content (2.7s)
+  ✓  110 [firefox] › tests/e2e/parity.spec.ts:138:1 › page-number templates, cover exclusion, fonts and facing pages export correctly (3.2s)
+  ✓  107 [firefox] › tests/e2e/parity.spec.ts:218:1 › themes remain accessible and responsive, and persist only appearance (18.5s)
+  ✓  111 [firefox] › tests/e2e/resources.spec.ts:7:1 › hostile expansion is rejected during admission; reset accepts a clean document (2.7s)
+  ✓  112 [firefox] › tests/e2e/parity.spec.ts:261:1 › image extraction preserves transparency, deduplicates repeated artwork, and decodes inline images and masks (2.4s)
+  ✓  114 [firefox] › tests/e2e/parity.spec.ts:320:1 › merge alphabetical order and file rotations reach the actual output (3.2s)
+  ✓  113 [firefox] › tests/e2e/resources.spec.ts:24:1 › 500-page job bounds preview canvases, processes all pages, and clears workers (5.8s)
+  ✓  116 [firefox] › tests/e2e/resources.spec.ts:61:1 › 100 MiB input boundary completes without document bytes entering requests (4.1s)
+  ✓  115 [firefox] › tests/e2e/parity.spec.ts:330:1 › batch unlock asks for each distinct password and exports only unencrypted documents (6.9s)
+  ✓  117 [firefox] › tests/e2e/resources.spec.ts:96:1 › hung processing is terminated by the deadline and preserves settings (2.6s)
+  ✓  118 [firefox] › tests/e2e/states.spec.ts:8:5 › workspace states: dark at 390px (7.4s)
+  ✓  119 [firefox] › tests/e2e/states.spec.ts:8:5 › workspace states: dark at 768px (7.1s)
+  ✓  120 [firefox] › tests/e2e/states.spec.ts:8:5 › workspace states: dark at 1440px (6.9s)
+  ✓  121 [firefox] › tests/e2e/states.spec.ts:8:5 › workspace states: light at 390px (8.1s)
+  ✓  122 [firefox] › tests/e2e/states.spec.ts:8:5 › workspace states: light at 768px (7.6s)
+  ✓  123 [firefox] › tests/e2e/states.spec.ts:8:5 › workspace states: light at 1440px (7.4s)
+  ✓  124 [firefox] › tests/e2e/tools.spec.ts:23:1 › merge: file order controls determine the downloaded page order (2.5s)
+  ✓  125 [firefox] › tests/e2e/tools.spec.ts:138:1 › PDF to images: selected, rotated pages export as readable PNG and JPEG (3.7s)
+  ✓  126 [firefox] › tests/e2e/tools.spec.ts:43:1 › split: selected ranges, reordered extraction, and individual PDFs in ZIP (4.4s)
+  ✓  127 [firefox] › tests/e2e/tools.spec.ts:152:1 › watermark: selected page text is embedded on a cropped, rotated page (2.6s)
+  ✓  128 [firefox] › tests/e2e/tools.spec.ts:59:1 › compress: text survives optimization and already optimized files never grow (3.3s)
+  ✓  129 [firefox] › tests/e2e/tools.spec.ts:165:1 › page numbers: starting number, style, placement and selected ranges (3.3s)
+  ✓  130 [firefox] › tests/e2e/tools.spec.ts:76:1 › compress: stronger mode renders pages into smaller images with an explicit warning (2.9s)
+  ✓  131 [firefox] › tests/e2e/tools.spec.ts:177:1 › protect and unlock: AES-256, wrong and correct passwords, and a freely readable copy (5.7s)
+  ✓  132 [firefox] › tests/e2e/tools.spec.ts:91:1 › organize: reorder, rotate, duplicate, remove, undo and extract selected pages (3.9s)
+  ✓  134 [firefox] › tests/e2e/tools.spec.ts:111:1 › rotate: only selected pages change orientation (3.8s)
+  ✓  133 [firefox] › tests/e2e/tools.spec.ts:210:1 › sign: typed signature placement matches the preview on a rotated, cropped page (4.4s)
+  ✓  135 [firefox] › tests/e2e/tools.spec.ts:118:1 › images to PDF: PNG transparency, JPEG and WebP, page settings and reordering (2.5s)
+  ✓  136 [firefox] › tests/e2e/tools.spec.ts:281:1 › sign: drawn and uploaded signatures produce valid PDFs (4.2s)
+  ✓  138 [webkit] › tests/e2e/experience.spec.ts:10:1 › homepage: search, categories, keyboard navigation, FAQ and accessibility (5.9s)
+  ✓  139 [webkit] › tests/e2e/experience.spec.ts:36:1 › workspace: accessible controls and a real output with no horizontal overflow (7.5s)
+  ✓  140 [webkit] › tests/e2e/experience.spec.ts:49:1 › validation: damaged files, invalid page ranges, size and page limits preserve the workspace (7.3s)
+  ✓  141 [webkit] › tests/e2e/experience.spec.ts:81:1 › cancellation and reset release the active job and allow a clean retry (7.0s)
+  ✓  137 [webkit] › tests/e2e/compression.spec.ts:7:1 › compression corpus: text, scan, mixed images and already optimized input stay honest (31.1s)
+  ✓  142 [webkit] › tests/e2e/experience.spec.ts:94:1 › privacy and offline: cache only app assets and process without a network connection (6.9s)
+  ✓  143 [webkit] › tests/e2e/hardening.spec.ts:11:1 › password fields preserve all 127 allowed UTF-8 bytes, including confirmation and unlock (9.9s)
+  ✓  144 [webkit] › tests/e2e/hardening.spec.ts:31:3 › watermark: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (10.1s)
+  ✓  145 [webkit] › tests/e2e/hardening.spec.ts:31:3 › page-numbers: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (8.5s)
+  ✓  146 [webkit] › tests/e2e/hardening.spec.ts:31:3 › sign: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (8.7s)
+  ✓  147 [webkit] › tests/e2e/hardening.spec.ts:86:1 › unsupported forms fail explicitly before output; password and Unicode errors preserve settings (8.3s)
+  ✓  148 [webkit] › tests/e2e/hardening.spec.ts:109:1 › PDF JavaScript and open actions never execute, and production assets have correct headers (4.2s)
+  ✓  149 [webkit] › tests/e2e/hardening.spec.ts:175:3 › merge: complete warm offline processing with worker/SW network observation (7.0s)
+  ✓  150 [webkit] › tests/e2e/hardening.spec.ts:175:3 › split: complete warm offline processing with worker/SW network observation (6.2s)
+  ✓  152 [webkit] › tests/e2e/hardening.spec.ts:175:3 › organize: complete warm offline processing with worker/SW network observation (5.6s)
+  ✓  151 [webkit] › tests/e2e/hardening.spec.ts:175:3 › compress: complete warm offline processing with worker/SW network observation (6.0s)
+  ✓  153 [webkit] › tests/e2e/hardening.spec.ts:175:3 › rotate: complete warm offline processing with worker/SW network observation (5.1s)
+  ✓  154 [webkit] › tests/e2e/hardening.spec.ts:175:3 › images-to-pdf: complete warm offline processing with worker/SW network observation (5.8s)
+  ✓  155 [webkit] › tests/e2e/hardening.spec.ts:175:3 › pdf-to-images: complete warm offline processing with worker/SW network observation (7.3s)
+  ✓  156 [webkit] › tests/e2e/hardening.spec.ts:175:3 › watermark: complete warm offline processing with worker/SW network observation (6.9s)
+  ✓  157 [webkit] › tests/e2e/hardening.spec.ts:175:3 › page-numbers: complete warm offline processing with worker/SW network observation (6.6s)
+  ✓  158 [webkit] › tests/e2e/hardening.spec.ts:175:3 › protect: complete warm offline processing with worker/SW network observation (6.5s)
+  ✓  159 [webkit] › tests/e2e/hardening.spec.ts:175:3 › unlock: complete warm offline processing with worker/SW network observation (6.3s)
+  ✓  160 [webkit] › tests/e2e/hardening.spec.ts:175:3 › sign: complete warm offline processing with worker/SW network observation (6.7s)
+  ✓  162 [webkit] › tests/e2e/hardening.spec.ts:276:1 › EXIF image orientation is honored before fit-to-image page sizing (4.1s)
+  ✓  161 [webkit] › tests/e2e/hardening.spec.ts:257:1 › image exports have correct pixel dimensions and a white JPEG background (4.9s)
+  ✓  164 [webkit] › tests/e2e/hardening.spec.ts:337:1 › permissions-only encrypted input is detected and decrypted explicitly (4.9s)
+  ✓  163 [webkit] › tests/e2e/hardening.spec.ts:294:1 › rapid reset and replacement cannot publish stale previews or results (10.2s)
+  ✓  165 [webkit] › tests/e2e/hardening.spec.ts:351:3 › watermark: added content retains interactive form values and widget appearances (5.3s)
+  ✓  166 [webkit] › tests/e2e/hardening.spec.ts:351:3 › page-numbers: added content retains interactive form values and widget appearances (5.0s)
+  ✓  167 [webkit] › tests/e2e/hardening.spec.ts:351:3 › sign: added content retains interactive form values and widget appearances (5.0s)
+  ✓  169 [webkit] › tests/e2e/parity.spec.ts:155:1 › advanced protection supports permissions-only encryption and owner credentials (6.4s)
+  ✓  168 [webkit] › tests/e2e/parity.spec.ts:13:1 › split modes: custom groups, fixed counts, and byte-bounded files (9.2s)
+  ✓  170 [webkit] › tests/e2e/parity.spec.ts:171:1 › sign fields have independent page targets, placement, duplication and history (6.0s)
+  ✓  171 [webkit] › tests/e2e/parity.spec.ts:34:1 › batch compression preserves text and reports each file (5.7s)
+  ✓  172 [webkit] › tests/e2e/parity.spec.ts:192:1 › artwork rejects active SVG without requesting external resources (3.0s)
+  ✓  173 [webkit] › tests/e2e/parity.spec.ts:45:1 › organize inserts blank and imported pages with undo and redo (3.9s)
+  ✓  175 [webkit] › tests/e2e/parity.spec.ts:58:1 › batch rotation and image-to-PDF separate output retain order and orientation (8.7s)
+  ✓  176 [webkit] › tests/e2e/parity.spec.ts:89:1 › extracts embedded artwork instead of rasterizing the full page (7.7s)
+  ✓  177 [webkit] › tests/e2e/parity.spec.ts:102:1 › image watermark accepts static SVG and underlay respects opaque content (4.2s)
+  ✓  178 [webkit] › tests/e2e/parity.spec.ts:138:1 › page-number templates, cover exclusion, fonts and facing pages export correctly (4.7s)
+  ✓  179 [webkit] › tests/e2e/resources.spec.ts:7:1 › hostile expansion is rejected during admission; reset accepts a clean document (4.3s)
+  ✓  174 [webkit] › tests/e2e/parity.spec.ts:218:1 › themes remain accessible and responsive, and persist only appearance (34.7s)
+  ✓  181 [webkit] › tests/e2e/parity.spec.ts:261:1 › image extraction preserves transparency, deduplicates repeated artwork, and decodes inline images and masks (5.3s)
+  ✓  180 [webkit] › tests/e2e/resources.spec.ts:24:1 › 500-page job bounds preview canvases, processes all pages, and clears workers (8.5s)
+  ✓  182 [webkit] › tests/e2e/parity.spec.ts:320:1 › merge alphabetical order and file rotations reach the actual output (5.1s)
+  ✓  183 [webkit] › tests/e2e/resources.spec.ts:61:1 › 100 MiB input boundary completes without document bytes entering requests (10.4s)
+  ✓  185 [webkit] › tests/e2e/resources.spec.ts:96:1 › hung processing is terminated by the deadline and preserves settings (3.0s)
+  ✓  184 [webkit] › tests/e2e/parity.spec.ts:330:1 › batch unlock asks for each distinct password and exports only unencrypted documents (14.6s)
+  ✓  186 [webkit] › tests/e2e/states.spec.ts:8:5 › workspace states: dark at 390px (12.4s)
+  ✓  187 [webkit] › tests/e2e/states.spec.ts:8:5 › workspace states: dark at 768px (13.0s)
+  ✘  189 [webkit] › tests/e2e/states.spec.ts:8:5 › workspace states: light at 390px (5.9s)
+  ✓  188 [webkit] › tests/e2e/states.spec.ts:8:5 › workspace states: dark at 1440px (13.4s)
+  ✘  190 [webkit] › tests/e2e/states.spec.ts:8:5 › workspace states: light at 768px (6.4s)
+  ✘  191 [webkit] › tests/e2e/states.spec.ts:8:5 › workspace states: light at 1440px (5.9s)
+  ✓  192 [webkit] › tests/e2e/tools.spec.ts:23:1 › merge: file order controls determine the downloaded page order (6.7s)
+  ✓  193 [webkit] › tests/e2e/tools.spec.ts:138:1 › PDF to images: selected, rotated pages export as readable PNG and JPEG (6.5s)
+  ✓  195 [webkit] › tests/e2e/tools.spec.ts:152:1 › watermark: selected page text is embedded on a cropped, rotated page (6.1s)
+  ✓  194 [webkit] › tests/e2e/tools.spec.ts:43:1 › split: selected ranges, reordered extraction, and individual PDFs in ZIP (6.5s)
+  ✓  196 [webkit] › tests/e2e/tools.spec.ts:165:1 › page numbers: starting number, style, placement and selected ranges (5.4s)
+  ✓  197 [webkit] › tests/e2e/tools.spec.ts:59:1 › compress: text survives optimization and already optimized files never grow (8.0s)
+  ✓  199 [webkit] › tests/e2e/tools.spec.ts:76:1 › compress: stronger mode renders pages into smaller images with an explicit warning (7.2s)
+  ✓  198 [webkit] › tests/e2e/tools.spec.ts:177:1 › protect and unlock: AES-256, wrong and correct passwords, and a freely readable copy (10.7s)
+  ✓  200 [webkit] › tests/e2e/tools.spec.ts:91:1 › organize: reorder, rotate, duplicate, remove, undo and extract selected pages (6.9s)
+  ✓  201 [webkit] › tests/e2e/tools.spec.ts:210:1 › sign: typed signature placement matches the preview on a rotated, cropped page (6.4s)
+  ✓  202 [webkit] › tests/e2e/tools.spec.ts:111:1 › rotate: only selected pages change orientation (4.8s)
+  ✓  203 [webkit] › tests/e2e/tools.spec.ts:281:1 › sign: drawn and uploaded signatures produce valid PDFs (7.5s)
+  ✓  204 [webkit] › tests/e2e/tools.spec.ts:118:1 › images to PDF: PNG transparency, JPEG and WebP, page settings and reordering (4.5s)
+  ✓  206 [mobile-chromium] › tests/e2e/mobile.spec.ts:51:1 › mobile: reorder files and download a real merged PDF (2.7s)
+  ✓  205 [mobile-chromium] › tests/e2e/mobile.spec.ts:10:1 › mobile: polished home, working navigation and every tool layout (6.7s)
+
+
+  1) [webkit] › tests/e2e/states.spec.ts:8:5 › workspace states: light at 390px ────────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 31
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "color-contrast",
+    +     "targets": Array [
+    +       Array [
+    +         ".header-inner > .brand[aria-label=\"Paperlight home\"][href=\"/\"]",
+    +       ],
+    +       Array [
+    +         "h1",
+    +       ],
+    +       Array [
+    +         ".document-count",
+    +       ],
+    +       Array [
+    +         "h2",
+    +       ],
+    +       Array [
+    +         ".tool-settings > .checkbox-field",
+    +       ],
+    +       Array [
+    +         "summary",
+    +       ],
+    +       Array [
+    +         ".footer-main > .brand[aria-label=\"Paperlight home\"][href=\"/\"]",
+    +       ],
+    +       Array [
+    +         ".footer-main > a[href$=\"/#tools\"][data-discover=\"true\"]",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+      39 |         expect(
+      40 |           report.violations.map((v) => ({ id: v.id, targets: v.nodes.map((n) => n.target) })),
+    > 41 |         ).toEqual([]);
+         |           ^
+      42 |         await page.screenshot({ path: info.outputPath(`${state}.png`), fullPage: true });
+      43 |       };
+      44 |       await capture('populated');
+        at capture (/workspace/tests/e2e/states.spec.ts:41:11)
+        at /workspace/tests/e2e/states.spec.ts:44:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .cache/redesign-release/states-workspace-states-light-at-390px-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .cache/redesign-release/states-workspace-states-light-at-390px-webkit/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    .cache/redesign-release/states-workspace-states-light-at-390px-webkit/trace.zip
+    Usage:
+
+        npx playwright show-trace .cache/redesign-release/states-workspace-states-light-at-390px-webkit/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [webkit] › tests/e2e/states.spec.ts:8:5 › workspace states: light at 768px ────────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 22
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "color-contrast",
+    +     "targets": Array [
+    +       Array [
+    +         "h1",
+    +       ],
+    +       Array [
+    +         ".document-count",
+    +       ],
+    +       Array [
+    +         "h2",
+    +       ],
+    +       Array [
+    +         ".tool-settings > .checkbox-field",
+    +       ],
+    +       Array [
+    +         "summary",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+      39 |         expect(
+      40 |           report.violations.map((v) => ({ id: v.id, targets: v.nodes.map((n) => n.target) })),
+    > 41 |         ).toEqual([]);
+         |           ^
+      42 |         await page.screenshot({ path: info.outputPath(`${state}.png`), fullPage: true });
+      43 |       };
+      44 |       await capture('populated');
+        at capture (/workspace/tests/e2e/states.spec.ts:41:11)
+        at /workspace/tests/e2e/states.spec.ts:44:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .cache/redesign-release/states-workspace-states-light-at-768px-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .cache/redesign-release/states-workspace-states-light-at-768px-webkit/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    .cache/redesign-release/states-workspace-states-light-at-768px-webkit/trace.zip
+    Usage:
+
+        npx playwright show-trace .cache/redesign-release/states-workspace-states-light-at-768px-webkit/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [webkit] › tests/e2e/states.spec.ts:8:5 › workspace states: light at 1440px ───────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 31
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "color-contrast",
+    +     "targets": Array [
+    +       Array [
+    +         ".header-inner > .brand[aria-label=\"Paperlight home\"][href=\"/\"]",
+    +       ],
+    +       Array [
+    +         "h1",
+    +       ],
+    +       Array [
+    +         ".document-count",
+    +       ],
+    +       Array [
+    +         "h2",
+    +       ],
+    +       Array [
+    +         ".tool-settings > .checkbox-field",
+    +       ],
+    +       Array [
+    +         "summary",
+    +       ],
+    +       Array [
+    +         ".footer-main > .brand[aria-label=\"Paperlight home\"][href=\"/\"]",
+    +       ],
+    +       Array [
+    +         ".footer-main > a[href$=\"/#tools\"][data-discover=\"true\"]",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+      39 |         expect(
+      40 |           report.violations.map((v) => ({ id: v.id, targets: v.nodes.map((n) => n.target) })),
+    > 41 |         ).toEqual([]);
+         |           ^
+      42 |         await page.screenshot({ path: info.outputPath(`${state}.png`), fullPage: true });
+      43 |       };
+      44 |       await capture('populated');
+        at capture (/workspace/tests/e2e/states.spec.ts:41:11)
+        at /workspace/tests/e2e/states.spec.ts:44:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .cache/redesign-release/states-workspace-states-light-at-1440px-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .cache/redesign-release/states-workspace-states-light-at-1440px-webkit/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    .cache/redesign-release/states-workspace-states-light-at-1440px-webkit/trace.zip
+    Usage:
+
+        npx playwright show-trace .cache/redesign-release/states-workspace-states-light-at-1440px-webkit/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [webkit] › tests/e2e/states.spec.ts:8:5 › workspace states: light at 390px ─────────────────────
+    [webkit] › tests/e2e/states.spec.ts:8:5 › workspace states: light at 768px ─────────────────────
+    [webkit] › tests/e2e/states.spec.ts:8:5 › workspace states: light at 1440px ────────────────────
+  203 passed (9.0m)

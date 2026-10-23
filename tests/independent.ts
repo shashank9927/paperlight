@@ -6,6 +6,7 @@ import { createCanvas, loadImage } from '@napi-rs/canvas';
 export interface IndependentReport {
   count: number;
   encrypted: boolean;
+  permissions: number | null;
   fields: Record<string, string>;
   pages: Array<{
     text: string;
@@ -22,6 +23,7 @@ export async function independentPdf(
   path: string,
   password?: string,
   page = 1,
+  allowEmptyPassword = false,
 ): Promise<IndependentReport> {
   await mkdir(dirname(path), { recursive: true });
   await writeFile(path, bytes);
@@ -29,7 +31,7 @@ export async function independentPdf(
     process.env.PAPERLIGHT_PYTHON || 'python',
     [resolve('scripts/verify-pdf.py')],
     {
-      input: JSON.stringify({ path, password, page }),
+      input: JSON.stringify({ path, password, page, allowEmptyPassword }),
       encoding: 'utf8',
       timeout: 30000,
     },

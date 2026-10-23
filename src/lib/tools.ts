@@ -44,8 +44,8 @@ export const tools: ToolDefinition[] = [
   {
     id: 'merge',
     title: 'Merge PDF',
-    description: 'Bring your PDFs together in one tidy file.',
-    detail: 'A few files. One seamless document. Arrange your PDFs just how you like them.',
+    description: 'Combine documents in the order you choose.',
+    detail: 'Combine PDF files, arrange their order, and rotate pages before merging.',
     category: 'Organize',
     icon: Combine,
     color: 'violet',
@@ -55,8 +55,8 @@ export const tools: ToolDefinition[] = [
   {
     id: 'split',
     title: 'Split PDF',
-    description: 'Keep the pages you need. Leave the rest.',
-    detail: 'Extract a page range or give every page a PDF of its own.',
+    description: 'Extract pages or split by range, count, or size.',
+    detail: 'Split into custom groups, fixed page counts, or files within a size limit.',
     category: 'Organize',
     icon: Scissors,
     color: 'rose',
@@ -65,7 +65,7 @@ export const tools: ToolDefinition[] = [
   {
     id: 'compress',
     title: 'Compress PDF',
-    description: 'Less file size. More room for everything else.',
+    description: 'Reduce file size with control over quality.',
     detail: 'Lighten your document with local, text-preserving optimization or image compression.',
     category: 'Optimize',
     icon: Minimize2,
@@ -77,7 +77,7 @@ export const tools: ToolDefinition[] = [
     id: 'organize',
     title: 'Organize PDF',
     description: 'Reorder, remove, or duplicate your pages.',
-    detail: 'Your document, in perfect order. Drag pages to rearrange, or use the arrow controls.',
+    detail: 'Import, reorder, insert, rotate, duplicate, or remove pages.',
     category: 'Organize',
     icon: LayoutGrid,
     color: 'blue',
@@ -87,7 +87,7 @@ export const tools: ToolDefinition[] = [
     id: 'images-to-pdf',
     title: 'Images to PDF',
     description: 'Turn your images into a polished document.',
-    detail: 'Bring JPEG, PNG, and WebP images together in a beautifully simple PDF.',
+    detail: 'Convert JPEG, PNG, and WebP images with precise page and margin settings.',
     category: 'Convert',
     icon: ImagePlus,
     color: 'amber',
@@ -96,9 +96,8 @@ export const tools: ToolDefinition[] = [
   {
     id: 'pdf-to-images',
     title: 'PDF to images',
-    description: 'Every page, a picture. In PNG or JPG.',
-    detail:
-      'Export crisp images from your PDF, one page at a time. Multiple images arrive in a ZIP.',
+    description: 'Render pages or extract embedded images.',
+    detail: 'Render PDF pages or extract embedded images. Batch results arrive in a named ZIP.',
     category: 'Convert',
     icon: Images,
     color: 'blue',
@@ -117,8 +116,8 @@ export const tools: ToolDefinition[] = [
   {
     id: 'watermark',
     title: 'Watermark PDF',
-    description: 'Add a little ownership to every page.',
-    detail: 'Add a custom text watermark, with just the right position, angle, and opacity.',
+    description: 'Apply text or image watermarks to your PDFs.',
+    detail: 'Apply text or image watermarks with precise placement, tiling, and opacity.',
     category: 'Edit & sign',
     icon: Stamp,
     color: 'rose',
@@ -127,7 +126,7 @@ export const tools: ToolDefinition[] = [
   {
     id: 'page-numbers',
     title: 'Page numbers',
-    description: 'Give your document a sense of direction.',
+    description: 'Add consistent page numbers and custom labels.',
     detail: 'Add clean, consistent page numbers exactly where you need them.',
     category: 'Edit & sign',
     icon: ListOrdered,
@@ -137,9 +136,8 @@ export const tools: ToolDefinition[] = [
   {
     id: 'protect',
     title: 'Protect PDF',
-    description: 'A password. A little extra peace of mind.',
-    detail:
-      'Secure your document with AES-256 encryption. Only people with the password can open it.',
+    description: 'Encrypt documents and manage PDF permissions.',
+    detail: 'Protect your documents with AES-256 encryption and configurable PDF permissions.',
     category: 'Security',
     icon: LockKeyhole,
     color: 'mint',
@@ -158,7 +156,7 @@ export const tools: ToolDefinition[] = [
   {
     id: 'sign',
     title: 'Sign PDF',
-    description: 'Your signature. Your finishing touch.',
+    description: 'Place signatures, initials, text, dates, and stamps.',
     detail: 'Draw, type, or upload your signature, then place it right where it belongs.',
     category: 'Edit & sign',
     icon: PenLine,

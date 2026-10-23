@@ -1,6 +1,6 @@
 # Paperlight
 
-A private PDF toolkit with twelve real tools and a responsive white-and-violet interface. Every document operation runs in the browser. There is no upload endpoint, account system, database, analytics service, or conversion API.
+A private PDF toolkit with twelve real tools and a restrained interface with dark, light, and system themes. Every document operation runs in the browser. There is no upload endpoint, account system, database, analytics service, or conversion API.
 
 ## Develop
 
@@ -24,20 +24,20 @@ npm run preview
 
 ## Tools
 
-| Route                  | Functionality                                                                                                                                      |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/tools/merge`         | Merge PDFs in an adjustable file order.                                                                                                            |
-| `/tools/split`         | Extract ranges or split pages into individual PDFs in a ZIP.                                                                                       |
-| `/tools/compress`      | Text-preserving qpdf optimization or explicitly selected image-based compression. Original bytes are retained when compression cannot reduce size. |
-| `/tools/organize`      | Reorder, rotate, duplicate, remove, undo, and extract selected pages.                                                                              |
-| `/tools/rotate`        | Rotate selected pages clockwise.                                                                                                                   |
-| `/tools/images-to-pdf` | Assemble JPEG, PNG, and WebP images, with page size, orientation, margin, and fit controls.                                                        |
-| `/tools/pdf-to-images` | Export selected pages as PNG or JPEG at configurable resolution. Multiple images become a ZIP.                                                     |
-| `/tools/watermark`     | Add text with configurable size, opacity, color, angle, placement, and page selection.                                                             |
-| `/tools/page-numbers`  | Add page numbers with configurable starting value, style, placement, and page selection.                                                           |
-| `/tools/protect`       | Add AES-256 encryption with a new opening password and a random owner password.                                                                    |
-| `/tools/unlock`        | Remove password protection using the correct current password. Unencrypted inputs are also handled.                                                |
-| `/tools/sign`          | Draw, type, or upload a visual signature and position it on selected pages.                                                                        |
+| Route                  | Functionality                                                                                                                                                                                 |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/tools/merge`         | Preview, add/remove, manual/alphabetical file order and rotation; predictable merged page order.                                                                                              |
+| `/tools/split`         | Custom range groups, fixed page counts, separate/combined extraction, and actual-byte size limits; optional image compression for size splitting.                                             |
+| `/tools/compress`      | Sequential batches; lossless default, text/vector-preserving image presets (JPEG 90/75/50), and separately disclosed raster mode. Exact-original fallback when smaller output is unavailable. |
+| `/tools/organize`      | Import pages from multiple PDFs, insert blanks, reorder, rotate, duplicate, delete, extract, undo and redo.                                                                                   |
+| `/tools/rotate`        | Batch PDFs; page/file rotations, selected ranges, portrait/landscape targeting, left/right rotation and reset.                                                                                |
+| `/tools/images-to-pdf` | JPEG, PNG and WebP ordering/rotation, orientation, page sizes, margins, fit and combined/separate PDFs.                                                                                       |
+| `/tools/pdf-to-images` | Batch page rendering or embedded-image extraction; page selection, PNG/JPEG, resolution and quality, named downloads.                                                                         |
+| `/tools/watermark`     | Batch text/image watermarks, typography, color, opacity, rotation, positioning, tiling and above/below content.                                                                               |
+| `/tools/page-numbers`  | Batch single/facing-page numbering, cover exclusion, margins, custom tokens, fonts and exact counter preview.                                                                                 |
+| `/tools/protect`       | AES-256 opening-password protection; advanced owner-password and viewer-dependent permissions.                                                                                                |
+| `/tools/unlock`        | Batch decryption, per-file passwords, permissions-only inputs and verified unencrypted exports.                                                                                               |
+| `/tools/sign`          | Draw/type/upload, static SVG, independently positioned signature/initial/name/date/text/stamp fields, resize, rotate, duplicate, delete, undo/redo and page targets.                          |
 
 Page ranges accept expressions such as `1-3, 5, 8`. An empty range means all pages. Explicit ranges preserve their requested order and ignore duplicate page numbers. Organize preserves the displayed order when extracting selected pages.
 
@@ -50,7 +50,7 @@ The annotation preview supports pointer dragging and arrow-key positioning; hold
 - A dedicated worker handles each processing job. PDF admission runs in another isolated worker before preview; guarded parsing rejects excessive expansion, complexity and image sizes. Inspection has a 30-second deadline and processing a 120-second deadline. Cancellation terminates the worker. Reset clears file references, results, passwords, annotation settings, signature drawings, and preview URLs. Closing the tool destroys its PDF preview documents.
 - Heavy PDF libraries load separately from the homepage. Thumbnails render near the viewport and release their canvas backing stores when out of view. Raster operations process pages sequentially.
 - Scripts, fonts, CMaps, rendering support files, and WebAssembly are served from this website. There are no runtime CDNs or external font calls.
-- The production service worker caches only the app shell and static assets. It does **not** cache documents, results, passwords, signatures, or blob URLs. No document content is written to localStorage, sessionStorage, IndexedDB, or cookies.
+- The production service worker caches only the app shell and static assets. It does **not** cache documents, results, passwords, signatures, or blob URLs. Only the theme preference is saved in localStorage. No document content, passwords, signatures, or editing history is written to browser storage.
 - Once the assets needed for a tool have loaded, that tool can process files offline. A first visit still needs a connection to load the application. Clear site data to remove the static asset cache.
 
 ## Limits and document compatibility
@@ -58,10 +58,10 @@ The annotation preview supports pointer dragging and arrow-key positioning; hold
 - Maximum combined input: **100 MiB** (shown as 100 MB in the interface), with **500 PDF pages** or generated pages per job. Both boundaries have real browser processing tests. Available device memory can impose a lower practical limit. Cancellation, smaller batches, and lower export resolutions help on mobile devices.
 - Guarded parsing limits decoded streams to 64 MiB each / 256 MiB cumulatively, nesting to 64 levels, and parsed objects to 100,000. The QPDF WASM adapter caps linear memory at 512 MiB. These are individual allocation/work limits, not a cap on total browser memory. Strict parsing may reject damaged PDFs that other editors repair automatically.
 - Raster output is limited to **4096 pixels on its longest side**. Image dimensions are validated before decoding: maximum 16 megapixels and 8192 pixels per side. Total raster/image work is capped at 120 megapixels and encoded output/ZIP at 128 MiB. Signature uploads are limited to 10 MB and resized to at most 1600 pixels on their longest side.
-- Lossless optimization preserves selectable text; an already optimized PDF may not shrink. Image-based compression rasterizes every page and removes selectable text, links, forms, and interactive fields. The interface explains this before processing.
+- Lossless and embedded-image optimization preserve selectable text and vectors; an already optimized PDF may not shrink. The advanced whole-page raster mode rasterizes every page and removes selectable text, links, forms, and interactive fields. The interface explains this before processing.
 - Some PDFs use special color or luminosity transfer filters that background canvases cannot safely reproduce. Raster export reports this explicitly instead of silently producing an incorrect image. Other tools can still work with those documents.
 - Merge, split and organize reject detected forms, internal destinations, bookmarks, portfolios, attachments and accessibility tags when safe preservation is unsupported. URI links, simple annotations and page labels have regression coverage. Editing a PDF may invalidate existing cryptographic signatures; the interface warns before processing. See the detailed support matrix below.
-- Text annotations use a bundled Liberation Sans font. Unsupported characters produce an actionable error. Typed signatures use the same bundled font and reject unsupported characters; drawing and image uploads remain available.
+- Text annotations offer locally bundled sans, serif, monospace, and italic signature fonts with regular/bold/italic choices. Unsupported glyphs produce an actionable error; drawing and image uploads remain available. The interface uses self-hosted Inter.
 - Signature placement is visual only, without identity verification or a certificate-backed digital signature. Unlocking requires the document’s existing password; no recovery or password cracking is implemented.
 - Decrypted exports are unprotected unless Protect PDF is used. The interface also detects encryption with an empty opening password. If compression does not help, its exact-original fallback retains the original encryption and explains this in the result.
 - Office conversion, OCR, existing-text editing, certified signatures, accounts, and payments are intentionally outside this release.
@@ -111,3 +111,9 @@ The offline packaging command requires the base image to be cached already. Reus
 Test the deployed host’s deep links, worker/WASM loading, fonts, downloads, and service-worker updates before announcing a release. Public deployment is separate from preparing this checkout or saving cloud setup instructions.
 
 Third-party notices and bundled license texts are included under `public/licenses/` and copied into the production build.
+
+## Redesign release
+
+The capability/control/test map and exact verification status are in [docs/REDESIGN.md](docs/REDESIGN.md). Batch documents run sequentially within shared limits; partial results identify failed files and ZIP only successful outputs. Cancellation discards the entire batch. Document-preservation exclusions remain in force.
+
+Static SVG artwork is restricted to bounded shapes/gradients; scripts, external references, active content and unsupported elements are rejected before local rasterization. SVG text should be converted to paths beforehand. `{n}` is the current counter, `{p}` the document page count, `{r}` the selected-page count and `{rf}` the final counter. Excluded covers do not advance numbering.

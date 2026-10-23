@@ -1,5 +1,6 @@
 import type { WorkerRequest, WorkerResponse } from './types';
 import { processJob } from './engine';
+import { expandJob } from './tool-config';
 
 // Libraries may include untrusted PDF strings in diagnostic messages. Diagnostics
 // are never a document-data channel; only our actionable result messages leave.
@@ -9,7 +10,7 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
   if (event.data.type !== 'process') return;
   const send = (message: WorkerResponse) => self.postMessage(message);
   try {
-    const result = await processJob(event.data.job, send);
+    const result = await processJob(expandJob(event.data.job), send);
     self.postMessage({ type: 'result', result } satisfies WorkerResponse, {
       transfer: result.files.map((file) => file.data.buffer as ArrayBuffer),
     });

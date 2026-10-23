@@ -1,0 +1,8 @@
+
+Running 3 tests using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/benchmark.spec.ts:8:1 › measured cold/warm loading, preview, processing, responsiveness and available heap (10.6s)
+  ✓  2 [firefox] › tests/e2e/benchmark.spec.ts:8:1 › measured cold/warm loading, preview, processing, responsiveness and available heap (13.1s)
+  ✓  3 [webkit] › tests/e2e/benchmark.spec.ts:8:1 › measured cold/warm loading, preview, processing, responsiveness and available heap (18.4s)
+
+  3 passed (47.3s)
