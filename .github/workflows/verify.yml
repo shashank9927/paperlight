@@ -55,4 +55,15 @@ jobs:
           node-version: 24
       - run: docker build -t paperlight-static .
       - run: docker run -d --name paperlight-static -p 127.0.0.1:4180:8080 paperlight-static
+      - name: Wait for static host
+        run: |
+          for attempt in {1..30}; do
+            if curl --fail --silent --max-time 2 http://127.0.0.1:4180/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          docker logs paperlight-static
+          echo "Static host did not become ready" >&2
+          exit 1
       - run: node scripts/check-hosting.mjs
