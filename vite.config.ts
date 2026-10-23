@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import { readdirSync, readFileSync, existsSync } from 'node:fs';
+import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 
@@ -30,6 +30,8 @@ export default defineConfig(({ isSsrBuild }) => ({
       configurePreviewServer(server) {
         server.middlewares.use((request, response, next) => {
           const path = (request.url || '').split('?')[0];
+          const file = resolve('dist', path.slice(1));
+          const isFile = existsSync(file) && statSync(file).isFile();
           const toolPath = path.match(
             /^\/tools\/(merge|split|compress|organize|rotate|images-to-pdf|pdf-to-images|watermark|page-numbers|protect|unlock|sign)(?:\/|\/index\.html|\.html)?$/,
           );
@@ -42,9 +44,7 @@ export default defineConfig(({ isSsrBuild }) => ({
           if (toolPath) request.url = `/tools/${toolPath[1]}.html`;
           if (
             /^\/(assets|pdf-assets|licenses)\//.test(path) &&
-            (!/^\/[A-Za-z0-9_./-]+$/.test(path) ||
-              path.includes('..') ||
-              !existsSync(resolve('dist', path.slice(1))))
+            (!/^\/[A-Za-z0-9_./-]+$/.test(path) || path.includes('..') || !isFile)
           ) {
             response.statusCode = 404;
             response.end('Asset not found');
@@ -60,7 +60,7 @@ export default defineConfig(({ isSsrBuild }) => ({
           if (
             path !== '/' &&
             !toolPath &&
-            !existsSync(resolve('dist', path.slice(1))) &&
+            !isFile &&
             !path.startsWith('/assets/') &&
             !path.startsWith('/pdf-assets/')
           ) {

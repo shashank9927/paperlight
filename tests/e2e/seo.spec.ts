@@ -83,6 +83,9 @@ test('SEO: hosting exposes sitemap and normalizes duplicate URLs', async ({ requ
   expect(xml.match(/<loc>/g)).toHaveLength(13);
   for (const entry of seoPages) expect(xml).toContain(`<loc>${siteOrigin}${entry.path}</loc>`);
   expect((await request.get('/robots.txt')).status()).toBe(200);
+  for (const path of ['/tools', '/tools/', '/assets/', '/licenses/']) {
+    expect((await request.get(path)).status(), path).toBe(404);
+  }
   for (const path of ['/tools/merge/', '/tools/merge/index.html', '/index.html']) {
     const response = await request.get(path, { maxRedirects: 0 });
     expect([301, 308]).toContain(response.status());
