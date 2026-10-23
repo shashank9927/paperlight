@@ -1,0 +1,14 @@
+
+Running 9 tests using 2 workers
+
+  ✓  2 [chromium] › tests/e2e/hardening.spec.ts:294:1 › rapid reset and replacement cannot publish stale previews or results (4.0s)
+  ✓  1 [chromium] › tests/e2e/hardening.spec.ts:294:1 › rapid reset and replacement cannot publish stale previews or results (4.1s)
+  ✓  3 [chromium] › tests/e2e/hardening.spec.ts:294:1 › rapid reset and replacement cannot publish stale previews or results (3.7s)
+  ✓  4 [firefox] › tests/e2e/hardening.spec.ts:294:1 › rapid reset and replacement cannot publish stale previews or results (4.9s)
+  ✓  5 [firefox] › tests/e2e/hardening.spec.ts:294:1 › rapid reset and replacement cannot publish stale previews or results (5.0s)
+  ✓  6 [firefox] › tests/e2e/hardening.spec.ts:294:1 › rapid reset and replacement cannot publish stale previews or results (4.9s)
+  ✓  7 [webkit] › tests/e2e/hardening.spec.ts:294:1 › rapid reset and replacement cannot publish stale previews or results (10.1s)
+  ✓  8 [webkit] › tests/e2e/hardening.spec.ts:294:1 › rapid reset and replacement cannot publish stale previews or results (10.9s)
+  ✓  9 [webkit] › tests/e2e/hardening.spec.ts:294:1 › rapid reset and replacement cannot publish stale previews or results (8.2s)
+
+  9 passed (36.2s)

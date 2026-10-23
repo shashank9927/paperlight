@@ -1,0 +1,79 @@
+{
+  "browser": "chromium",
+  "version": "156.0.8078.4",
+  "host": {
+    "platform": "linux",
+    "release": "6.18.54.1-microsoft-standard-WSL2",
+    "cpu": "AMD Ryzen 7 7840HS w/ Radeon 780M Graphics",
+    "logicalCpus": 16,
+    "ramBytes": 7897780224
+  },
+  "fixture": {
+    "bytes": 809787,
+    "pages": 3,
+    "kinds": "text + rotated/cropped text + seeded scanned image"
+  },
+  "caveat": "Local loopback, no throttling. Page JS heap excludes workers, WASM, GPU and native allocations; not peak process memory. Automated desktop browsers are not physical mobile devices.",
+  "results": [
+    {
+      "sample": 0,
+      "warm": false,
+      "loadMs": 417.9700969999999,
+      "previewMs": 942.776893,
+      "processingMs": 256.36486000000014,
+      "maxGapMs": 19.699999999953434,
+      "ticks": 16,
+      "pageJsHeapBytes": 21700000
+    },
+    {
+      "sample": 0,
+      "warm": true,
+      "loadMs": 357.5024739999999,
+      "previewMs": 402.7983049999998,
+      "processingMs": 235.20271200000025,
+      "maxGapMs": 19.399999999906868,
+      "ticks": 14,
+      "pageJsHeapBytes": 21700000
+    },
+    {
+      "sample": 1,
+      "warm": false,
+      "loadMs": 400.13853100000006,
+      "previewMs": 904.7359449999994,
+      "processingMs": 242.9777240000003,
+      "maxGapMs": 18.800000000046566,
+      "ticks": 15,
+      "pageJsHeapBytes": 21700000
+    },
+    {
+      "sample": 1,
+      "warm": true,
+      "loadMs": 357.15783700000065,
+      "previewMs": 404.11950400000023,
+      "processingMs": 240.67366399999992,
+      "maxGapMs": 18.299999999813735,
+      "ticks": 15,
+      "pageJsHeapBytes": 21700000
+    },
+    {
+      "sample": 2,
+      "warm": false,
+      "loadMs": 390.614963,
+      "previewMs": 896.5436250000002,
+      "processingMs": 249.4681989999999,
+      "maxGapMs": 24.699999999953434,
+      "ticks": 15,
+      "pageJsHeapBytes": 35100000
+    },
+    {
+      "sample": 2,
+      "warm": true,
+      "loadMs": 360.1443589999999,
+      "previewMs": 395.612255,
+      "processingMs": 235.2532030000002,
+      "maxGapMs": 22.5,
+      "ticks": 15,
+      "pageJsHeapBytes": 35100000
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "name": "chromium",
+    "version": "156.0.8078.4",
+    "worker": {
+      "offscreenCanvas": true,
+      "convertToBlob": true,
+      "createImageBitmap": true,
+      "secureRandom": true
+    }
+  },
+  {
+    "name": "firefox",
+    "unavailable": true,
+    "reason": "browserType.launch: spawn UNKNOWN\nCall log:\n\u001b[2m  - <launching> C:\\Users\\shash\\AppData\\Local\\ms-playwright\\firefox-1555\\firefox\\firefox.exe -no-remote -headless -profile C:\\Users\\shash\\AppData\\Local\\Temp\\playwright_firefoxdev_profile-pV7O5M -juggler-pipe -silent\u001b[22m\n"
+  },
+  {
+    "name": "webkit",
+    "version": "27.2",
+    "worker": {
+      "offscreenCanvas": false,
+      "convertToBlob": false,
+      "createImageBitmap": true,
+      "secureRandom": true
+    }
+  }
+]

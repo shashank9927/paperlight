@@ -1,0 +1,6 @@
+
+> paperlight@1.0.0 format:check
+> prettier --check src tests *.ts *.json index.html README.md
+
+Checking formatting...
+All matched files use Prettier code style!

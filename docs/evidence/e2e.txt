@@ -1,0 +1,118 @@
+
+> paperlight@1.0.0 test:e2e
+> playwright test --project=chromium --project=webkit --project=mobile-chromium --workers=3
+
+[WebServer] (node:19304) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11332) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 88 tests using 3 workers
+
+(node:36780) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11112) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1896) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  2 [chromium] › tests\e2e\experience.spec.ts:10:1 › homepage: search, categories, keyboard navigation, FAQ and accessibility (2.5s)
+  ok  3 [chromium] › tests\e2e\experience.spec.ts:49:1 › validation: damaged files, invalid page ranges, size and page limits preserve the workspace (3.6s)
+  ok  5 [chromium] › tests\e2e\experience.spec.ts:81:1 › cancellation and reset release the active job and allow a clean retry (2.2s)
+  ok  4 [chromium] › tests\e2e\experience.spec.ts:36:1 › workspace: accessible controls and a real output with no horizontal overflow (3.4s)
+  ok  1 [chromium] › tests\e2e\benchmark.spec.ts:8:1 › measured cold/warm loading, preview, processing, responsiveness and available heap (8.7s)
+  ok  6 [chromium] › tests\e2e\experience.spec.ts:94:1 › privacy and offline: cache only app assets and process without a network connection (3.6s)
+  ok  7 [chromium] › tests\e2e\hardening.spec.ts:12:3 › watermark: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (5.8s)
+  ok  8 [chromium] › tests\e2e\hardening.spec.ts:12:3 › page-numbers: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (5.4s)
+  ok  9 [chromium] › tests\e2e\hardening.spec.ts:12:3 › sign: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (4.9s)
+  ok 10 [chromium] › tests\e2e\hardening.spec.ts:67:1 › unsupported forms fail explicitly before output; password and Unicode errors preserve settings (3.1s)
+  ok 11 [chromium] › tests\e2e\hardening.spec.ts:90:1 › PDF JavaScript and open actions never execute, and production assets have correct headers (2.3s)
+  ok 12 [chromium] › tests\e2e\hardening.spec.ts:140:3 › merge: complete warm offline processing with worker/SW network observation (3.7s)
+  ok 13 [chromium] › tests\e2e\hardening.spec.ts:140:3 › split: complete warm offline processing with worker/SW network observation (3.6s)
+  ok 14 [chromium] › tests\e2e\hardening.spec.ts:140:3 › compress: complete warm offline processing with worker/SW network observation (4.4s)
+  ok 16 [chromium] › tests\e2e\hardening.spec.ts:140:3 › rotate: complete warm offline processing with worker/SW network observation (3.7s)
+  ok 15 [chromium] › tests\e2e\hardening.spec.ts:140:3 › organize: complete warm offline processing with worker/SW network observation (4.1s)
+  ok 17 [chromium] › tests\e2e\hardening.spec.ts:140:3 › images-to-pdf: complete warm offline processing with worker/SW network observation (3.4s)
+  ok 18 [chromium] › tests\e2e\hardening.spec.ts:140:3 › pdf-to-images: complete warm offline processing with worker/SW network observation (3.1s)
+  ok 19 [chromium] › tests\e2e\hardening.spec.ts:140:3 › watermark: complete warm offline processing with worker/SW network observation (4.7s)
+  ok 20 [chromium] › tests\e2e\hardening.spec.ts:140:3 › page-numbers: complete warm offline processing with worker/SW network observation (4.4s)
+  ok 21 [chromium] › tests\e2e\hardening.spec.ts:140:3 › protect: complete warm offline processing with worker/SW network observation (3.8s)
+  ok 24 [chromium] › tests\e2e\hardening.spec.ts:222:1 › image exports have correct pixel dimensions and a white JPEG background (1.7s)
+  ok 22 [chromium] › tests\e2e\hardening.spec.ts:140:3 › unlock: complete warm offline processing with worker/SW network observation (5.0s)
+  ok 23 [chromium] › tests\e2e\hardening.spec.ts:140:3 › sign: complete warm offline processing with worker/SW network observation (4.4s)
+  ok 25 [chromium] › tests\e2e\hardening.spec.ts:241:1 › EXIF image orientation is honored before fit-to-image page sizing (2.0s)
+  ok 26 [chromium] › tests\e2e\hardening.spec.ts:259:1 › rapid reset and replacement cannot publish stale previews or results (3.3s)
+  ok 28 [chromium] › tests\e2e\hardening.spec.ts:292:3 › watermark: added content retains interactive form values and widget appearances (2.9s)
+  ok 27 [chromium] › tests\e2e\hardening.spec.ts:278:1 › permissions-only encrypted input is detected and decrypted explicitly (3.0s)
+  ok 29 [chromium] › tests\e2e\hardening.spec.ts:292:3 › page-numbers: added content retains interactive form values and widget appearances (2.5s)
+  ok 30 [chromium] › tests\e2e\hardening.spec.ts:292:3 › sign: added content retains interactive form values and widget appearances (2.7s)
+  ok 31 [chromium] › tests\e2e\tools.spec.ts:23:1 › merge: file order controls determine the downloaded page order (2.4s)
+  ok 32 [chromium] › tests\e2e\tools.spec.ts:111:1 › rotate: only selected pages change orientation (2.2s)
+  ok 34 [chromium] › tests\e2e\tools.spec.ts:43:1 › split: selected ranges, reordered extraction, and individual PDFs in ZIP (3.7s)
+  ok 35 [chromium] › tests\e2e\tools.spec.ts:118:1 › images to PDF: PNG transparency, JPEG and WebP, page settings and reordering (2.3s)
+  ok 37 [chromium] › tests\e2e\tools.spec.ts:138:1 › PDF to images: selected, rotated pages export as readable PNG and JPEG (2.6s)
+  ok 36 [chromium] › tests\e2e\tools.spec.ts:59:1 › compress: text survives optimization and already optimized files never grow (3.4s)
+  ok 33 [chromium] › tests\e2e\tools.spec.ts:177:1 › protect and unlock: AES-256, wrong and correct passwords, and a freely readable copy (7.7s)
+  ok 38 [chromium] › tests\e2e\tools.spec.ts:152:1 › watermark: selected page text is embedded on a cropped, rotated page (2.7s)
+  ok 39 [chromium] › tests\e2e\tools.spec.ts:76:1 › compress: stronger mode renders pages into smaller images with an explicit warning (2.8s)
+  ok 40 [chromium] › tests\e2e\tools.spec.ts:210:1 › sign: typed signature placement matches the preview on a rotated, cropped page (3.9s)
+  ok 41 [chromium] › tests\e2e\tools.spec.ts:165:1 › page numbers: starting number, style, placement and selected ranges (2.2s)
+(node:21356) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 42 [chromium] › tests\e2e\tools.spec.ts:91:1 › organize: reorder, rotate, duplicate, remove, undo and extract selected pages (4.2s)
+(node:16708) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 43 [chromium] › tests\e2e\tools.spec.ts:281:1 › sign: drawn and uploaded signatures produce valid PDFs (5.8s)
+(node:33844) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 45 [webkit] › tests\e2e\experience.spec.ts:10:1 › homepage: search, categories, keyboard navigation, FAQ and accessibility (4.0s)
+  ok 46 [webkit] › tests\e2e\experience.spec.ts:49:1 › validation: damaged files, invalid page ranges, size and page limits preserve the workspace (4.8s)
+  ok 47 [webkit] › tests\e2e\experience.spec.ts:36:1 › workspace: accessible controls and a real output with no horizontal overflow (5.0s)
+  -  48 [webkit] › tests\e2e\experience.spec.ts:81:1 › cancellation and reset release the active job and allow a clean retry
+  ok 44 [webkit] › tests\e2e\benchmark.spec.ts:8:1 › measured cold/warm loading, preview, processing, responsiveness and available heap (13.1s)
+  ok 49 [webkit] › tests\e2e\experience.spec.ts:94:1 › privacy and offline: cache only app assets and process without a network connection (5.1s)
+  ok 50 [webkit] › tests\e2e\hardening.spec.ts:12:3 › watermark: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (7.5s)
+  ok 51 [webkit] › tests\e2e\hardening.spec.ts:12:3 › page-numbers: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (7.6s)
+  ok 54 [webkit] › tests\e2e\hardening.spec.ts:90:1 › PDF JavaScript and open actions never execute, and production assets have correct headers (2.7s)
+  ok 53 [webkit] › tests\e2e\hardening.spec.ts:67:1 › unsupported forms fail explicitly before output; password and Unicode errors preserve settings (5.6s)
+  ok 52 [webkit] › tests\e2e\hardening.spec.ts:12:3 › sign: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (7.8s)
+  ok 55 [webkit] › tests\e2e\hardening.spec.ts:140:3 › merge: complete warm offline processing with worker/SW network observation (5.3s)
+  ok 57 [webkit] › tests\e2e\hardening.spec.ts:140:3 › compress: complete warm offline processing with worker/SW network observation (4.8s)
+  ok 56 [webkit] › tests\e2e\hardening.spec.ts:140:3 › split: complete warm offline processing with worker/SW network observation (4.9s)
+  -  60 [webkit] › tests\e2e\hardening.spec.ts:140:3 › images-to-pdf: complete warm offline processing with worker/SW network observation
+  -  61 [webkit] › tests\e2e\hardening.spec.ts:140:3 › pdf-to-images: complete warm offline processing with worker/SW network observation
+  ok 58 [webkit] › tests\e2e\hardening.spec.ts:140:3 › organize: complete warm offline processing with worker/SW network observation (4.9s)
+  ok 59 [webkit] › tests\e2e\hardening.spec.ts:140:3 › rotate: complete warm offline processing with worker/SW network observation (4.9s)
+  ok 62 [webkit] › tests\e2e\hardening.spec.ts:140:3 › watermark: complete warm offline processing with worker/SW network observation (5.3s)
+  ok 63 [webkit] › tests\e2e\hardening.spec.ts:140:3 › page-numbers: complete warm offline processing with worker/SW network observation (5.2s)
+  ok 64 [webkit] › tests\e2e\hardening.spec.ts:140:3 › protect: complete warm offline processing with worker/SW network observation (5.2s)
+  -  67 [webkit] › tests\e2e\hardening.spec.ts:222:1 › image exports have correct pixel dimensions and a white JPEG background
+  -  68 [webkit] › tests\e2e\hardening.spec.ts:241:1 › EXIF image orientation is honored before fit-to-image page sizing
+  ok 65 [webkit] › tests\e2e\hardening.spec.ts:140:3 › unlock: complete warm offline processing with worker/SW network observation (4.6s)
+  -  69 [webkit] › tests\e2e\hardening.spec.ts:259:1 › rapid reset and replacement cannot publish stale previews or results
+  ok 66 [webkit] › tests\e2e\hardening.spec.ts:140:3 › sign: complete warm offline processing with worker/SW network observation (5.7s)
+  ok 70 [webkit] › tests\e2e\hardening.spec.ts:278:1 › permissions-only encrypted input is detected and decrypted explicitly (3.4s)
+  ok 71 [webkit] › tests\e2e\hardening.spec.ts:292:3 › watermark: added content retains interactive form values and widget appearances (3.3s)
+  ok 72 [webkit] › tests\e2e\hardening.spec.ts:292:3 › page-numbers: added content retains interactive form values and widget appearances (3.0s)
+  ok 73 [webkit] › tests\e2e\hardening.spec.ts:292:3 › sign: added content retains interactive form values and widget appearances (3.3s)
+  ok 74 [webkit] › tests\e2e\tools.spec.ts:23:1 › merge: file order controls determine the downloaded page order (4.5s)
+  ok 75 [webkit] › tests\e2e\tools.spec.ts:111:1 › rotate: only selected pages change orientation (3.4s)
+  -  78 [webkit] › tests\e2e\tools.spec.ts:118:1 › images to PDF: PNG transparency, JPEG and WebP, page settings and reordering
+  -  79 [webkit] › tests\e2e\tools.spec.ts:138:1 › PDF to images: selected, rotated pages export as readable PNG and JPEG
+  ok 77 [webkit] › tests\e2e\tools.spec.ts:43:1 › split: selected ranges, reordered extraction, and individual PDFs in ZIP (4.9s)
+  ok 80 [webkit] › tests\e2e\tools.spec.ts:152:1 › watermark: selected page text is embedded on a cropped, rotated page (3.9s)
+  ok 76 [webkit] › tests\e2e\tools.spec.ts:177:1 › protect and unlock: AES-256, wrong and correct passwords, and a freely readable copy (9.3s)
+  ok 82 [webkit] › tests\e2e\tools.spec.ts:165:1 › page numbers: starting number, style, placement and selected ranges (3.5s)
+  ok 81 [webkit] › tests\e2e\tools.spec.ts:59:1 › compress: text survives optimization and already optimized files never grow (5.1s)
+(node:32568) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  84 [webkit] › tests\e2e\tools.spec.ts:76:1 › compress: stronger mode renders pages into smaller images with an explicit warning
+  ok 83 [webkit] › tests\e2e\tools.spec.ts:210:1 › sign: typed signature placement matches the preview on a rotated, cropped page (5.8s)
+  ok 86 [webkit] › tests\e2e\tools.spec.ts:91:1 › organize: reorder, rotate, duplicate, remove, undo and extract selected pages (6.3s)
+(node:39132) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 85 [mobile-chromium] › tests\e2e\mobile.spec.ts:10:1 › mobile: polished home, working navigation and every tool layout (7.3s)
+  ok 87 [webkit] › tests\e2e\tools.spec.ts:281:1 › sign: drawn and uploaded signatures produce valid PDFs (6.0s)
+  ok 88 [mobile-chromium] › tests\e2e\mobile.spec.ts:51:1 › mobile: reorder files and download a real merged PDF (2.1s)
+
+  9 skipped
+  79 passed (2.3m)

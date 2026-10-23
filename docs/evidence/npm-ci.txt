@@ -1,0 +1,10 @@
+
+> paperlight@1.0.0 postinstall
+> node scripts/prepare-engine.mjs
+
+Prepared QPDF 12.2.0 with a 512 MiB WASM memory maximum.
+
+added 162 packages in 30s
+
+27 packages are looking for funding
+  run `npm fund` for details

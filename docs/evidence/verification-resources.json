@@ -1,0 +1,16 @@
+{
+  "checkedAt": "2026-10-23T11:43:39.717252+00:00",
+  "containerMemoryLimitBytes": 6442450944,
+  "containerCpuQuotaCores": 4,
+  "sharedMemoryBytes": 1073741824,
+  "containerLifetimePeakBytes": 5242630144,
+  "events": {
+    "low": 0,
+    "high": 0,
+    "max": 0,
+    "oom": 0,
+    "oom_kill": 0,
+    "oom_group_kill": 0
+  },
+  "scope": "Whole verification container since start, including parallel browsers, Node fixtures, Python and Poppler across repeated runs. Not per-job or per-browser peak memory; not a phone qualification."
+}

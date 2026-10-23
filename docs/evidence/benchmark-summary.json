@@ -1,0 +1,36 @@
+[
+  {
+    "browser": "chromium",
+    "version": "156.0.8078.4",
+    "fixtureBytes": 809956,
+    "cold": {
+      "loadMs": 423.1,
+      "previewMs": 398.3,
+      "processingMs": 250.4
+    },
+    "warm": {
+      "loadMs": 382.8,
+      "previewMs": 289.3,
+      "processingMs": 146.2
+    },
+    "maxGapMs": 29.3,
+    "pageJsHeapBytes": 21700000
+  },
+  {
+    "browser": "webkit",
+    "version": "27.2",
+    "fixtureBytes": 809956,
+    "cold": {
+      "loadMs": 523.5,
+      "previewMs": 637.2,
+      "processingMs": 456.6
+    },
+    "warm": {
+      "loadMs": 468.3,
+      "previewMs": 501.5,
+      "processingMs": 410.8
+    },
+    "maxGapMs": 38,
+    "pageJsHeapBytes": null
+  }
+]

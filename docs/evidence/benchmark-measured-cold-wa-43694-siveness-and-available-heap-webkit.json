@@ -1,0 +1,79 @@
+{
+  "browser": "webkit",
+  "version": "27.2",
+  "host": {
+    "platform": "win32",
+    "release": "10.0.26300",
+    "cpu": "AMD Ryzen 7 7840HS w/ Radeon 780M Graphics     ",
+    "logicalCpus": 16,
+    "ramBytes": 16309932032
+  },
+  "fixture": {
+    "bytes": 809956,
+    "pages": 3,
+    "kinds": "text + rotated/cropped text + seeded scanned image"
+  },
+  "caveat": "Local loopback, no throttling. Page JS heap excludes workers, WASM, GPU and native allocations; not peak process memory. Automated desktop browsers are not physical mobile devices.",
+  "results": [
+    {
+      "sample": 0,
+      "warm": false,
+      "loadMs": 523.4686,
+      "previewMs": 581.5646999999999,
+      "processingMs": 456.5954999999999,
+      "maxGapMs": 36,
+      "ticks": 14,
+      "pageJsHeapBytes": null
+    },
+    {
+      "sample": 0,
+      "warm": true,
+      "loadMs": 387.4924000000001,
+      "previewMs": 437.64519999999993,
+      "processingMs": 390.4569999999999,
+      "maxGapMs": 34,
+      "ticks": 13,
+      "pageJsHeapBytes": null
+    },
+    {
+      "sample": 1,
+      "warm": false,
+      "loadMs": 576.0899000000009,
+      "previewMs": 637.2276999999995,
+      "processingMs": 473.60689999999977,
+      "maxGapMs": 38,
+      "ticks": 17,
+      "pageJsHeapBytes": null
+    },
+    {
+      "sample": 1,
+      "warm": true,
+      "loadMs": 538.4243999999999,
+      "previewMs": 613.8359,
+      "processingMs": 481.1414999999997,
+      "maxGapMs": 31,
+      "ticks": 20,
+      "pageJsHeapBytes": null
+    },
+    {
+      "sample": 2,
+      "warm": false,
+      "loadMs": 433.53200000000015,
+      "previewMs": 682.1506000000008,
+      "processingMs": 410.8896999999997,
+      "maxGapMs": 33,
+      "ticks": 14,
+      "pageJsHeapBytes": null
+    },
+    {
+      "sample": 2,
+      "warm": true,
+      "loadMs": 468.2618999999995,
+      "previewMs": 501.47940000000017,
+      "processingMs": 410.7868000000017,
+      "maxGapMs": 38,
+      "ticks": 13,
+      "pageJsHeapBytes": null
+    }
+  ]
+}

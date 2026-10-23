@@ -1,0 +1,78 @@
+{
+  "synthetic": true,
+  "browser": "firefox",
+  "results": [
+    {
+      "kind": "text-heavy",
+      "mode": "lossless",
+      "pages": 6,
+      "inputBytes": 3854,
+      "outputBytes": 3854,
+      "retainedOriginal": true,
+      "processingAndValidationMs": 731.0800239999999
+    },
+    {
+      "kind": "text-heavy",
+      "mode": "image",
+      "pages": 6,
+      "inputBytes": 3854,
+      "outputBytes": 3854,
+      "retainedOriginal": true,
+      "processingAndValidationMs": 695.0638830000007
+    },
+    {
+      "kind": "scanned",
+      "mode": "lossless",
+      "pages": 1,
+      "inputBytes": 808390,
+      "outputBytes": 808222,
+      "retainedOriginal": false,
+      "processingAndValidationMs": 602.54619
+    },
+    {
+      "kind": "scanned",
+      "mode": "image",
+      "pages": 1,
+      "inputBytes": 808390,
+      "outputBytes": 163173,
+      "retainedOriginal": false,
+      "processingAndValidationMs": 510.7154019999998
+    },
+    {
+      "kind": "image-heavy-mixed",
+      "mode": "lossless",
+      "pages": 3,
+      "inputBytes": 809787,
+      "outputBytes": 808760,
+      "retainedOriginal": false,
+      "processingAndValidationMs": 539.4199320000007
+    },
+    {
+      "kind": "image-heavy-mixed",
+      "mode": "image",
+      "pages": 3,
+      "inputBytes": 809787,
+      "outputBytes": 209945,
+      "retainedOriginal": false,
+      "processingAndValidationMs": 568.0649709999998
+    },
+    {
+      "kind": "already-optimized",
+      "mode": "lossless",
+      "pages": 1,
+      "inputBytes": 853,
+      "outputBytes": 853,
+      "retainedOriginal": true,
+      "processingAndValidationMs": 402.26066399999945
+    },
+    {
+      "kind": "already-optimized",
+      "mode": "image",
+      "pages": 1,
+      "inputBytes": 853,
+      "outputBytes": 853,
+      "retainedOriginal": true,
+      "processingAndValidationMs": 496.3912849999997
+    }
+  ]
+}

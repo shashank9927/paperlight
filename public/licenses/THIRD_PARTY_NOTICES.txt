@@ -1,0 +1,41 @@
+Paperlight third-party notices
+
+The application bundles open-source libraries and local fonts. Their licenses
+and copyright notices are included beside this file. The static build retains
+the PDF.js support-file license texts under /pdf-assets/ as well.
+
+React / React DOM: MIT
+React Router: MIT
+Radix primitives: MIT
+dnd-kit: MIT
+Lucide: ISC (with the included Feather icon license notices)
+Tailwind CSS: MIT
+pdf-lib: MIT
+@pdf-lib/fontkit: MIT, with upstream component notices
+PDF.js: Apache-2.0
+fflate: MIT
+qpdf 12.2.0: Apache-2.0 (including bundled dependency notices)
+@neslinesli93/qpdf-wasm 0.3.0 wrapper: ISC
+DM Sans font: SIL Open Font License 1.1
+Manrope font: SIL Open Font License 1.1
+Liberation Sans annotation font: SIL Open Font License 1.1
+
+Source locations:
+https://github.com/facebook/react
+https://github.com/remix-run/react-router
+https://github.com/radix-ui/primitives
+https://github.com/clauderic/dnd-kit
+https://github.com/lucide-icons/lucide
+https://github.com/tailwindlabs/tailwindcss
+https://github.com/Hopding/pdf-lib
+https://github.com/Hopding/fontkit
+https://github.com/mozilla/pdf.js
+https://github.com/101arrowz/fflate
+https://github.com/qpdf/qpdf
+https://github.com/neslinesli93/qpdf-wasm
+https://github.com/googlefonts/dm-fonts
+https://github.com/sharanda/manrope
+https://github.com/liberationfonts/liberation-fonts
+
+Fontkit's browser distribution includes component notices in its source.
+The full upstream notices are provided in fontkit.txt.

@@ -1,0 +1,48 @@
+{
+  "node": "v24.22.1",
+  "platform": "win32",
+  "osRelease": "10.0.26300",
+  "packages": {
+    "@axe-core/playwright": "4.14.0",
+    "@dnd-kit/core": "6.3.1",
+    "@dnd-kit/sortable": "10.0.0",
+    "@dnd-kit/utilities": "3.2.2",
+    "@fontsource-variable/dm-sans": "5.3.0",
+    "@fontsource-variable/manrope": "5.3.0",
+    "@napi-rs/canvas": "1.0.13",
+    "@neslinesli93/qpdf-wasm": "0.3.0",
+    "@pdf-lib/fontkit": "1.1.1",
+    "@playwright/test": "1.64.1",
+    "@radix-ui/react-dialog": "1.3.1",
+    "@tailwindcss/vite": "4.3.3",
+    "@types/node": "24.19.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "5.2.0",
+    "fflate": "0.8.3",
+    "lucide-react": "0.468.0",
+    "pdf-lib": "1.17.1",
+    "pdfjs-dist": "6.4.299",
+    "prettier": "3.9.10",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-router-dom": "7.18.4",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.9.3",
+    "vite": "7.3.7",
+    "vitest": "4.1.12"
+  },
+  "bundledQpdf": [
+    "dependency-evidence.mjs version 12.2.0",
+    "Run dependency-evidence.mjs --copyright to see copyright and license information."
+  ],
+  "wasmSHA256": "4f471b5da594d454bedff8c41b59133c5365356ccdc8d29547c28985ceb0c609",
+  "upstreamWasmSHA256": "abd933f4ccace4f732999381b21aec8b7e3726f18a5b167fafd57f88dd440876",
+  "wasmMemoryMaximumMiB": 512,
+  "adapter": "scripts/prepare-engine.mjs changes only the memory maximum in the verified QPDF 12.2.0 binary.",
+  "wasmRandomProvider": {
+    "referencesGetRandomValues": true,
+    "referencesMathRandom": false,
+    "note": "See hardening.test.ts: runtime calls exceed the owner-password calls, and ciphertext varies."
+  }
+}

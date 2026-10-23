@@ -1,0 +1,9 @@
+{
+  "origin": "http://127.0.0.1:4180",
+  "routes": 13,
+  "headers": "passed",
+  "wasmMime": "passed",
+  "javascriptMime": "17 scripts and module workers passed",
+  "static404": "passed",
+  "checkedAt": "2026-10-23T11:37:54.388Z"
+}

@@ -1,0 +1,7 @@
+{
+  "loadMs": 2000,
+  "previewMs": 3500,
+  "processingMs": 2500,
+  "maxGapMs": 250,
+  "basis": "Three cold/warm pairs on Windows Ryzen 7 7840HS, 16GB RAM, 809956-byte three-page mixed text/scan fixture. Recorded baseline maxima: load 553ms, preview 1004ms, processing 617ms, event-loop gap 60ms. Rounded margins allow test contention. These budgets do not qualify mobile or full-limit documents."
+}

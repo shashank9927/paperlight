@@ -1,0 +1,78 @@
+{
+  "synthetic": true,
+  "browser": "webkit",
+  "results": [
+    {
+      "kind": "text-heavy",
+      "mode": "lossless",
+      "pages": 6,
+      "inputBytes": 3855,
+      "outputBytes": 3855,
+      "retainedOriginal": true,
+      "processingAndValidationMs": 1293.5556039999997
+    },
+    {
+      "kind": "text-heavy",
+      "mode": "image",
+      "pages": 6,
+      "inputBytes": 3855,
+      "outputBytes": 3855,
+      "retainedOriginal": true,
+      "processingAndValidationMs": 1558.2126540000008
+    },
+    {
+      "kind": "scanned",
+      "mode": "lossless",
+      "pages": 1,
+      "inputBytes": 808390,
+      "outputBytes": 808222,
+      "retainedOriginal": false,
+      "processingAndValidationMs": 987.8984819999987
+    },
+    {
+      "kind": "scanned",
+      "mode": "image",
+      "pages": 1,
+      "inputBytes": 808390,
+      "outputBytes": 157675,
+      "retainedOriginal": false,
+      "processingAndValidationMs": 1518.5094100000006
+    },
+    {
+      "kind": "image-heavy-mixed",
+      "mode": "lossless",
+      "pages": 3,
+      "inputBytes": 809787,
+      "outputBytes": 808760,
+      "retainedOriginal": false,
+      "processingAndValidationMs": 910.1007050000007
+    },
+    {
+      "kind": "image-heavy-mixed",
+      "mode": "image",
+      "pages": 3,
+      "inputBytes": 809787,
+      "outputBytes": 195132,
+      "retainedOriginal": false,
+      "processingAndValidationMs": 1985.8308780000007
+    },
+    {
+      "kind": "already-optimized",
+      "mode": "lossless",
+      "pages": 1,
+      "inputBytes": 852,
+      "outputBytes": 852,
+      "retainedOriginal": true,
+      "processingAndValidationMs": 1188.6643829999994
+    },
+    {
+      "kind": "already-optimized",
+      "mode": "image",
+      "pages": 1,
+      "inputBytes": 852,
+      "outputBytes": 852,
+      "retainedOriginal": true,
+      "processingAndValidationMs": 1512.1961360000023
+    }
+  ]
+}

@@ -1,0 +1,215 @@
+
+> paperlight@1.0.0 typecheck
+> tsc -b
+
+
+> paperlight@1.0.0 format:check
+> prettier --check src tests *.ts *.json index.html README.md
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> paperlight@1.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/workspace[39m
+
+ [32m✓[39m tests/processing.test.ts [2m([22m[2m22 tests[22m[2m)[22m[33m 548[2mms[22m[39m
+ [32m✓[39m tests/resources.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 757[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects hostile expansion before unbounded parse/decode [33m 332[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects hostile object-expansion before unbounded parse/decode [33m 339[2mms[22m[39m
+ [32m✓[39m tests/encrypted-admission.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 134[2mms[22m[39m
+ [32m✓[39m tests/signatures.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 486[2mms[22m[39m
+   [33m[2m✓[22m[39m independently verifies a real detached signature and demonstrates rewriting invalidates it [33m 484[2mms[22m[39m
+ [32m✓[39m tests/hardening.test.ts [2m([22m[2m21 tests[22m[2m)[22m[33m 1635[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m      Tests [22m [1m[32m60 passed[39m[22m[90m (60)[39m
+[2m   Start at [22m 11:27:26
+[2m   Duration [22m 1.95s[2m (transform 330ms, setup 0ms, import 882ms, tests 3.56s, environment 0ms)[22m
+
+
+Running 146 tests using 2 workers
+
+  ✓    2 [chromium] › tests/e2e/experience.spec.ts:10:1 › homepage: search, categories, keyboard navigation, FAQ and accessibility (2.0s)
+  ✓    3 [chromium] › tests/e2e/experience.spec.ts:36:1 › workspace: accessible controls and a real output with no horizontal overflow (2.7s)
+  ✓    4 [chromium] › tests/e2e/experience.spec.ts:49:1 › validation: damaged files, invalid page ranges, size and page limits preserve the workspace (2.4s)
+  ✓    5 [chromium] › tests/e2e/experience.spec.ts:81:1 › cancellation and reset release the active job and allow a clean retry (2.4s)
+  ✓    6 [chromium] › tests/e2e/experience.spec.ts:94:1 › privacy and offline: cache only app assets and process without a network connection (3.1s)
+  ✓    1 [chromium] › tests/e2e/compression.spec.ts:7:1 › compression corpus: text, scan, mixed images and already optimized input stay honest (13.6s)
+  ✓    7 [chromium] › tests/e2e/hardening.spec.ts:11:1 › password fields preserve all 127 allowed UTF-8 bytes, including confirmation and unlock (4.5s)
+  ✓    8 [chromium] › tests/e2e/hardening.spec.ts:31:3 › watermark: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (3.7s)
+  ✓   10 [chromium] › tests/e2e/hardening.spec.ts:31:3 › sign: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (3.5s)
+  ✓    9 [chromium] › tests/e2e/hardening.spec.ts:31:3 › page-numbers: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (3.7s)
+  ✓   12 [chromium] › tests/e2e/hardening.spec.ts:109:1 › PDF JavaScript and open actions never execute, and production assets have correct headers (2.0s)
+  ✓   11 [chromium] › tests/e2e/hardening.spec.ts:86:1 › unsupported forms fail explicitly before output; password and Unicode errors preserve settings (3.8s)
+  ✓   13 [chromium] › tests/e2e/hardening.spec.ts:175:3 › merge: complete warm offline processing with worker/SW network observation (3.3s)
+  ✓   14 [chromium] › tests/e2e/hardening.spec.ts:175:3 › split: complete warm offline processing with worker/SW network observation (3.1s)
+  ✓   15 [chromium] › tests/e2e/hardening.spec.ts:175:3 › compress: complete warm offline processing with worker/SW network observation (3.9s)
+  ✓   16 [chromium] › tests/e2e/hardening.spec.ts:175:3 › organize: complete warm offline processing with worker/SW network observation (3.5s)
+  ✓   17 [chromium] › tests/e2e/hardening.spec.ts:175:3 › rotate: complete warm offline processing with worker/SW network observation (3.2s)
+  ✓   18 [chromium] › tests/e2e/hardening.spec.ts:175:3 › images-to-pdf: complete warm offline processing with worker/SW network observation (2.3s)
+  ✓   19 [chromium] › tests/e2e/hardening.spec.ts:175:3 › pdf-to-images: complete warm offline processing with worker/SW network observation (3.1s)
+  ✓   20 [chromium] › tests/e2e/hardening.spec.ts:175:3 › watermark: complete warm offline processing with worker/SW network observation (3.6s)
+  ✓   22 [chromium] › tests/e2e/hardening.spec.ts:175:3 › protect: complete warm offline processing with worker/SW network observation (3.5s)
+  ✓   21 [chromium] › tests/e2e/hardening.spec.ts:175:3 › page-numbers: complete warm offline processing with worker/SW network observation (4.3s)
+  ✓   24 [chromium] › tests/e2e/hardening.spec.ts:175:3 › sign: complete warm offline processing with worker/SW network observation (4.0s)
+  ✓   23 [chromium] › tests/e2e/hardening.spec.ts:175:3 › unlock: complete warm offline processing with worker/SW network observation (4.4s)
+  ✓   26 [chromium] › tests/e2e/hardening.spec.ts:276:1 › EXIF image orientation is honored before fit-to-image page sizing (1.6s)
+  ✓   25 [chromium] › tests/e2e/hardening.spec.ts:257:1 › image exports have correct pixel dimensions and a white JPEG background (2.0s)
+  ✓   28 [chromium] › tests/e2e/hardening.spec.ts:313:1 › permissions-only encrypted input is detected and decrypted explicitly (2.1s)
+  ✓   27 [chromium] › tests/e2e/hardening.spec.ts:294:1 › rapid reset and replacement cannot publish stale previews or results (3.7s)
+  ✓   29 [chromium] › tests/e2e/hardening.spec.ts:327:3 › watermark: added content retains interactive form values and widget appearances (2.2s)
+  ✓   30 [chromium] › tests/e2e/hardening.spec.ts:327:3 › page-numbers: added content retains interactive form values and widget appearances (2.2s)
+  ✓   31 [chromium] › tests/e2e/hardening.spec.ts:327:3 › sign: added content retains interactive form values and widget appearances (2.1s)
+  ✓   32 [chromium] › tests/e2e/resources.spec.ts:7:1 › hostile expansion is rejected during admission; reset accepts a clean document (2.9s)
+  ✓   33 [chromium] › tests/e2e/resources.spec.ts:24:1 › 500-page job bounds preview canvases, processes all pages, and clears workers (3.0s)
+  ✓   35 [chromium] › tests/e2e/resources.spec.ts:96:1 › hung processing is terminated by the deadline and preserves settings (1.4s)
+  ✓   34 [chromium] › tests/e2e/resources.spec.ts:61:1 › 100 MiB input boundary completes without document bytes entering requests (3.7s)
+  ✓   36 [chromium] › tests/e2e/tools.spec.ts:23:1 › merge: file order controls determine the downloaded page order (2.4s)
+  ✓   37 [chromium] › tests/e2e/tools.spec.ts:138:1 › PDF to images: selected, rotated pages export as readable PNG and JPEG (2.6s)
+  ✓   38 [chromium] › tests/e2e/tools.spec.ts:43:1 › split: selected ranges, reordered extraction, and individual PDFs in ZIP (3.1s)
+  ✓   39 [chromium] › tests/e2e/tools.spec.ts:152:1 › watermark: selected page text is embedded on a cropped, rotated page (2.4s)
+  ✓   40 [chromium] › tests/e2e/tools.spec.ts:59:1 › compress: text survives optimization and already optimized files never grow (3.2s)
+  ✓   41 [chromium] › tests/e2e/tools.spec.ts:165:1 › page numbers: starting number, style, placement and selected ranges (2.4s)
+  ✓   42 [chromium] › tests/e2e/tools.spec.ts:76:1 › compress: stronger mode renders pages into smaller images with an explicit warning (2.5s)
+  ✓   43 [chromium] › tests/e2e/tools.spec.ts:177:1 › protect and unlock: AES-256, wrong and correct passwords, and a freely readable copy (5.7s)
+  ✓   44 [chromium] › tests/e2e/tools.spec.ts:91:1 › organize: reorder, rotate, duplicate, remove, undo and extract selected pages (3.4s)
+  ✓   46 [chromium] › tests/e2e/tools.spec.ts:111:1 › rotate: only selected pages change orientation (2.1s)
+  ✓   45 [chromium] › tests/e2e/tools.spec.ts:210:1 › sign: typed signature placement matches the preview on a rotated, cropped page (3.2s)
+  ✓   47 [chromium] › tests/e2e/tools.spec.ts:118:1 › images to PDF: PNG transparency, JPEG and WebP, page settings and reordering (1.6s)
+  ✓   48 [chromium] › tests/e2e/tools.spec.ts:281:1 › sign: drawn and uploaded signatures produce valid PDFs (5.6s)
+  ✓   50 [firefox] › tests/e2e/experience.spec.ts:10:1 › homepage: search, categories, keyboard navigation, FAQ and accessibility (3.3s)
+  ✓   51 [firefox] › tests/e2e/experience.spec.ts:36:1 › workspace: accessible controls and a real output with no horizontal overflow (3.1s)
+  ✓   49 [firefox] › tests/e2e/compression.spec.ts:7:1 › compression corpus: text, scan, mixed images and already optimized input stay honest (13.4s)
+  ✓   52 [firefox] › tests/e2e/experience.spec.ts:49:1 › validation: damaged files, invalid page ranges, size and page limits preserve the workspace (2.7s)
+  ✓   53 [firefox] › tests/e2e/experience.spec.ts:81:1 › cancellation and reset release the active job and allow a clean retry (2.5s)
+  ✓   54 [firefox] › tests/e2e/hardening.spec.ts:11:1 › password fields preserve all 127 allowed UTF-8 bytes, including confirmation and unlock (4.3s)
+  ✓   55 [firefox] › tests/e2e/experience.spec.ts:94:1 › privacy and offline: cache only app assets and process without a network connection (3.0s)
+  ✓   56 [firefox] › tests/e2e/hardening.spec.ts:31:3 › watermark: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (3.5s)
+  ✓   57 [firefox] › tests/e2e/hardening.spec.ts:31:3 › page-numbers: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (3.6s)
+  ✓   58 [firefox] › tests/e2e/hardening.spec.ts:31:3 › sign: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (3.5s)
+  ✓   59 [firefox] › tests/e2e/hardening.spec.ts:86:1 › unsupported forms fail explicitly before output; password and Unicode errors preserve settings (3.9s)
+  ✓   60 [firefox] › tests/e2e/hardening.spec.ts:109:1 › PDF JavaScript and open actions never execute, and production assets have correct headers (2.1s)
+  ✓   61 [firefox] › tests/e2e/hardening.spec.ts:175:3 › merge: complete warm offline processing with worker/SW network observation (2.7s)
+  ✓   62 [firefox] › tests/e2e/hardening.spec.ts:175:3 › split: complete warm offline processing with worker/SW network observation (2.7s)
+  ✓   63 [firefox] › tests/e2e/hardening.spec.ts:175:3 › compress: complete warm offline processing with worker/SW network observation (2.7s)
+  ✓   64 [firefox] › tests/e2e/hardening.spec.ts:175:3 › organize: complete warm offline processing with worker/SW network observation (2.8s)
+  ✓   65 [firefox] › tests/e2e/hardening.spec.ts:175:3 › rotate: complete warm offline processing with worker/SW network observation (2.7s)
+  ✓   66 [firefox] › tests/e2e/hardening.spec.ts:175:3 › images-to-pdf: complete warm offline processing with worker/SW network observation (3.0s)
+  ✓   67 [firefox] › tests/e2e/hardening.spec.ts:175:3 › pdf-to-images: complete warm offline processing with worker/SW network observation (2.9s)
+  ✓   68 [firefox] › tests/e2e/hardening.spec.ts:175:3 › watermark: complete warm offline processing with worker/SW network observation (2.9s)
+  ✓   69 [firefox] › tests/e2e/hardening.spec.ts:175:3 › page-numbers: complete warm offline processing with worker/SW network observation (3.6s)
+  ✓   70 [firefox] › tests/e2e/hardening.spec.ts:175:3 › protect: complete warm offline processing with worker/SW network observation (3.0s)
+  ✓   71 [firefox] › tests/e2e/hardening.spec.ts:175:3 › unlock: complete warm offline processing with worker/SW network observation (2.6s)
+  ✓   72 [firefox] › tests/e2e/hardening.spec.ts:175:3 › sign: complete warm offline processing with worker/SW network observation (3.0s)
+  ✓   73 [firefox] › tests/e2e/hardening.spec.ts:257:1 › image exports have correct pixel dimensions and a white JPEG background (2.2s)
+  ✓   74 [firefox] › tests/e2e/hardening.spec.ts:276:1 › EXIF image orientation is honored before fit-to-image page sizing (1.7s)
+  ✓   76 [firefox] › tests/e2e/hardening.spec.ts:313:1 › permissions-only encrypted input is detected and decrypted explicitly (2.3s)
+  ✓   75 [firefox] › tests/e2e/hardening.spec.ts:294:1 › rapid reset and replacement cannot publish stale previews or results (4.1s)
+  ✓   77 [firefox] › tests/e2e/hardening.spec.ts:327:3 › watermark: added content retains interactive form values and widget appearances (2.4s)
+  ✓   78 [firefox] › tests/e2e/hardening.spec.ts:327:3 › page-numbers: added content retains interactive form values and widget appearances (2.3s)
+  ✓   79 [firefox] › tests/e2e/hardening.spec.ts:327:3 › sign: added content retains interactive form values and widget appearances (2.4s)
+  ✓   80 [firefox] › tests/e2e/resources.spec.ts:7:1 › hostile expansion is rejected during admission; reset accepts a clean document (1.9s)
+  ✓   81 [firefox] › tests/e2e/resources.spec.ts:24:1 › 500-page job bounds preview canvases, processes all pages, and clears workers (3.6s)
+  ✓   82 [firefox] › tests/e2e/resources.spec.ts:61:1 › 100 MiB input boundary completes without document bytes entering requests (4.0s)
+  ✘   83 [firefox] › tests/e2e/resources.spec.ts:96:1 › hung processing is terminated by the deadline and preserves settings (1.7s)
+  ✓   84 [firefox] › tests/e2e/tools.spec.ts:23:1 › merge: file order controls determine the downloaded page order (2.5s)
+  ✓   86 [firefox] › tests/e2e/tools.spec.ts:43:1 › split: selected ranges, reordered extraction, and individual PDFs in ZIP (2.8s)
+  ✓   85 [firefox] › tests/e2e/tools.spec.ts:138:1 › PDF to images: selected, rotated pages export as readable PNG and JPEG (3.9s)
+  ✓   87 [firefox] › tests/e2e/tools.spec.ts:59:1 › compress: text survives optimization and already optimized files never grow (3.0s)
+  ✓   88 [firefox] › tests/e2e/tools.spec.ts:152:1 › watermark: selected page text is embedded on a cropped, rotated page (2.6s)
+  ✓   90 [firefox] › tests/e2e/tools.spec.ts:165:1 › page numbers: starting number, style, placement and selected ranges (2.6s)
+  ✓   89 [firefox] › tests/e2e/tools.spec.ts:76:1 › compress: stronger mode renders pages into smaller images with an explicit warning (3.9s)
+  ✓   92 [firefox] › tests/e2e/tools.spec.ts:91:1 › organize: reorder, rotate, duplicate, remove, undo and extract selected pages (3.6s)
+  ✓   91 [firefox] › tests/e2e/tools.spec.ts:177:1 › protect and unlock: AES-256, wrong and correct passwords, and a freely readable copy (5.9s)
+  ✓   93 [firefox] › tests/e2e/tools.spec.ts:111:1 › rotate: only selected pages change orientation (2.5s)
+  ✓   95 [firefox] › tests/e2e/tools.spec.ts:118:1 › images to PDF: PNG transparency, JPEG and WebP, page settings and reordering (2.5s)
+  ✓   94 [firefox] › tests/e2e/tools.spec.ts:210:1 › sign: typed signature placement matches the preview on a rotated, cropped page (3.6s)
+  ✓   96 [firefox] › tests/e2e/tools.spec.ts:281:1 › sign: drawn and uploaded signatures produce valid PDFs (3.3s)
+  ✓   98 [webkit] › tests/e2e/experience.spec.ts:10:1 › homepage: search, categories, keyboard navigation, FAQ and accessibility (10.4s)
+  ✓   99 [webkit] › tests/e2e/experience.spec.ts:36:1 › workspace: accessible controls and a real output with no horizontal overflow (9.0s)
+  ✓   97 [webkit] › tests/e2e/compression.spec.ts:7:1 › compression corpus: text, scan, mixed images and already optimized input stay honest (30.2s)
+  ✓  100 [webkit] › tests/e2e/experience.spec.ts:49:1 › validation: damaged files, invalid page ranges, size and page limits preserve the workspace (7.5s)
+  ✓  101 [webkit] › tests/e2e/experience.spec.ts:81:1 › cancellation and reset release the active job and allow a clean retry (7.5s)
+  ✓  102 [webkit] › tests/e2e/hardening.spec.ts:11:1 › password fields preserve all 127 allowed UTF-8 bytes, including confirmation and unlock (10.5s)
+  ✓  103 [webkit] › tests/e2e/experience.spec.ts:94:1 › privacy and offline: cache only app assets and process without a network connection (7.7s)
+  ✓  104 [webkit] › tests/e2e/hardening.spec.ts:31:3 › watermark: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (7.3s)
+  ✓  105 [webkit] › tests/e2e/hardening.spec.ts:31:3 › page-numbers: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (7.4s)
+  ✓  106 [webkit] › tests/e2e/hardening.spec.ts:31:3 › sign: Poppler placement agrees at 0/90/180/270 with crop/media offsets, resized preview and DPR (8.5s)
+  ✓  107 [webkit] › tests/e2e/hardening.spec.ts:86:1 › unsupported forms fail explicitly before output; password and Unicode errors preserve settings (7.2s)
+  ✓  108 [webkit] › tests/e2e/hardening.spec.ts:109:1 › PDF JavaScript and open actions never execute, and production assets have correct headers (4.0s)
+  ✓  109 [webkit] › tests/e2e/hardening.spec.ts:175:3 › merge: complete warm offline processing with worker/SW network observation (6.9s)
+  ✓  110 [webkit] › tests/e2e/hardening.spec.ts:175:3 › split: complete warm offline processing with worker/SW network observation (5.8s)
+  ✓  111 [webkit] › tests/e2e/hardening.spec.ts:175:3 › compress: complete warm offline processing with worker/SW network observation (6.0s)
+  ✓  112 [webkit] › tests/e2e/hardening.spec.ts:175:3 › organize: complete warm offline processing with worker/SW network observation (6.1s)
+  ✓  113 [webkit] › tests/e2e/hardening.spec.ts:175:3 › rotate: complete warm offline processing with worker/SW network observation (5.6s)
+  ✓  114 [webkit] › tests/e2e/hardening.spec.ts:175:3 › images-to-pdf: complete warm offline processing with worker/SW network observation (6.0s)
+  ✓  115 [webkit] › tests/e2e/hardening.spec.ts:175:3 › pdf-to-images: complete warm offline processing with worker/SW network observation (7.1s)
+  ✓  116 [webkit] › tests/e2e/hardening.spec.ts:175:3 › watermark: complete warm offline processing with worker/SW network observation (6.6s)
+  ✓  117 [webkit] › tests/e2e/hardening.spec.ts:175:3 › page-numbers: complete warm offline processing with worker/SW network observation (6.4s)
+  ✓  118 [webkit] › tests/e2e/hardening.spec.ts:175:3 › protect: complete warm offline processing with worker/SW network observation (6.9s)
+  ✓  119 [webkit] › tests/e2e/hardening.spec.ts:175:3 › unlock: complete warm offline processing with worker/SW network observation (5.8s)
+  ✓  120 [webkit] › tests/e2e/hardening.spec.ts:175:3 › sign: complete warm offline processing with worker/SW network observation (6.3s)
+  ✓  121 [webkit] › tests/e2e/hardening.spec.ts:257:1 › image exports have correct pixel dimensions and a white JPEG background (5.0s)
+  ✓  122 [webkit] › tests/e2e/hardening.spec.ts:276:1 › EXIF image orientation is honored before fit-to-image page sizing (4.5s)
+  ✓  124 [webkit] › tests/e2e/hardening.spec.ts:313:1 › permissions-only encrypted input is detected and decrypted explicitly (5.2s)
+  ✓  125 [webkit] › tests/e2e/hardening.spec.ts:327:3 › watermark: added content retains interactive form values and widget appearances (5.1s)
+  ✓  123 [webkit] › tests/e2e/hardening.spec.ts:294:1 › rapid reset and replacement cannot publish stale previews or results (12.3s)
+  ✓  126 [webkit] › tests/e2e/hardening.spec.ts:327:3 › page-numbers: added content retains interactive form values and widget appearances (4.8s)
+  ✓  127 [webkit] › tests/e2e/hardening.spec.ts:327:3 › sign: added content retains interactive form values and widget appearances (3.9s)
+  ✓  128 [webkit] › tests/e2e/resources.spec.ts:7:1 › hostile expansion is rejected during admission; reset accepts a clean document (5.7s)
+  ✓  129 [webkit] › tests/e2e/resources.spec.ts:24:1 › 500-page job bounds preview canvases, processes all pages, and clears workers (7.0s)
+  ✓  131 [webkit] › tests/e2e/resources.spec.ts:96:1 › hung processing is terminated by the deadline and preserves settings (3.0s)
+  ✓  130 [webkit] › tests/e2e/resources.spec.ts:61:1 › 100 MiB input boundary completes without document bytes entering requests (6.2s)
+  ✓  132 [webkit] › tests/e2e/tools.spec.ts:23:1 › merge: file order controls determine the downloaded page order (6.4s)
+  ✓  133 [webkit] › tests/e2e/tools.spec.ts:138:1 › PDF to images: selected, rotated pages export as readable PNG and JPEG (7.4s)
+  ✓  134 [webkit] › tests/e2e/tools.spec.ts:43:1 › split: selected ranges, reordered extraction, and individual PDFs in ZIP (6.9s)
+  ✓  135 [webkit] › tests/e2e/tools.spec.ts:152:1 › watermark: selected page text is embedded on a cropped, rotated page (5.3s)
+  ✓  137 [webkit] › tests/e2e/tools.spec.ts:165:1 › page numbers: starting number, style, placement and selected ranges (5.8s)
+  ✓  136 [webkit] › tests/e2e/tools.spec.ts:59:1 › compress: text survives optimization and already optimized files never grow (7.0s)
+  ✓  139 [webkit] › tests/e2e/tools.spec.ts:76:1 › compress: stronger mode renders pages into smaller images with an explicit warning (6.2s)
+  ✓  138 [webkit] › tests/e2e/tools.spec.ts:177:1 › protect and unlock: AES-256, wrong and correct passwords, and a freely readable copy (11.9s)
+  ✓  140 [webkit] › tests/e2e/tools.spec.ts:91:1 › organize: reorder, rotate, duplicate, remove, undo and extract selected pages (9.0s)
+  ✓  141 [webkit] › tests/e2e/tools.spec.ts:210:1 › sign: typed signature placement matches the preview on a rotated, cropped page (6.9s)
+  ✓  142 [webkit] › tests/e2e/tools.spec.ts:111:1 › rotate: only selected pages change orientation (4.2s)
+  ✓  143 [webkit] › tests/e2e/tools.spec.ts:281:1 › sign: drawn and uploaded signatures produce valid PDFs (6.1s)
+  ✓  144 [webkit] › tests/e2e/tools.spec.ts:118:1 › images to PDF: PNG transparency, JPEG and WebP, page settings and reordering (5.5s)
+  ✓  146 [mobile-chromium] › tests/e2e/mobile.spec.ts:51:1 › mobile: reorder files and download a real merged PDF (2.7s)
+  ✓  145 [mobile-chromium] › tests/e2e/mobile.spec.ts:10:1 › mobile: polished home, working navigation and every tool layout (7.4s)
+
+
+  1) [firefox] › tests/e2e/resources.spec.ts:96:1 › hung processing is terminated by the deadline and preserves settings 
+
+    Error: expect(received).toHaveLength(expected)
+
+    Expected length: 0
+    Received length: 1
+    Received array:  [{"_guid": "worker@d1362f52558edeaf1afb89f157c0b053", "_type": "Worker"}]
+
+      110 |   await expect(page.getByRole('alert')).toContainText('two-minute safety limit');
+      111 |   await expect(page.locator('.process-button')).toBeEnabled();
+    > 112 |   expect(page.workers().filter((w) => w.url().includes('processor.worker'))).toHaveLength(0);
+          |                                                                              ^
+      113 | });
+      114 |
+        at /workspace/tests/e2e/resources.spec.ts:112:78
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/resources-hung-processing--3aadb-line-and-preserves-settings-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/resources-hung-processing--3aadb-line-and-preserves-settings-firefox/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/resources-hung-processing--3aadb-line-and-preserves-settings-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/resources-hung-processing--3aadb-line-and-preserves-settings-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [firefox] › tests/e2e/resources.spec.ts:96:1 › hung processing is terminated by the deadline and preserves settings 
+  145 passed (5.8m)

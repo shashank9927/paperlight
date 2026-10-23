@@ -1,0 +1,86 @@
+[
+  {
+    "browser": "chromium",
+    "version": "156.0.8078.4",
+    "fixture": {
+      "bytes": 809787,
+      "pages": 3,
+      "kinds": "text + rotated/cropped text + seeded scanned image"
+    },
+    "host": {
+      "platform": "linux",
+      "release": "6.18.54.1-microsoft-standard-WSL2",
+      "cpu": "AMD Ryzen 7 7840HS w/ Radeon 780M Graphics",
+      "logicalCpus": 16,
+      "ramBytes": 7897780224
+    },
+    "cold": {
+      "loadMs": 400,
+      "previewMs": 905,
+      "processingMs": 249
+    },
+    "warm": {
+      "loadMs": 358,
+      "previewMs": 403,
+      "processingMs": 235
+    },
+    "maxGapMs": 24.7,
+    "maxPageHeapBytes": 35100000
+  },
+  {
+    "browser": "firefox",
+    "version": "157.0",
+    "fixture": {
+      "bytes": 809787,
+      "pages": 3,
+      "kinds": "text + rotated/cropped text + seeded scanned image"
+    },
+    "host": {
+      "platform": "linux",
+      "release": "6.18.54.1-microsoft-standard-WSL2",
+      "cpu": "AMD Ryzen 7 7840HS w/ Radeon 780M Graphics",
+      "logicalCpus": 16,
+      "ramBytes": 7897780224
+    },
+    "cold": {
+      "loadMs": 447,
+      "previewMs": 890,
+      "processingMs": 333
+    },
+    "warm": {
+      "loadMs": 492,
+      "previewMs": 368,
+      "processingMs": 301
+    },
+    "maxGapMs": 36,
+    "maxPageHeapBytes": null
+  },
+  {
+    "browser": "webkit",
+    "version": "27.2",
+    "fixture": {
+      "bytes": 809787,
+      "pages": 3,
+      "kinds": "text + rotated/cropped text + seeded scanned image"
+    },
+    "host": {
+      "platform": "linux",
+      "release": "6.18.54.1-microsoft-standard-WSL2",
+      "cpu": "AMD Ryzen 7 7840HS w/ Radeon 780M Graphics",
+      "logicalCpus": 16,
+      "ramBytes": 7897780224
+    },
+    "cold": {
+      "loadMs": 433,
+      "previewMs": 946,
+      "processingMs": 548
+    },
+    "warm": {
+      "loadMs": 389,
+      "previewMs": 914,
+      "processingMs": 492
+    },
+    "maxGapMs": 77,
+    "maxPageHeapBytes": null
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "name": "chromium",
+    "version": "156.0.8078.4",
+    "worker": {
+      "offscreenCanvas": true,
+      "convertToBlob": true,
+      "createImageBitmap": true,
+      "secureRandom": true
+    }
+  },
+  {
+    "name": "firefox",
+    "version": "157.0",
+    "worker": {
+      "offscreenCanvas": true,
+      "convertToBlob": true,
+      "createImageBitmap": true,
+      "secureRandom": true
+    }
+  },
+  {
+    "name": "webkit",
+    "version": "27.2",
+    "worker": {
+      "offscreenCanvas": true,
+      "convertToBlob": true,
+      "createImageBitmap": true,
+      "secureRandom": true
+    }
+  }
+]

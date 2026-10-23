@@ -1,0 +1,7 @@
+{
+  "name": "Paperlight verification",
+  "build": { "dockerfile": "Dockerfile", "context": ".." },
+  "forwardPorts": [5173, 4173],
+  "postCreateCommand": "npm ci",
+  "remoteUser": "node"
+}

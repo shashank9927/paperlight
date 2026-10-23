@@ -1,0 +1,79 @@
+{
+  "browser": "firefox",
+  "version": "157.0",
+  "host": {
+    "platform": "linux",
+    "release": "6.18.54.1-microsoft-standard-WSL2",
+    "cpu": "AMD Ryzen 7 7840HS w/ Radeon 780M Graphics",
+    "logicalCpus": 16,
+    "ramBytes": 7897780224
+  },
+  "fixture": {
+    "bytes": 809787,
+    "pages": 3,
+    "kinds": "text + rotated/cropped text + seeded scanned image"
+  },
+  "caveat": "Local loopback, no throttling. Page JS heap excludes workers, WASM, GPU and native allocations; not peak process memory. Automated desktop browsers are not physical mobile devices.",
+  "results": [
+    {
+      "sample": 0,
+      "warm": false,
+      "loadMs": 742.6694929999999,
+      "previewMs": 890.2124789999998,
+      "processingMs": 308.03868200000034,
+      "maxGapMs": 28,
+      "ticks": 17,
+      "pageJsHeapBytes": null
+    },
+    {
+      "sample": 0,
+      "warm": true,
+      "loadMs": 465.21389699999963,
+      "previewMs": 356.2185159999999,
+      "processingMs": 297.07149599999957,
+      "maxGapMs": 22,
+      "ticks": 17,
+      "pageJsHeapBytes": null
+    },
+    {
+      "sample": 1,
+      "warm": false,
+      "loadMs": 447.0702030000002,
+      "previewMs": 871.322255,
+      "processingMs": 333.11185900000055,
+      "maxGapMs": 31,
+      "ticks": 17,
+      "pageJsHeapBytes": null
+    },
+    {
+      "sample": 1,
+      "warm": true,
+      "loadMs": 510.964645,
+      "previewMs": 397.4541589999999,
+      "processingMs": 300.97838799999954,
+      "maxGapMs": 24,
+      "ticks": 17,
+      "pageJsHeapBytes": null
+    },
+    {
+      "sample": 2,
+      "warm": false,
+      "loadMs": 413.8471760000011,
+      "previewMs": 898.7941790000004,
+      "processingMs": 339.039573,
+      "maxGapMs": 36,
+      "ticks": 18,
+      "pageJsHeapBytes": null
+    },
+    {
+      "sample": 2,
+      "warm": true,
+      "loadMs": 491.7443829999993,
+      "previewMs": 368.2896669999991,
+      "processingMs": 313.32538899999963,
+      "maxGapMs": 22,
+      "ticks": 18,
+      "pageJsHeapBytes": null
+    }
+  ]
+}

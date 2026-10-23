@@ -1,0 +1,403 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 485B 0.0s done
+#1 DONE 0.1s
+
+#2 [internal] load metadata for docker.io/library/node:24-bookworm
+#2 ...
+
+#3 [auth] library/node:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#4 [auth] nginxinc/nginx-unprivileged:pull token for registry-1.docker.io
+#4 DONE 0.0s
+
+#5 [internal] load metadata for docker.io/nginxinc/nginx-unprivileged:stable-alpine
+#5 ...
+
+#2 [internal] load metadata for docker.io/library/node:24-bookworm
+#2 DONE 0.8s
+
+#5 [internal] load metadata for docker.io/nginxinc/nginx-unprivileged:stable-alpine
+#5 DONE 1.6s
+
+#6 [internal] load .dockerignore
+#6 transferring context: 115B done
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 DONE 0.0s
+
+#8 [stage-1 1/3] FROM docker.io/nginxinc/nginx-unprivileged:stable-alpine@sha256:f5116ed4606f3eb015dd4a8e28cb9b351476dc0ad4bc6e9f93b19cec130cdf03
+#8 resolve docker.io/nginxinc/nginx-unprivileged:stable-alpine@sha256:f5116ed4606f3eb015dd4a8e28cb9b351476dc0ad4bc6e9f93b19cec130cdf03
+#8 ...
+
+#9 [build 1/7] FROM docker.io/library/node:24-bookworm@sha256:6449e19d8184d84062525b6a7524def03146c2cb04a7f08b076680d0e8e4240a
+#9 resolve docker.io/library/node:24-bookworm@sha256:6449e19d8184d84062525b6a7524def03146c2cb04a7f08b076680d0e8e4240a 0.1s done
+#9 CACHED
+
+#8 [stage-1 1/3] FROM docker.io/nginxinc/nginx-unprivileged:stable-alpine@sha256:f5116ed4606f3eb015dd4a8e28cb9b351476dc0ad4bc6e9f93b19cec130cdf03
+#8 resolve docker.io/nginxinc/nginx-unprivileged:stable-alpine@sha256:f5116ed4606f3eb015dd4a8e28cb9b351476dc0ad4bc6e9f93b19cec130cdf03 0.1s done
+#8 ...
+
+#7 [internal] load build context
+#7 transferring context: 832.94kB 0.1s done
+#7 DONE 0.2s
+
+#10 [build 2/7] WORKDIR /app
+#10 DONE 0.2s
+
+#11 [build 3/7] COPY package.json package-lock.json ./
+#11 DONE 0.3s
+
+#8 [stage-1 1/3] FROM docker.io/nginxinc/nginx-unprivileged:stable-alpine@sha256:f5116ed4606f3eb015dd4a8e28cb9b351476dc0ad4bc6e9f93b19cec130cdf03
+#8 DONE 0.7s
+
+#12 [build 4/7] COPY scripts/prepare-engine.mjs scripts/prepare-engine.mjs
+#12 DONE 0.2s
+
+#8 [stage-1 1/3] FROM docker.io/nginxinc/nginx-unprivileged:stable-alpine@sha256:f5116ed4606f3eb015dd4a8e28cb9b351476dc0ad4bc6e9f93b19cec130cdf03
+#8 sha256:511976c6ab3d18f06369d88a401beb8fa48862cb60d8a025a4dd51cc092a5565 1.20kB / 1.20kB 0.2s done
+#8 sha256:ff3fbed5e913226bf2387e1f4d75e910ef4959d6149f1e8fed749e924227e07e 0B / 17.35MB 0.2s
+#8 sha256:911bd3a49d26bae1ce395def8d5e3c2b306275ffbbfd47355bac30d2e095935e 0B / 1.40kB 0.2s
+#8 sha256:0513567031b18f3d5d8fc07e4ce48950f2a51d493a05045755763fb41f76076f 0B / 964B 0.2s
+#8 sha256:a13b501623601157699cbc90849b0c6c89c00d01ccaf41f038157454b44c2c9a 0B / 628B 0.2s
+#8 sha256:911bd3a49d26bae1ce395def8d5e3c2b306275ffbbfd47355bac30d2e095935e 1.40kB / 1.40kB 0.3s done
+#8 sha256:0513567031b18f3d5d8fc07e4ce48950f2a51d493a05045755763fb41f76076f 964B / 964B 0.3s done
+#8 sha256:ff3fbed5e913226bf2387e1f4d75e910ef4959d6149f1e8fed749e924227e07e 2.10MB / 17.35MB 0.5s
+#8 sha256:a13df183ba7f55b6feb80b286c9028f1c64432c5aeffa748f6c530e0abf4770e 0B / 2.79kB 0.2s
+#8 sha256:3cbf0502908f3bd4ec5e5dc3aeb3da0bc1c6690ac394a16fecebb8af91ae1c1f 404B / 404B 0.1s done
+#8 sha256:a13df183ba7f55b6feb80b286c9028f1c64432c5aeffa748f6c530e0abf4770e 2.79kB / 2.79kB 0.3s done
+#8 sha256:618365c073173c14719b1175033543c9185a5b93aa837004b92993c9d28cce43 0B / 4.36MB 0.2s
+#8 sha256:ff3fbed5e913226bf2387e1f4d75e910ef4959d6149f1e8fed749e924227e07e 3.15MB / 17.35MB 0.8s
+#8 sha256:a13b501623601157699cbc90849b0c6c89c00d01ccaf41f038157454b44c2c9a 628B / 628B 0.6s
+#8 sha256:ff3fbed5e913226bf2387e1f4d75e910ef4959d6149f1e8fed749e924227e07e 4.19MB / 17.35MB 0.9s
+#8 sha256:a13b501623601157699cbc90849b0c6c89c00d01ccaf41f038157454b44c2c9a 628B / 628B 0.7s done
+#8 sha256:618365c073173c14719b1175033543c9185a5b93aa837004b92993c9d28cce43 1.05MB / 4.36MB 0.5s
+#8 sha256:ff3fbed5e913226bf2387e1f4d75e910ef4959d6149f1e8fed749e924227e07e 5.24MB / 17.35MB 1.1s
+#8 sha256:ff3fbed5e913226bf2387e1f4d75e910ef4959d6149f1e8fed749e924227e07e 7.34MB / 17.35MB 1.2s
+#8 sha256:618365c073173c14719b1175033543c9185a5b93aa837004b92993c9d28cce43 3.15MB / 4.36MB 0.8s
+#8 sha256:ff3fbed5e913226bf2387e1f4d75e910ef4959d6149f1e8fed749e924227e07e 8.39MB / 17.35MB 1.4s
+#8 sha256:618365c073173c14719b1175033543c9185a5b93aa837004b92993c9d28cce43 4.36MB / 4.36MB 0.9s done
+#8 sha256:ff3fbed5e913226bf2387e1f4d75e910ef4959d6149f1e8fed749e924227e07e 9.44MB / 17.35MB 1.5s
+#8 extracting sha256:618365c073173c14719b1175033543c9185a5b93aa837004b92993c9d28cce43
+#8 sha256:ff3fbed5e913226bf2387e1f4d75e910ef4959d6149f1e8fed749e924227e07e 11.53MB / 17.35MB 1.7s
+#8 extracting sha256:618365c073173c14719b1175033543c9185a5b93aa837004b92993c9d28cce43 0.3s done
+#8 extracting sha256:a13df183ba7f55b6feb80b286c9028f1c64432c5aeffa748f6c530e0abf4770e 0.1s done
+#8 extracting sha256:a13b501623601157699cbc90849b0c6c89c00d01ccaf41f038157454b44c2c9a
+#8 sha256:ff3fbed5e913226bf2387e1f4d75e910ef4959d6149f1e8fed749e924227e07e 13.63MB / 17.35MB 1.8s
+#8 extracting sha256:a13b501623601157699cbc90849b0c6c89c00d01ccaf41f038157454b44c2c9a 0.1s done
+#8 extracting sha256:0513567031b18f3d5d8fc07e4ce48950f2a51d493a05045755763fb41f76076f 0.0s done
+#8 sha256:ff3fbed5e913226bf2387e1f4d75e910ef4959d6149f1e8fed749e924227e07e 15.73MB / 17.35MB 2.0s
+#8 extracting sha256:3cbf0502908f3bd4ec5e5dc3aeb3da0bc1c6690ac394a16fecebb8af91ae1c1f 0.0s done
+#8 extracting sha256:511976c6ab3d18f06369d88a401beb8fa48862cb60d8a025a4dd51cc092a5565 0.0s done
+#8 sha256:ff3fbed5e913226bf2387e1f4d75e910ef4959d6149f1e8fed749e924227e07e 16.78MB / 17.35MB 2.1s
+#8 extracting sha256:911bd3a49d26bae1ce395def8d5e3c2b306275ffbbfd47355bac30d2e095935e
+#8 sha256:ff3fbed5e913226bf2387e1f4d75e910ef4959d6149f1e8fed749e924227e07e 17.35MB / 17.35MB 2.5s done
+#8 extracting sha256:911bd3a49d26bae1ce395def8d5e3c2b306275ffbbfd47355bac30d2e095935e 0.4s done
+#8 DONE 3.4s
+
+#13 [build 5/7] RUN npm ci
+#13 ...
+
+#8 [stage-1 1/3] FROM docker.io/nginxinc/nginx-unprivileged:stable-alpine@sha256:f5116ed4606f3eb015dd4a8e28cb9b351476dc0ad4bc6e9f93b19cec130cdf03
+#8 extracting sha256:ff3fbed5e913226bf2387e1f4d75e910ef4959d6149f1e8fed749e924227e07e 1.2s done
+#8 DONE 4.6s
+
+#14 [stage-1 2/3] COPY deployment/nginx.conf /etc/nginx/conf.d/default.conf
+#14 DONE 0.7s
+
+#13 [build 5/7] RUN npm ci
+#13 14.63 
+#13 14.63 > paperlight@1.0.0 postinstall
+#13 14.63 > node scripts/prepare-engine.mjs
+#13 14.63 
+#13 14.78 Prepared QPDF 12.2.0 with a 512 MiB WASM memory maximum.
+#13 14.83 
+#13 14.83 added 166 packages, and audited 167 packages in 13s
+#13 14.83 
+#13 14.83 29 packages are looking for funding
+#13 14.83   run `npm fund` for details
+#13 14.83 
+#13 14.83 found 0 vulnerabilities
+#13 14.83 npm warn install-scripts 1 package has install scripts not yet covered by allowScripts:
+#13 14.83 npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+#13 14.83 npm warn install-scripts
+#13 14.83 npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+#13 14.83 npm notice
+#13 14.83 npm notice New major version of npm available! 11.19.1 -> 12.2.1
+#13 14.83 npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+#13 14.83 npm notice To update run: npm install -g npm@12.2.1
+#13 14.83 npm notice
+#13 DONE 19.1s
+
+#15 [build 6/7] COPY . .
+#15 DONE 0.4s
+
+#16 [build 7/7] RUN npm run build
+#16 0.585 
+#16 0.585 > paperlight@1.0.0 build
+#16 0.585 > tsc -b && vite build
+#16 0.585 
+#16 4.262 vite v7.3.7 building client environment for production...
+#16 4.313 transforming...
+#16 5.583 [plugin vite:resolve] Module "fs" has been externalized for browser compatibility, imported by "/app/node_modules/@neslinesli93/qpdf-wasm/dist/qpdf.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+#16 5.583 [plugin vite:resolve] Module "path" has been externalized for browser compatibility, imported by "/app/node_modules/@neslinesli93/qpdf-wasm/dist/qpdf.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+#16 5.583 [plugin vite:resolve] Module "crypto" has been externalized for browser compatibility, imported by "/app/node_modules/@neslinesli93/qpdf-wasm/dist/qpdf.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+#16 7.825 [plugin vite:resolve] Module "fs" has been externalized for browser compatibility, imported by "/app/node_modules/@neslinesli93/qpdf-wasm/dist/qpdf.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+#16 7.825 [plugin vite:resolve] Module "path" has been externalized for browser compatibility, imported by "/app/node_modules/@neslinesli93/qpdf-wasm/dist/qpdf.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+#16 7.825 [plugin vite:resolve] Module "crypto" has been externalized for browser compatibility, imported by "/app/node_modules/@neslinesli93/qpdf-wasm/dist/qpdf.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+#16 10.17 ✓ 1698 modules transformed.
+#16 10.33 rendering chunks...
+#16 10.48 computing gzip size...
+#16 10.52 dist/assets/qpdf-ZRbW16rX.js                                      0.06 kB
+#16 10.52 dist/pdf-assets/cmaps/CNS2-V.bcmap                                0.09 kB
+#16 10.52 dist/pdf-assets/cmaps/Roman.bcmap                                 0.10 kB
+#16 10.52 dist/pdf-assets/cmaps/Katakana.bcmap                              0.10 kB
+#16 10.52 dist/pdf-assets/cmaps/ETenms-B5-H.bcmap                           0.10 kB
+#16 10.52 dist/pdf-assets/cmaps/UniJIS-UCS2-HW-H.bcmap                      0.12 kB
+#16 10.52 dist/pdf-assets/cmaps/Hiragana.bcmap                              0.12 kB
+#16 10.52 dist/pdf-assets/cmaps/Hankaku.bcmap                               0.13 kB
+#16 10.52 dist/pdf-assets/cmaps/B5-V.bcmap                                  0.14 kB
+#16 10.52 dist/pdf-assets/cmaps/CNS1-V.bcmap                                0.14 kB
+#16 10.52 dist/pdf-assets/cmaps/B5pc-V.bcmap                                0.14 kB
+#16 10.52 dist/pdf-assets/cmaps/HKdla-B5-V.bcmap                            0.15 kB
+#16 10.52 dist/pdf-assets/cmaps/HKdlb-B5-V.bcmap                            0.15 kB
+#16 10.52 dist/pdf-assets/cmaps/HKgccs-B5-V.bcmap                           0.15 kB
+#16 10.52 dist/pdf-assets/cmaps/HKm314-B5-V.bcmap                           0.15 kB
+#16 10.52 dist/pdf-assets/cmaps/HKm471-B5-V.bcmap                           0.15 kB
+#16 10.52 dist/pdf-assets/cmaps/UniCNS-UCS2-V.bcmap                         0.16 kB
+#16 10.52 dist/pdf-assets/cmaps/UniCNS-UTF16-V.bcmap                        0.16 kB
+#16 10.52 dist/pdf-assets/cmaps/UniCNS-UTF8-V.bcmap                         0.16 kB
+#16 10.52 dist/pdf-assets/cmaps/ETHK-B5-V.bcmap                             0.16 kB
+#16 10.52 dist/pdf-assets/cmaps/ETen-B5-V.bcmap                             0.16 kB
+#16 10.52 dist/pdf-assets/cmaps/HKscs-B5-V.bcmap                            0.16 kB
+#16 10.52 dist/pdf-assets/cmaps/KSC-V.bcmap                                 0.16 kB
+#16 10.52 dist/pdf-assets/cmaps/UniCNS-UTF32-V.bcmap                        0.16 kB
+#16 10.52 dist/pdf-assets/cmaps/KSC-EUC-V.bcmap                             0.16 kB
+#16 10.52 dist/pdf-assets/cmaps/UniKS-UTF16-V.bcmap                         0.16 kB
+#16 10.52 dist/pdf-assets/cmaps/KSC-Johab-V.bcmap                           0.17 kB
+#16 10.52 dist/pdf-assets/cmaps/KSCms-UHC-V.bcmap                           0.17 kB
+#16 10.52 dist/pdf-assets/cmaps/KSCpc-EUC-V.bcmap                           0.17 kB
+#16 10.52 dist/pdf-assets/cmaps/V.bcmap                                     0.17 kB
+#16 10.52 dist/pdf-assets/cmaps/UniKS-UTF32-V.bcmap                         0.17 kB
+#16 10.52 dist/pdf-assets/cmaps/78-V.bcmap                                  0.17 kB
+#16 10.52 dist/pdf-assets/cmaps/KSCms-UHC-HW-V.bcmap                        0.17 kB
+#16 10.52 dist/pdf-assets/cmaps/UniKS-UTF8-V.bcmap                          0.17 kB
+#16 10.52 dist/pdf-assets/cmaps/EUC-V.bcmap                                 0.17 kB
+#16 10.52 dist/pdf-assets/cmaps/RKSJ-V.bcmap                                0.17 kB
+#16 10.52 dist/pdf-assets/cmaps/ETenms-B5-V.bcmap                           0.17 kB
+#16 10.52 dist/pdf-assets/cmaps/78-EUC-V.bcmap                              0.17 kB
+#16 10.52 dist/pdf-assets/cmaps/78-RKSJ-V.bcmap                             0.17 kB
+#16 10.52 dist/pdf-assets/cmaps/GB-V.bcmap                                  0.18 kB
+#16 10.52 dist/pdf-assets/cmaps/GBT-V.bcmap                                 0.18 kB
+#16 10.52 dist/pdf-assets/cmaps/UniGB-UTF16-V.bcmap                         0.18 kB
+#16 10.52 dist/pdf-assets/cmaps/UniKS-UCS2-V.bcmap                          0.18 kB
+#16 10.52 dist/pdf-assets/cmaps/GB-EUC-V.bcmap                              0.18 kB
+#16 10.52 dist/pdf-assets/cmaps/WP-Symbol.bcmap                             0.18 kB
+#16 10.52 dist/pdf-assets/cmaps/GBK-EUC-V.bcmap                             0.18 kB
+#16 10.52 dist/pdf-assets/cmaps/GBT-EUC-V.bcmap                             0.18 kB
+#16 10.52 dist/pdf-assets/cmaps/GBKp-EUC-V.bcmap                            0.18 kB
+#16 10.52 dist/pdf-assets/cmaps/GBpc-EUC-V.bcmap                            0.18 kB
+#16 10.52 dist/pdf-assets/cmaps/UniGB-UTF8-V.bcmap                          0.18 kB
+#16 10.52 dist/pdf-assets/cmaps/GBTpc-EUC-V.bcmap                           0.18 kB
+#16 10.52 dist/pdf-assets/cmaps/UniGB-UTF32-V.bcmap                         0.18 kB
+#16 10.52 dist/pdf-assets/cmaps/UniGB-UCS2-V.bcmap                          0.19 kB
+#16 10.52 dist/pdf-assets/cmaps/Ext-V.bcmap                                 0.22 kB
+#16 10.52 dist/pdf-assets/cmaps/Adobe-GB1-0.bcmap                           0.22 kB
+#16 10.52 dist/pdf-assets/cmaps/Ext-RKSJ-V.bcmap                            0.22 kB
+#16 10.52 dist/pdf-assets/cmaps/GBK2K-V.bcmap                               0.22 kB
+#16 10.52 dist/pdf-assets/cmaps/Adobe-Japan1-0.bcmap                        0.23 kB
+#16 10.52 dist/pdf-assets/cmaps/Adobe-Japan1-1.bcmap                        0.23 kB
+#16 10.52 dist/pdf-assets/cmaps/Adobe-Japan1-2.bcmap                        0.23 kB
+#16 10.52 dist/pdf-assets/cmaps/Adobe-Korea1-0.bcmap                        0.24 kB
+#16 10.52 dist/pdf-assets/cmaps/Adobe-Japan1-3.bcmap                        0.24 kB
+#16 10.52 dist/pdf-assets/cmaps/Adobe-GB1-1.bcmap                           0.25 kB
+#16 10.52 dist/pdf-assets/cmaps/NWP-V.bcmap                                 0.25 kB
+#16 10.52 dist/pdf-assets/cmaps/90pv-RKSJ-V.bcmap                           0.26 kB
+#16 10.52 dist/pdf-assets/cmaps/Add-V.bcmap                                 0.28 kB
+#16 10.52 dist/pdf-assets/cmaps/Add-RKSJ-V.bcmap                            0.29 kB
+#16 10.52 dist/pdf-assets/cmaps/78ms-RKSJ-V.bcmap                           0.29 kB
+#16 10.52 dist/pdf-assets/cmaps/90ms-RKSJ-V.bcmap                           0.29 kB
+#16 10.52 dist/pdf-assets/cmaps/90msp-RKSJ-V.bcmap                          0.29 kB
+#16 10.52 dist/pdf-assets/cmaps/Adobe-CNS1-0.bcmap                          0.32 kB
+#16 10.52 dist/pdf-assets/cmaps/Adobe-Japan1-4.bcmap                        0.34 kB
+#16 10.52 dist/pdf-assets/cmaps/Adobe-CNS1-1.bcmap                          0.37 kB
+#16 10.52 dist/pdf-assets/cmaps/Adobe-CNS1-2.bcmap                          0.38 kB
+#16 10.53 dist/pdf-assets/cmaps/Adobe-Korea1-1.bcmap                        0.39 kB
+#16 10.53 dist/pdf-assets/cmaps/Adobe-Korea1-2.bcmap                        0.39 kB
+#16 10.53 dist/pdf-assets/cmaps/Adobe-CNS1-3.bcmap                          0.40 kB
+#16 10.53 dist/pdf-assets/cmaps/Adobe-CNS1-4.bcmap                          0.41 kB
+#16 10.53 dist/pdf-assets/cmaps/Adobe-CNS1-5.bcmap                          0.41 kB
+#16 10.53 dist/pdf-assets/cmaps/Adobe-CNS1-6.bcmap                          0.41 kB
+#16 10.53 dist/pdf-assets/cmaps/Adobe-Japan1-5.bcmap                        0.43 kB
+#16 10.53 dist/pdf-assets/cmaps/Adobe-GB1-2.bcmap                           0.47 kB
+#16 10.53 dist/pdf-assets/cmaps/Adobe-GB1-3.bcmap                           0.47 kB
+#16 10.53 dist/pdf-assets/cmaps/Adobe-Japan1-6.bcmap                        0.49 kB
+#16 10.53 dist/pdf-assets/cmaps/CNS2-H.bcmap                                0.50 kB
+#16 10.53 dist/pdf-assets/cmaps/GB-H.bcmap                                  0.53 kB
+#16 10.53 dist/pdf-assets/cmaps/RKSJ-H.bcmap                                0.53 kB
+#16 10.53 dist/pdf-assets/cmaps/GB-EUC-H.bcmap                              0.55 kB
+#16 10.53 dist/pdf-assets/cmaps/H.bcmap                                     0.55 kB
+#16 10.53 dist/pdf-assets/wasm/LICENSE_PDFJS_JBIG2                          0.56 kB
+#16 10.53 dist/pdf-assets/cmaps/GBpc-EUC-H.bcmap                            0.56 kB
+#16 10.53 dist/assets/pdf-assets-BTumIRNm.js                                0.56 kB
+#16 10.53 dist/pdf-assets/cmaps/EUC-H.bcmap                                 0.58 kB
+#16 10.53 dist/pdf-assets/cmaps/Adobe-GB1-4.bcmap                           0.60 kB
+#16 10.53 dist/pdf-assets/cmaps/Adobe-GB1-5.bcmap                           0.63 kB
+#16 10.53 dist/pdf-assets/cmaps/UniJIS-UTF16-V.bcmap                        0.64 kB
+#16 10.53 dist/pdf-assets/cmaps/UniJIS2004-UTF16-V.bcmap                    0.65 kB
+#16 10.53 dist/pdf-assets/cmaps/UniJIS-UCS2-V.bcmap                         0.66 kB
+#16 10.53 dist/pdf-assets/cmaps/UniJIS-UTF32-V.bcmap                        0.68 kB
+#16 10.53 dist/pdf-assets/cmaps/UniJIS-UTF8-V.bcmap                         0.68 kB
+#16 10.53 dist/pdf-assets/cmaps/UniJIS-UCS2-HW-V.bcmap                      0.68 kB
+#16 10.53 dist/pdf-assets/cmaps/UniJIS2004-UTF32-V.bcmap                    0.68 kB
+#16 10.53 dist/pdf-assets/cmaps/UniJIS2004-UTF8-V.bcmap                     0.68 kB
+#16 10.53 dist/pdf-assets/cmaps/UniJISX0213-UTF32-V.bcmap                   0.68 kB
+#16 10.53 dist/pdf-assets/cmaps/UniJISX02132004-UTF32-V.bcmap               0.69 kB
+#16 10.53 dist/pdf-assets/cmaps/UniJISPro-UCS2-V.bcmap                      0.69 kB
+#16 10.53 dist/pdf-assets/cmaps/UniJISPro-UCS2-HW-V.bcmap                   0.71 kB
+#16 10.53 dist/pdf-assets/cmaps/CNS1-H.bcmap                                0.71 kB
+#16 10.53 dist/index.html                                                   0.71 kB │ gzip:   0.42 kB
+#16 10.53 dist/pdf-assets/cmaps/90msp-RKSJ-H.bcmap                          0.72 kB
+#16 10.53 dist/pdf-assets/cmaps/90ms-RKSJ-H.bcmap                           0.72 kB
+#16 10.53 dist/pdf-assets/cmaps/UniJISPro-UTF8-V.bcmap                      0.73 kB
+#16 10.53 dist/pdf-assets/cmaps/83pv-RKSJ-H.bcmap                           0.91 kB
+#16 10.53 dist/pdf-assets/cmaps/90pv-RKSJ-H.bcmap                           0.98 kB
+#16 10.53 dist/pdf-assets/wasm/LICENSE_PDFJS_QCMS                           1.04 kB
+#16 10.53 dist/pdf-assets/cmaps/B5-H.bcmap                                  1.09 kB
+#16 10.53 dist/pdf-assets/cmaps/B5pc-H.bcmap                                1.10 kB
+#16 10.53 dist/pdf-assets/wasm/LICENSE_QCMS                                 1.12 kB
+#16 10.53 dist/pdf-assets/cmaps/ETen-B5-H.bcmap                             1.13 kB
+#16 10.53 dist/pdf-assets/wasm/LICENSE_PDFJS_OPENJPEG                       1.29 kB
+#16 10.53 dist/pdf-assets/standard_fonts/LICENSE_FOXIT                      1.55 kB
+#16 10.53 dist/pdf-assets/cmaps/HKm314-B5-H.bcmap                           1.77 kB
+#16 10.53 dist/pdf-assets/cmaps/CNS-EUC-H.bcmap                             1.78 kB
+#16 10.53 dist/pdf-assets/cmaps/KSC-H.bcmap                                 1.83 kB
+#16 10.53 dist/pdf-assets/cmaps/KSC-EUC-H.bcmap                             1.85 kB
+#16 10.53 dist/pdf-assets/cmaps/CNS-EUC-V.bcmap                             1.92 kB
+#16 10.53 dist/pdf-assets/cmaps/KSCpc-EUC-H.bcmap                           2.02 kB
+#16 10.53 dist/pdf-assets/cmaps/LICENSE                                     2.08 kB
+#16 10.53 dist/pdf-assets/wasm/LICENSE_OPENJPEG                             2.11 kB
+#16 10.53 dist/pdf-assets/cmaps/HKm471-B5-H.bcmap                           2.17 kB
+#16 10.53 dist/pdf-assets/cmaps/HKgccs-B5-H.bcmap                           2.29 kB
+#16 10.53 dist/pdf-assets/cmaps/78-H.bcmap                                  2.38 kB
+#16 10.53 dist/pdf-assets/cmaps/78-RKSJ-H.bcmap                             2.40 kB
+#16 10.53 dist/pdf-assets/cmaps/78-EUC-H.bcmap                              2.40 kB
+#16 10.53 dist/pdf-assets/cmaps/Add-RKSJ-H.bcmap                            2.41 kB
+#16 10.53 dist/pdf-assets/cmaps/HKdlb-B5-H.bcmap                            2.41 kB
+#16 10.53 dist/pdf-assets/cmaps/Add-H.bcmap                                 2.42 kB
+#16 10.53 dist/pdf-assets/cmaps/Ext-H.bcmap                                 2.54 kB
+#16 10.53 dist/pdf-assets/cmaps/Ext-RKSJ-H.bcmap                            2.54 kB
+#16 10.53 dist/pdf-assets/cmaps/78ms-RKSJ-H.bcmap                           2.65 kB
+#16 10.53 dist/pdf-assets/cmaps/HKdla-B5-H.bcmap                            2.65 kB
+#16 10.53 dist/pdf-assets/cmaps/NWP-H.bcmap                                 2.77 kB
+#16 10.53 dist/pdf-assets/cmaps/KSCms-UHC-H.bcmap                           2.79 kB
+#16 10.53 dist/pdf-assets/cmaps/KSCms-UHC-HW-H.bcmap                        2.79 kB
+#16 10.53 dist/pdf-assets/cmaps/ETHK-B5-H.bcmap                             4.43 kB
+#16 10.53 dist/pdf-assets/cmaps/HKscs-B5-H.bcmap                            4.44 kB
+#16 10.53 dist/pdf-assets/wasm/quickjs-eval.js                              6.23 kB
+#16 10.53 dist/pdf-assets/iccs/LICENSE                                      6.55 kB
+#16 10.53 dist/pdf-assets/cmaps/GBT-H.bcmap                                 7.27 kB
+#16 10.53 dist/pdf-assets/cmaps/GBT-EUC-H.bcmap                             7.29 kB
+#16 10.53 dist/pdf-assets/cmaps/GBTpc-EUC-H.bcmap                           7.30 kB
+#16 10.53 dist/pdf-assets/iccs/CGATS001Compat-v2-micro.icc                  8.46 kB
+#16 10.53 dist/assets/manrope-vietnamese-wght-normal-usUDDRr7.woff2         8.52 kB
+#16 10.53 dist/assets/manrope-greek-wght-normal-DL7QRZyv.woff2              9.44 kB
+#16 10.53 dist/sw.js                                                       10.27 kB
+#16 10.53 dist/pdf-assets/wasm/LICENSE_JBIG2                               12.86 kB
+#16 10.53 dist/assets/manrope-cyrillic-wght-normal-Dvxsihut.woff2          14.50 kB
+#16 10.53 dist/pdf-assets/cmaps/GBKp-EUC-H.bcmap                           14.69 kB
+#16 10.53 dist/pdf-assets/cmaps/GBK-EUC-H.bcmap                            14.69 kB
+#16 10.53 dist/assets/manrope-latin-ext-wght-normal-Ch3YOpNY.woff2         15.12 kB
+#16 10.53 dist/pdf-assets/standard_fonts/FoxitSymbol.pfb                   16.73 kB
+#16 10.53 dist/pdf-assets/cmaps/KSC-Johab-H.bcmap                          16.79 kB
+#16 10.53 dist/pdf-assets/standard_fonts/FoxitFixed.pfb                    17.60 kB
+#16 10.53 dist/pdf-assets/standard_fonts/FoxitFixedBold.pfb                18.06 kB
+#16 10.53 dist/assets/dm-sans-latin-ext-wght-normal-BOFOeGcA.woff2         18.23 kB
+#16 10.53 dist/pdf-assets/standard_fonts/FoxitFixedItalic.pfb              18.75 kB
+#16 10.53 dist/pdf-assets/standard_fonts/FoxitFixedBoldItalic.pfb          19.15 kB
+#16 10.53 dist/pdf-assets/standard_fonts/FoxitSerifBold.pfb                19.40 kB
+#16 10.53 dist/pdf-assets/standard_fonts/FoxitSerif.pfb                    19.47 kB
+#16 10.53 dist/pdf-assets/cmaps/GBK2K-H.bcmap                              19.66 kB
+#16 10.53 dist/pdf-assets/standard_fonts/FoxitSerifBoldItalic.pfb          20.73 kB
+#16 10.53 dist/pdf-assets/standard_fonts/FoxitSerifItalic.pfb              21.23 kB
+#16 10.53 dist/pdf-assets/standard_fonts/LICENSE_LIBERATION                22.15 kB
+#16 10.53 dist/pdf-assets/cmaps/Adobe-Korea1-UCS2.bcmap                    23.29 kB
+#16 10.53 dist/assets/manrope-latin-wght-normal-DHIcAJRg.woff2             24.84 kB
+#16 10.53 dist/pdf-assets/cmaps/UniJIS-UCS2-H.bcmap                        25.44 kB
+#16 10.53 dist/pdf-assets/cmaps/UniKS-UCS2-H.bcmap                         25.78 kB
+#16 10.53 dist/pdf-assets/cmaps/UniKS-UTF16-H.bcmap                        26.33 kB
+#16 10.53 dist/pdf-assets/cmaps/UniKS-UTF32-H.bcmap                        26.45 kB
+#16 10.53 dist/pdf-assets/cmaps/UniKS-UTF8-H.bcmap                         27.79 kB
+#16 10.53 dist/pdf-assets/standard_fonts/FoxitDingbats.pfb                 29.51 kB
+#16 10.53 dist/pdf-assets/cmaps/Adobe-GB1-UCS2.bcmap                       33.97 kB
+#16 10.53 dist/assets/dm-sans-latin-wght-normal-Xz1IZZA0.woff2             36.93 kB
+#16 10.53 dist/pdf-assets/cmaps/UniJIS-UTF16-H.bcmap                       39.44 kB
+#16 10.53 dist/pdf-assets/cmaps/UniJIS2004-UTF16-H.bcmap                   39.53 kB
+#16 10.53 dist/pdf-assets/cmaps/UniJISX0213-UTF32-H.bcmap                  40.52 kB
+#16 10.53 dist/pdf-assets/cmaps/UniJIS-UTF32-H.bcmap                       40.54 kB
+#16 10.53 dist/pdf-assets/cmaps/UniJISX02132004-UTF32-H.bcmap              40.61 kB
+#16 10.53 dist/pdf-assets/cmaps/UniJIS2004-UTF32-H.bcmap                   40.63 kB
+#16 10.53 dist/pdf-assets/cmaps/Adobe-Japan1-UCS2.bcmap                    40.95 kB
+#16 10.53 dist/pdf-assets/cmaps/Adobe-CNS1-UCS2.bcmap                      41.19 kB
+#16 10.53 dist/pdf-assets/cmaps/UniJIS-UTF8-H.bcmap                        41.70 kB
+#16 10.53 dist/pdf-assets/cmaps/UniJIS2004-UTF8-H.bcmap                    41.78 kB
+#16 10.53 dist/assets/qpdf-DbHS-suz.js                                     42.91 kB
+#16 10.53 dist/assets/qpdf-SFxOKL9y.js                                     42.91 kB
+#16 10.53 dist/pdf-assets/cmaps/UniGB-UCS2-H.bcmap                         43.37 kB
+#16 10.53 dist/pdf-assets/cmaps/UniGB-UTF16-H.bcmap                        44.09 kB
+#16 10.53 dist/pdf-assets/cmaps/UniGB-UTF32-H.bcmap                        45.74 kB
+#16 10.53 dist/pdf-assets/cmaps/UniGB-UTF8-H.bcmap                         46.84 kB
+#16 10.53 dist/pdf-assets/cmaps/UniCNS-UCS2-H.bcmap                        48.28 kB
+#16 10.53 dist/pdf-assets/cmaps/UniCNS-UTF16-H.bcmap                       50.42 kB
+#16 10.53 dist/pdf-assets/cmaps/UniCNS-UTF32-H.bcmap                       52.68 kB
+#16 10.53 dist/pdf-assets/cmaps/UniCNS-UTF8-H.bcmap                        53.63 kB
+#16 10.53 dist/pdf-assets/wasm/qcms_bg.wasm                                96.59 kB │ gzip:  35.85 kB
+#16 10.53 dist/pdf-assets/wasm/jbig2.wasm                                 103.67 kB │ gzip:  41.22 kB
+#16 10.53 dist/pdf-assets/standard_fonts/LiberationSans-BoldItalic.ttf    135.12 kB
+#16 10.53 dist/pdf-assets/standard_fonts/LiberationSans-Bold.ttf          137.05 kB
+#16 10.53 dist/assets/LiberationSans-Regular-cbskN6YR.ttf                 139.51 kB
+#16 10.53 dist/pdf-assets/standard_fonts/LiberationSans-Regular.ttf       139.51 kB
+#16 10.53 dist/pdf-assets/wasm/jbig2_nowasm_fallback.js                   152.01 kB
+#16 10.53 dist/pdf-assets/standard_fonts/LiberationSans-Italic.ttf        162.04 kB
+#16 10.53 dist/pdf-assets/wasm/openjpeg.wasm                              251.13 kB │ gzip:  82.31 kB
+#16 10.53 dist/assets/admission.worker-Bhp3yXuD.js                        435.73 kB
+#16 10.53 dist/pdf-assets/wasm/openjpeg_nowasm_fallback.js                445.78 kB
+#16 10.53 dist/assets/processor.worker-vG3ySHBL.js                        461.38 kB
+#16 10.53 dist/pdf-assets/wasm/quickjs-eval.wasm                          469.11 kB │ gzip: 218.89 kB
+#16 10.53 dist/assets/fontkit.es-BkIUuCmr.js                              716.64 kB
+#16 10.53 dist/assets/pdf.worker.min-CjEcRF4W.mjs                       1,264.34 kB
+#16 10.53 dist/assets/qpdf-BJ8Lhgzx.wasm                                1,334.29 kB │ gzip: 450.36 kB
+#16 10.53 dist/assets/index-dyCFF1Ic.css                                   74.60 kB │ gzip:  19.24 kB
+#16 10.53 dist/assets/preview-BjAB_zFM.js                                   2.87 kB │ gzip:   1.46 kB
+#16 10.53 dist/assets/Workspace-BAju_Kwd.js                               133.45 kB │ gzip:  44.56 kB
+#16 10.53 dist/assets/index-CnXgAeuZ.js                                   286.68 kB │ gzip:  91.82 kB
+#16 10.53 dist/assets/pdf-CUWRgxuq.js                                     436.58 kB │ gzip: 130.94 kB
+#16 10.53 dist/assets/fontkit.es-BbS1lNcA.js                              763.71 kB │ gzip: 344.25 kB
+#16 10.53 
+#16 10.53 (!) Some chunks are larger than 650 kB after minification. Consider:
+#16 10.53 - Using dynamic import() to code-split the application
+#16 10.53 - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+#16 10.53 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+#16 10.53 ✓ built in 6.25s
+#16 DONE 10.9s
+
+#17 [stage-1 3/3] COPY --from=build /app/dist /usr/share/nginx/html
+#17 DONE 0.3s
+
+#18 exporting to image
+#18 exporting layers
+#18 exporting layers 0.6s done
+#18 exporting manifest sha256:1d052ae6cc5582d2155375899aed2bf1ab33ac00ebf00f61a181e0ef47c5e1c9 0.0s done
+#18 exporting config sha256:2c4f170b0e81522f758457b705f5746bfeca40012322a7a8a9c9c5c0e145e730 0.0s done
+#18 exporting attestation manifest sha256:f17fa8471e43ac8cd9aba299bebe9f29dfb207082726040753900d63dea224c6
+#18 exporting attestation manifest sha256:f17fa8471e43ac8cd9aba299bebe9f29dfb207082726040753900d63dea224c6 0.0s done
+#18 exporting manifest list sha256:1b0fffcd2b2027246af3eaacf45f0afa73ac125f3e08c40e23b77045c7ea8faa 0.0s done
+#18 naming to docker.io/library/paperlight-production:local done
+#18 unpacking to docker.io/library/paperlight-production:local
+#18 unpacking to docker.io/library/paperlight-production:local 0.2s done
+#18 DONE 1.0s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/qs78p86s1rn1mx056xp9be81t
