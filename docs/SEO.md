@@ -31,6 +31,6 @@ After a production deployment, open the site, navigate between tools, and inspec
 
 ## Verification
 
-`tests/seo.test.ts` checks route/content coverage and analytics URL filtering. `tests/e2e/seo.spec.ts` checks all thirteen pages with JavaScript disabled, metadata and structured data, genuine 404s, redirects, navigation/hydration, and route-specific offline HTML. `tests/e2e/analytics.spec.ts` checks production SDK scheduling, URL sanitization, disabled local collection, and blocked-script resilience. Existing suites continue to cover PDF outputs, privacy, accessibility, responsive themes, and performance budgets.
+`tests/seo.test.ts` checks route/content coverage and analytics URL filtering. `tests/e2e/seo.spec.ts` checks all thirteen pages with JavaScript disabled, metadata and structured data, genuine 404s, redirects, navigation/hydration, delayed-script file-selection safety, and route-specific offline HTML. `tests/e2e/analytics.spec.ts` checks production SDK scheduling, URL sanitization, disabled local collection, and blocked-script resilience. Existing suites continue to cover PDF outputs, privacy, accessibility, responsive themes, and performance budgets.
 
-Release results and deployment status are recorded separately after verification. Search Console ownership and dashboard ingestion require the site owner's account; neither is implied by a successful local test.
+Local release results and deployment boundaries are recorded in [SEO-VERIFICATION.md](SEO-VERIFICATION.md). Full Linux browser and static-host results are published in the linked pull-request checks. Search Console ownership and dashboard ingestion require the site owner's account; neither is implied by a successful local test.

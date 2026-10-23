@@ -10,7 +10,7 @@ export function ToolGuide({ toolId }: { toolId: ToolId }) {
     <section className="tool-guide" aria-label={`${tool.title} guide`}>
       <div className="guide-columns">
         <div>
-          <h2>How to use {tool.title.toLowerCase()}</h2>
+          <h2>How to use {tool.title}</h2>
           <ol>
             {page.steps.map((step) => (
               <li key={step}>{step}</li>

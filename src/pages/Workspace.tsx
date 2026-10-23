@@ -62,6 +62,11 @@ const initialOptions = (tool: string): ToolOptions => ({
 export default function Workspace() {
   const { toolId = '' } = useParams();
   const tool = getTool(toolId);
+  // Native file changes must wait until this lazy boundary has attached React handlers.
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    setReady(true);
+  }, []);
   const [files, setFiles] = useState<PreviewFile[]>([]);
   const filesRef = useRef<PreviewFile[]>([]);
   const [pages, setPages] = useState<PageRef[]>([]);
@@ -483,16 +488,18 @@ export default function Workspace() {
             <i>3</i>Download
           </span>
         </div>
-        <input
-          ref={input}
-          type="file"
-          className="visually-hidden"
-          aria-label="Choose files"
-          accept={isImages ? 'image/png,image/jpeg,image/webp' : 'application/pdf,.pdf'}
-          multiple={multiple}
-          disabled={busy}
-          onChange={(event) => void addFiles(Array.from(event.target.files || []))}
-        />
+        {ready && (
+          <input
+            ref={input}
+            type="file"
+            className="visually-hidden"
+            aria-label="Choose files"
+            accept={isImages ? 'image/png,image/jpeg,image/webp' : 'application/pdf,.pdf'}
+            multiple={multiple}
+            disabled={busy}
+            onChange={(event) => void addFiles(Array.from(event.target.files || []))}
+          />
+        )}
         {error && (
           <div className="error-notice" role="alert">
             <span>{error}</span>
@@ -510,6 +517,7 @@ export default function Workspace() {
             {!files.length ? (
               <div
                 className={`dropzone ${dragging ? 'drag-over' : ''}`}
+                aria-busy={!ready || adding}
                 onDragOver={(event) => {
                   event.preventDefault();
                   setDragging(true);
@@ -550,7 +558,7 @@ export default function Workspace() {
                 </p>
                 <button
                   className="button primary"
-                  disabled={busy}
+                  disabled={!ready || busy}
                   onClick={() => input.current?.click()}
                 >
                   {adding ? <span className="spinner" /> : <Upload size={17} />}{' '}
@@ -562,6 +570,9 @@ export default function Workspace() {
                         ? 'Choose PDFs'
                         : 'Choose a PDF'}
                 </button>
+                <noscript>
+                  Enable JavaScript to select files and process documents on your device.
+                </noscript>
                 <span className="dropzone-meta">
                   {isImages ? 'JPG, PNG, or WebP' : 'PDF files'} <i /> Up to 100 MB combined <i />{' '}
                   500 pages

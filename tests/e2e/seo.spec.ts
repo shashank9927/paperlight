@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { seoPages, siteOrigin } from '../../src/lib/seo';
+import { makeFixtures } from '../fixtures';
+import { pdfInput } from './helpers';
 
 test('SEO: every public page has useful HTML without JavaScript', async ({ browser }, info) => {
   const context = await browser.newContext({
@@ -106,4 +108,24 @@ test('SEO: unknown tool pages hydrate as genuine 404s without a client render mi
   await page.getByRole('link', { name: 'Back to Paperlight', exact: true }).click();
   await expect(page.locator('h1')).toContainText('Free PDF tools.');
   expect(errors).toEqual([]);
+});
+
+test('SEO: a delayed workspace cannot accept files before hydration is ready', async ({ page }) => {
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route('**/assets/Workspace-*.js', async (route) => {
+    await gate;
+    await route.continue();
+  });
+  await page.goto('/tools/merge', { waitUntil: 'domcontentloaded' });
+  await expect(page.getByRole('button', { name: 'Choose PDFs', exact: true })).toBeDisabled();
+  await expect(page.getByRole('heading', { name: 'What you can do', exact: true })).toBeVisible();
+  await expect(page.getByLabel('Choose files', { exact: true })).toHaveCount(0);
+  release();
+  const input = page.getByLabel('Choose files', { exact: true });
+  await expect(input).toBeEnabled();
+  await input.setInputFiles(pdfInput((await makeFixtures()).tiny));
+  await expect(page.locator('.process-button')).toBeEnabled();
 });

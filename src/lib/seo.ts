@@ -224,7 +224,7 @@ export const seoPages: SeoPage[] = [
     ...content[tool.id],
     faqs: [
       {
-        question: `How do I use ${tool.title.toLowerCase()}?`,
+        question: `How do I use ${tool.title}?`,
         answer: content[tool.id].steps.join(' '),
       },
       {

@@ -2497,8 +2497,15 @@ svg {
   padding-left: 24px;
   margin: 0 0 16px;
 }
+.tool-guide ol {
+  list-style: decimal;
+}
+.tool-guide ul {
+  list-style: disc;
+}
 .tool-guide li {
   margin-bottom: 8px;
+  color: var(--muted);
 }
 .tool-guide details {
   padding: 16px 0;
