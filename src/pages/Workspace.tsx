@@ -37,6 +37,7 @@ import { PagePreview } from '../components/PagePreview';
 import { SortableItem, SortableList } from '../components/Sortable';
 import { ToolSettings } from '../components/ToolSettings';
 import { Modal } from '../components/Modal';
+import { ToolGuide } from '../components/ToolGuide';
 
 interface PasswordRequest {
   name: string;
@@ -126,7 +127,6 @@ export default function Workspace() {
     setPasswordInput('');
   };
   useEffect(() => {
-    document.title = `${tool?.title || 'Tool not found'} — Paperlight`;
     return () => {
       generation.current++;
       inspection.current?.abort();
@@ -1267,6 +1267,7 @@ export default function Workspace() {
             Explore the other tools <ArrowRight size={14} />
           </Link>
         </div>
+        <ToolGuide toolId={tool.id} />
       </div>
       <Modal
         open={help}
