@@ -2531,7 +2531,11 @@ svg {
   text-decoration: underline;
   text-underline-offset: 4px;
 }
+.guide-related > span {
+  color: var(--muted);
+}
 .footer-bottom a {
+  color: var(--subtle);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
