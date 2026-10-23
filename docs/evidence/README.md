@@ -2,6 +2,8 @@
 
 The redesign release is documented in `../REDESIGN.md`. Files beginning `redesign-` describe that release. Other files below retain the earlier hardening evidence and must not be used as the new artifact identity.
 
+The theme toggle follow-up is also recorded in `../REDESIGN.md`; `theme-toggle-*` contains its focused browser results, keyboard-focus recheck, and final local hosting check.
+
 Redesign evidence includes the exact static manifest/image ID, production build/package logs, browser matrix report, separate benchmarks, hosting contract, and representative dark/light screenshots. Full synthetic documents and screenshots remain in ignored `.cache` directories and the cached verification container.
 
 Pre-redesign evidence (retained for history):

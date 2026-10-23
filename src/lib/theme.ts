@@ -9,13 +9,18 @@ export function readTheme(): Theme {
   }
   return 'dark';
 }
-export function applyTheme(theme: Theme) {
-  document.documentElement.dataset.theme =
-    theme === 'system'
-      ? matchMedia('(prefers-color-scheme: dark)').matches
-        ? 'dark'
-        : 'light'
-      : theme;
+export type ResolvedTheme = 'dark' | 'light';
+export function resolveTheme(theme: Theme): ResolvedTheme {
+  return theme === 'system'
+    ? matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark'
+      : 'light'
+    : theme;
+}
+export function applyTheme(theme: Theme): ResolvedTheme {
+  const resolved = resolveTheme(theme);
+  document.documentElement.dataset.theme = resolved;
+  return resolved;
 }
 export function saveTheme(theme: Theme) {
   try {

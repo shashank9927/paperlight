@@ -1,0 +1,8 @@
+
+Running 3 tests using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/parity.spec.ts:218:1 › themes remain accessible and responsive, and persist only appearance (14.8s)
+  ✓  2 [firefox] › tests/e2e/parity.spec.ts:218:1 › themes remain accessible and responsive, and persist only appearance (21.9s)
+  ✓  3 [webkit] › tests/e2e/parity.spec.ts:218:1 › themes remain accessible and responsive, and persist only appearance (31.1s)
+
+  3 passed (1.2m)

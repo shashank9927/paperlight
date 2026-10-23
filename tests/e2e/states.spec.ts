@@ -28,7 +28,9 @@ for (const theme of ['dark', 'light']) {
       await page.emulateMedia({ reducedMotion: 'reduce' });
       const fixture = await makeFixtures();
       await openTool(page, 'watermark', pdfInput(fixture.pdf));
-      await page.getByLabel('Appearance').selectOption(theme);
+      if ((await page.locator('html').getAttribute('data-theme')) !== theme) {
+        await page.getByRole('button', { name: `Switch to ${theme} theme` }).click();
+      }
       await expect(page.locator('.focus-page-wrap canvas')).toHaveAttribute('data-ready', 'true');
       const capture = async (state: string) => {
         await page.evaluate(() => window.scrollTo(0, 0));

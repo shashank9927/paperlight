@@ -1,6 +1,6 @@
 # Paperlight
 
-A private PDF toolkit with twelve real tools and a restrained interface with dark, light, and system themes. Every document operation runs in the browser. There is no upload endpoint, account system, database, analytics service, or conversion API.
+A private PDF toolkit with twelve real tools and a restrained interface with a dark/light theme toggle. A previously saved system theme continues to follow the operating system until the user toggles it. Every document operation runs in the browser. There is no upload endpoint, account system, database, analytics service, or conversion API.
 
 ## Develop
 

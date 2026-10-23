@@ -224,7 +224,13 @@ test('themes remain accessible and responsive, and persist only appearance', asy
     for (const width of [390, 768, 1440]) {
       await page.setViewportSize({ width, height: 1000 });
       await page.goto('/');
-      await page.getByLabel('Appearance').selectOption(theme);
+      const themeButton = page.getByRole('button', {
+        name: `Switch to ${theme} theme`,
+      });
+      if ((await page.locator('html').getAttribute('data-theme')) !== theme) {
+        await themeButton.click();
+      }
+      await expect(page.locator('.header-right select')).toHaveCount(0);
       await expect(page.locator('.tool-card')).toHaveCount(12);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
         true,
@@ -251,10 +257,30 @@ test('themes remain accessible and responsive, and persist only appearance', asy
     }
   }
   expect(await page.evaluate(() => Object.keys(localStorage))).toEqual(['paperlight-theme']);
-  await page.getByLabel('Appearance').selectOption('system');
+  await page.evaluate(() => localStorage.setItem('paperlight-theme', 'system'));
   await page.emulateMedia({ colorScheme: 'dark' });
+  await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.getByRole('button', { name: 'Switch to light theme' })).toBeVisible();
   await page.emulateMedia({ colorScheme: 'light' });
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  const themeToggle = page.getByRole('button', { name: 'Switch to dark theme' });
+  await themeToggle.focus();
+  await expect(themeToggle).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  expect(await page.evaluate(() => localStorage.getItem('paperlight-theme'))).toBe('dark');
+  const focusedToggle = page.getByRole('button', { name: 'Switch to light theme' });
+  await expect(focusedToggle).toBeFocused();
+  await expect(focusedToggle).toHaveCSS('outline-style', 'solid');
+  await expect(focusedToggle).toHaveCSS('outline-width', '2px');
+  await page.emulateMedia({ colorScheme: 'light' });
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await page.getByRole('button', { name: 'Switch to light theme' }).focus();
+  await page.keyboard.press('Space');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  expect(await page.evaluate(() => localStorage.getItem('paperlight-theme'))).toBe('light');
+  await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
 });
 

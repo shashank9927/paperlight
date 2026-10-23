@@ -278,20 +278,6 @@ svg {
   gap: 12px;
   align-items: center;
 }
-.theme-switch {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: var(--muted);
-}
-.theme-switch select {
-  min-height: 32px;
-  padding: 3px 8px;
-  border-color: transparent;
-  background: none;
-  width: 85px;
-  font-size: 13px;
-}
 .mobile-menu {
   display: none !important;
 }
@@ -2040,9 +2026,6 @@ svg {
   }
   .header-inner {
     gap: 8px;
-  }
-  .theme-switch select {
-    width: 76px;
   }
   .hero {
     padding-block: 48px 56px;

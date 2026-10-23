@@ -1,7 +1,7 @@
-import { ArrowUpRight, Menu, X, Layers2, SunMoon } from 'lucide-react';
+import { ArrowUpRight, Menu, X, Layers2, Moon, Sun } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { applyTheme, readTheme, saveTheme } from '../lib/theme';
+import { applyTheme, readTheme, resolveTheme, saveTheme } from '../lib/theme';
 import type { Theme } from '../lib/theme';
 export function Brand() {
   return (
@@ -16,13 +16,14 @@ export function Brand() {
 export function Header() {
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState<Theme>(readTheme);
+  const [resolvedTheme, setResolvedTheme] = useState(() => resolveTheme(theme));
   const location = useLocation();
   useEffect(() => {
     setOpen(false);
   }, [location]);
   useEffect(() => {
     const media = matchMedia('(prefers-color-scheme: dark)');
-    const update = () => applyTheme(theme);
+    const update = () => setResolvedTheme(applyTheme(theme));
     update();
     media.addEventListener('change', update);
     return () => media.removeEventListener('change', update);
@@ -39,23 +40,20 @@ export function Header() {
           <Link to="/#privacy">Privacy</Link>
         </nav>
         <div className="header-right">
-          <label className="theme-switch">
-            <SunMoon size={16} />
-            <span className="visually-hidden">Appearance</span>
-            <select
-              aria-label="Appearance"
-              value={theme}
-              onChange={(e) => {
-                const next = e.target.value as Theme;
-                setTheme(next);
-                saveTheme(next);
-              }}
-            >
-              <option value="dark">Dark</option>
-              <option value="light">Light</option>
-              <option value="system">System</option>
-            </select>
-          </label>
+          <button
+            className="icon-button theme-toggle"
+            type="button"
+            aria-label={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} theme`}
+            title={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} theme`}
+            onClick={() => {
+              const next = resolvedTheme === 'dark' ? 'light' : 'dark';
+              setTheme(next);
+              setResolvedTheme(next);
+              saveTheme(next);
+            }}
+          >
+            {resolvedTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
           <button
             className="icon-button mobile-menu"
             aria-label={open ? 'Close navigation' : 'Open navigation'}
