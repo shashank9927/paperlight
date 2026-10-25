@@ -18,6 +18,7 @@ import { independentPdf } from './independent';
 import { MAX_OUTPUT_BYTES, saveBoundedPdf } from '../src/lib/limits';
 import { readFile } from 'node:fs/promises';
 import { boundaryPdf } from './resource-fixtures';
+import { createCanvas, loadImage } from '@napi-rs/canvas';
 vi.mock('../src/generated/qpdf.wasm?url', async () => ({
   default: (await import('node:path')).resolve('src/generated/qpdf.wasm'),
 }));
@@ -325,6 +326,39 @@ describe('preservation-aware assembly', () => {
       4, 4, 5, 5, 6, 6,
     ]);
     expect(new Set(report.preservation?.tags.ids).size).toBe(6);
+    // All six output pages must also retain their rendered content. This is
+    // independent of the structural assertions and uses Poppler on both sides.
+    const pixels = async (path: string) => {
+      const image = await loadImage(path);
+      const canvas = createCanvas(image.width, image.height);
+      const context = canvas.getContext('2d');
+      context.drawImage(image, 0, 0);
+      return {
+        width: image.width,
+        height: image.height,
+        data: Buffer.from(context.getImageData(0, 0, image.width, image.height).data),
+      };
+    };
+    for (let source = 0; source < sources.length; source++) {
+      for (let page = 1; page <= 2; page++) {
+        const original = await independentPdf(
+          new Uint8Array(await sources[source].file.arrayBuffer()),
+          `.cache/independent/three-source-${source}.pdf`,
+          undefined,
+          page,
+        );
+        const merged = await independentPdf(
+          result.files[0].data,
+          '.cache/independent/three-structured.pdf',
+          undefined,
+          source * 2 + page,
+        );
+        const expected = await pixels(original.render!);
+        const actual = await pixels(merged.render!);
+        expect([actual.width, actual.height]).toEqual([expected.width, expected.height]);
+        expect(actual.data.equals(expected.data), `source ${source + 1}, page ${page}`).toBe(true);
+      }
+    }
     const { getDocument } = await import('pdfjs-dist/legacy/build/pdf.mjs');
     const task = getDocument({ data: result.files[0].data.slice() });
     try {

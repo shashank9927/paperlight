@@ -32,6 +32,9 @@ distinct from whole-page rasterization in preservation classification.
   colliding destinations/roles/classes/IDs, independent annotation/tag parents,
   reordered/duplicated pages, exclusions, inconsistent source parent trees and
   populated navigation through Rotate/Compress/Protect/Unlock.
+  All six pages of the populated three-input fixture are independently rendered
+  with Poppler before/after assembly and compared as decoded pixels, in addition
+  to checking text, navigation and accessibility relationships.
 - `tests/fixtures/chromium-tagged.pdf` is a two-page PDF generated locally from
   synthetic HTML with Chromium's tagged/outline export. It contains real heading,
   paragraph, image-alt and internal-link structures. It has no user document data.
