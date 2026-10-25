@@ -951,8 +951,12 @@ export async function assemblePdf(
         element.set(n('P'), parent);
         const kids = original.get(n('K'));
         const children = kids ? copyTag(kids, ref, page, depth + 1) : undefined;
-        if (!children && (kids || lane > 0)) return undefined;
+        const originalKids = doc.context.lookup(kids);
+        const wasEmpty = !kids || (originalKids instanceof PDFArray && !originalKids.size());
+        const keepEmpty = wasEmpty && (pageByRef.has(page as PDFRef) || (!page && lane === 0));
+        if (!children && !keepEmpty) return undefined;
         if (children) element.set(n('K'), children);
+        else if (originalKids instanceof PDFArray) element.set(n('K'), ctx.obj([]));
         for (const [key, item] of original.entries()) {
           if ([n('Type'), n('P'), n('K'), n('Pg')].includes(key)) continue;
           if (key === n('Ref'))

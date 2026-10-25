@@ -14,7 +14,7 @@ Copied objects/data, newly generated form names, traversal and final serializati
 
 ## Real-document verification
 
-The locally identified twelve-file lecture set contains 295 pages. Its merged output was independently verified with pypdf, PDF.js structures and Poppler: all 295 pages retain text/order, all 295 bookmarks are remapped, tag relationships validate, and all 295 rendered pages match the original page pixels at 72 DPI. The embedded MP4 remains exactly 773,546 bytes with the same SHA-256 hash and valid annotation/page associations.
+The locally identified twelve-file lecture set contains 295 pages. Its merged output was independently verified with pypdf, PDF.js structures and Poppler: all 295 pages retain text/order, all 295 bookmarks are remapped, tag relationships validate, and all 295 rendered pages match the original page pixels at 72 DPI. PDF.js confirms matching text on all 295 pages and matching structure trees on all 279 originally tagged pages. Empty table cells/rows retain their roles and associations, including duplicated pages. The embedded MP4 remains exactly 773,546 bytes with the same SHA-256 hash and valid annotation/page associations.
 
 Extracting pages 1–8 of the reported 16-page Foundations document produces eight pages and eight valid bookmarks/tags without an omission prompt. The same local corpus exercises Organize, Rotate and Compress batches, Watermark, Page Numbers, Protect, Unlock and Sign. Local image-workflow/UI verification and final complete browser/hosting results are recorded in the follow-up PR's description/checks; do not infer their success from this paragraph alone. No original documents or extracted content are published with those results.
 

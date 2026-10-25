@@ -30,6 +30,44 @@ const job = (tool: ProcessingJob['tool'], data: Uint8Array, options = {}) => ({
 });
 
 describe('ordinary document compatibility', () => {
+  it('retains empty table cells and rows associated with selected or duplicated pages', async () => {
+    const document = await PDFDocument.load(await structuredPdf());
+    const section = document.catalog.lookup(n('StructTreeRoot'), PDFDict).lookup(n('K'), PDFDict);
+    const table = document.context.obj({
+      Type: 'StructElem',
+      S: 'Table',
+      P: document.catalog.lookup(n('StructTreeRoot'), PDFDict).get(n('K')),
+      Pg: document.getPage(0).ref,
+    });
+    const tableRef = document.context.register(table);
+    const row = document.context.obj({
+      Type: 'StructElem',
+      S: 'TR',
+      P: tableRef,
+      Pg: document.getPage(0).ref,
+    });
+    const rowRef = document.context.register(row);
+    const cell = document.context.register(
+      document.context.obj({
+        Type: 'StructElem',
+        S: 'TD',
+        P: rowRef,
+        Pg: document.getPage(0).ref,
+        K: [],
+      }),
+    );
+    row.set(n('K'), document.context.obj([cell]));
+    table.set(n('K'), document.context.obj([rowRef]));
+    section.lookup(n('K'), PDFArray).push(tableRef);
+    const bytes = await assemblePdf(
+      [{ document, name: 'table.pdf' }],
+      [0, 0].map((index) => ({ source: 0, index, rotation: 0 })),
+      { navigation: 'selected' },
+    );
+    const report = await independentPdf(bytes, '.cache/independent/empty-table-cells.pdf');
+    expect(report.preservation?.tags.roles.filter((role) => role === '/TD')).toHaveLength(2);
+    expect(report.preservation?.tags.roles.filter((role) => role === '/TR')).toHaveLength(2);
+  });
   it('does not confuse a custom accessibility role with an executable action', async () => {
     const document = await PDFDocument.load(await structuredPdf());
     const tree = document.catalog.lookup(n('StructTreeRoot'), PDFDict);
