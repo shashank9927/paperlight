@@ -1,5 +1,5 @@
 import { build, loadEnv } from 'vite';
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -17,7 +17,14 @@ const analytics = process.env.VERCEL_ENV === 'production';
 const verification =
   process.env.GOOGLE_SITE_VERIFICATION ||
   loadEnv('production', process.cwd(), 'GOOGLE_SITE_VERIFICATION').GOOGLE_SITE_VERIFICATION;
-const template = await readFile('dist/index.html', 'utf8');
+const icons = (await readdir('dist/assets')).filter((file) =>
+  /^favicon-[a-f0-9]{12}\.svg$/.test(file),
+);
+if (icons.length !== 1) throw new Error('Expected one bundled Paperlight favicon.');
+const template = (await readFile('dist/index.html', 'utf8')).replace(
+  'href="/favicon.svg"',
+  `href="/assets/${icons[0]}"`,
+);
 const pageDigest = createHash('sha256');
 const escape = (value) =>
   String(value).replace(

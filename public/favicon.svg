@@ -1,1 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><rect width="48" height="48" rx="13" fill="#7961df"/><path d="M12 14h13l11 10-11 10H12l11-10z" fill="white"/><path d="M12 14l11 10-11 10" fill="#c9bafa"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#181a20" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <title>Paperlight</title>
+  <style>@media (prefers-color-scheme: dark) { svg { stroke: #eceef2; } }</style>
+  <path d="m16.02 12 5.48 3.13a1 1 0 0 1 0 1.74L13 21.74a2 2 0 0 1-2 0l-8.5-4.87a1 1 0 0 1 0-1.74L7.98 12"/>
+  <path d="M13 13.74a2 2 0 0 1-2 0L2.5 8.87a1 1 0 0 1 0-1.74L11 2.26a2 2 0 0 1 2 0l8.5 4.87a1 1 0 0 1 0 1.74Z"/>
+</svg>

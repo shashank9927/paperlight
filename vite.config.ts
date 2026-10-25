@@ -94,9 +94,13 @@ export default defineConfig(({ isSsrBuild }) => ({
       },
       generateBundle(_options, bundle) {
         if (isSsrBuild) return;
+        const favicon = readFileSync(resolve('public/favicon.svg'));
+        const faviconPath = `assets/favicon-${createHash('sha256').update(favicon).digest('hex').slice(0, 12)}.svg`;
+        this.emitFile({ type: 'asset', fileName: faviconPath, source: favicon });
         const allowed = Object.keys(bundle)
           .filter((name) => name.startsWith('assets/'))
           .map((name) => `/${name}`);
+        if (!allowed.includes(`/${faviconPath}`)) allowed.push(`/${faviconPath}`);
         for (const folder of assetFolders)
           for (const name of readdirSync(resolve(assetRoot, folder))) {
             allowed.push(`/pdf-assets/${folder}/${name}`);
@@ -122,7 +126,7 @@ export default defineConfig(({ isSsrBuild }) => ({
           fileName: 'sw.js',
           source: `
 const CACHE = 'paperlight-pages-v2-${version}';
-const SHELL = ${JSON.stringify(['/', '/favicon.svg', ...shell])};
+const SHELL = ${JSON.stringify(['/', '/favicon.svg', `/${faviconPath}`, ...shell])};
 const ASSETS = new Set(${JSON.stringify(['/favicon.svg', ...allowed])});
 const TOOLS = new Set(['merge','split','compress','organize','rotate','images-to-pdf','pdf-to-images','watermark','page-numbers','protect','unlock','sign'].map(tool => '/tools/' + tool));
 const PENDING_PAGES = new Map();
