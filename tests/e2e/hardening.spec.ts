@@ -83,15 +83,16 @@ for (const tool of ['watermark', 'page-numbers', 'sign']) {
   });
 }
 
-test('unsupported forms fail explicitly before output; password and Unicode errors preserve settings', async ({
+test('ordinary form extraction succeeds; password and Unicode errors preserve settings', async ({
   page,
 }) => {
   await openTool(page, 'split', pdfInput(await featurePdf('form')));
   await page.getByLabel('Pages', { exact: true }).fill('2');
-  await page.locator('.process-button').click();
-  await expect(page.getByRole('alert')).toContainText('interactive forms');
-  await expect(page.getByLabel('Pages', { exact: true })).toHaveValue('2');
-  await expect(page.locator('.result-panel')).toHaveCount(0);
+  const extracted = await finish(page);
+  const report = await independentPdf(extracted.bytes, test.info().outputPath('form-selected.pdf'));
+  expect(report.count).toBe(1);
+  expect(report.fields).toEqual({});
+  await expect(page.getByRole('alert')).toHaveCount(0);
   await openTool(page, 'protect', pdfInput(await featurePdf('plain')));
   const long = 'é'.repeat(64);
   await page.getByLabel('New password', { exact: true }).fill(long);

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { resolve } from 'node:path';
-import { PDFDocument, PDFName } from 'pdf-lib';
+import { PDFArray, PDFDict, PDFDocument, PDFName, PDFRawStream, decodePDFRawStream } from 'pdf-lib';
 import { featurePdf } from './feature-fixtures';
 import { processJob } from '../src/lib/engine';
 import { defaultOptions, MAX_PAGES } from '../src/lib/types';
@@ -22,12 +22,41 @@ function job(tool: ProcessingJob['tool'], bytes: Uint8Array): ProcessingJob {
 }
 describe('preservation boundaries', () => {
   it.each(['merge', 'split', 'organize'] as const)(
-    '%s rejects unverified forms, attachments and active structures',
+    '%s preserves forms and attachments and rejects executable actions',
     async (tool) => {
       for (const feature of ['form', 'attachment', 'active'] as const) {
         const input = job(tool, await featurePdf(feature));
         if (tool === 'merge') input.sources.push({ ...input.sources[0], id: 'b' });
-        await expect(processJob(input)).rejects.toThrow('cannot safely preserve');
+        if (feature === 'active') await expect(processJob(input)).rejects.toThrow('JavaScript');
+        else {
+          const result = await processJob(input);
+          const report = await independentPdf(
+            result.files[0].data,
+            resolve(`.cache/independent/${tool}-${feature}-supported.pdf`),
+          );
+          if (feature === 'form') {
+            expect(Object.values(report.fields)).toContain('Alice');
+            expect(
+              report.pages
+                .flatMap((page) => page.annotations)
+                .filter((a) => a.type === '/Widget')
+                .every((a) => a.appearance),
+            ).toBe(true);
+          } else {
+            const document = await PDFDocument.load(result.files[0].data);
+            const names = document.catalog
+              .lookup(PDFName.of('Names'), PDFDict)
+              .lookup(PDFName.of('EmbeddedFiles'), PDFDict)
+              .lookup(PDFName.of('Names'), PDFArray);
+            const stream = names
+              .lookup(1, PDFDict)
+              .lookup(PDFName.of('EF'), PDFDict)
+              .lookup(PDFName.of('F')) as PDFRawStream;
+            expect(new TextDecoder().decode(decodePDFRawStream(stream).decode())).toBe(
+              'Keep attachment',
+            );
+          }
+        }
       }
     },
   );

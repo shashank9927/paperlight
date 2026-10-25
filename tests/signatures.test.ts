@@ -23,9 +23,15 @@ it('independently verifies a real detached signature and demonstrates rewriting 
   const bytes = await readFile(original);
   const source = { id: 'a', file: new File([bytes], 'signed.pdf') };
   const pages = [{ id: 'p', sourceId: 'a', index: 0, rotation: 0 }];
-  await expect(
-    processJob({ tool: 'split', sources: [source], pages, options: defaultOptions }),
-  ).rejects.toThrow('interactive forms');
+  const extracted = await processJob({
+    tool: 'split',
+    sources: [source],
+    pages,
+    options: defaultOptions,
+  });
+  const extractedPath = resolve('.cache/independent/certificate-extracted.pdf');
+  await writeFile(extractedPath, extracted.files[0].data);
+  expect(oracle('verify', extractedPath).integrityValid).toBe(false);
   const result = await processJob({
     tool: 'rotate',
     sources: [source],

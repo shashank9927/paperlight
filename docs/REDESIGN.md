@@ -1,5 +1,7 @@
 # Paperlight redesign and local tool completion
 
+Current ordinary-document compatibility and the lecture-file verification are described in [COMPATIBILITY.md](COMPATIBILITY.md). Its selection/form/layer/media behavior supersedes earlier rejection cases below; dated release evidence remains historical.
+
 Release date: 2026-10-23. This release implements the agreed on-device scope for the twelve existing routes. It keeps React, TypeScript, PDF.js 6.4.299, bundled QPDF 12.2.0, isolated workers, preservation guards and the no-upload architecture. Public deployment, cloud imports, AI services, signature requests and certified signing are excluded by the agreed scope.
 
 ## Interface
@@ -53,12 +55,12 @@ Verification reused cached Docker images, browsers and dependencies. Final packa
 
 The separate single-worker benchmark run passed **3/3** in 47.3 seconds, with three cold/warm pairs per browser. Maximum observed times in milliseconds:
 
-| Browser | Load | Preview | Processing | Main-thread timer gap |
-| --- | ---: | ---: | ---: | ---: |
-| Chromium 156.0.8078.4 | 462.5 | 1117.3 | 420.3 | 47.7 |
-| Firefox 157.0 | 1140.3 | 995.2 | 500.0 | 44.0 |
-| WebKit 27.2 | 514.7 | 1118.5 | 1074.4 | 91.0 |
-| Existing budget | 2000 | 3500 | 2500 | 250 |
+| Browser               |   Load | Preview | Processing | Main-thread timer gap |
+| --------------------- | -----: | ------: | ---------: | --------------------: |
+| Chromium 156.0.8078.4 |  462.5 |  1117.3 |      420.3 |                  47.7 |
+| Firefox 157.0         | 1140.3 |   995.2 |      500.0 |                  44.0 |
+| WebKit 27.2           |  514.7 |  1118.5 |     1074.4 |                  91.0 |
+| Existing budget       |   2000 |    3500 |       2500 |                   250 |
 
 See the [benchmark run](evidence/redesign-benchmarks.txt) and raw [Chromium](evidence/redesign-benchmark-chromium.json), [Firefox](evidence/redesign-benchmark-firefox.json) and [WebKit](evidence/redesign-benchmark-webkit.json) measurements. These are unthrottled loopback results for the synthetic three-page mixed text/scan fixture, not physical-device or full-limit performance promises. Available page heap measurements exclude workers, WASM, GPU and native allocations.
 

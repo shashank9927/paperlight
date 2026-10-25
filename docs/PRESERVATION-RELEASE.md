@@ -1,5 +1,7 @@
 # Preservation and reliability release
 
+This records PR #3's initial preservation release. The follow-up [ordinary-document compatibility update](COMPATIBILITY.md) supersedes its restrictions on page exclusion, common forms, attachments, opening views and layers, and adds local verification with the identified lecture documents.
+
 ## Problem and behavior
 
 Merge previously rejected any Outlines, StructTreeRoot, or internal destination,

@@ -28,7 +28,7 @@ const content: Record<ToolId, ToolContent> = {
       'Page rotation before merging',
     ],
     limitations:
-      'Supported bookmarks, tags and internal links are preserved across inputs. Interactive forms, attachments, tagged form XObjects and other unverified structures are rejected explicitly when preservation cannot be guaranteed.',
+      'Bookmarks, tags, internal links, form fields, layers and embedded files are retained for supported documents. Encrypted files need their password. Editing a PDF may invalidate existing certificate signatures.',
     related: ['split', 'organize', 'compress'],
   },
   split: {

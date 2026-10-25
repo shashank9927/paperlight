@@ -4,6 +4,12 @@ import { dirname, resolve } from 'node:path';
 import { createCanvas, loadImage } from '@napi-rs/canvas';
 
 export interface IndependentReport {
+  embeddedFiles?: Array<{
+    name: string;
+    payloads: Record<string, { bytes: number; sha256: string }>;
+  }>;
+  media?: Array<{ page: number; type: string }>;
+  layers?: { groups: number; defaultOff: number; configurations: number } | null;
   preservation?: {
     outlines: Array<{
       title: string;

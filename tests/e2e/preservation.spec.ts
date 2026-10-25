@@ -47,18 +47,17 @@ for (const tool of ['watermark', 'page-numbers', 'sign'] as const) {
   });
 }
 
-test('full-preservation refusal identifies the file and retains the selected range', async ({
+test('extraction keeps selected pages and valid tags without an omission prompt', async ({
   page,
 }) => {
   await openTool(page, 'split', pdfInput(await structuredPdf(), 'linked-source.pdf'));
   await page.getByLabel('Pages', { exact: true }).fill('1');
-  await page.locator('.process-button').click();
-  await expect(page.getByRole('alert')).toContainText('linked-source.pdf');
-  await expect(page.getByRole('alert')).toContainText('excluded from the output');
-  await expect(page.getByLabel('Pages', { exact: true })).toHaveValue('1');
-  await expect(page.locator('.result-panel')).toHaveCount(0);
-  await page.getByLabel('Pages', { exact: true }).fill('1-2');
-  expect((await finish(page)).bytes.length).toBeGreaterThan(0);
+  const result = await finish(page);
+  await expect(page.getByRole('alert')).toHaveCount(0);
+  const report = await independentPdf(result.bytes, test.info().outputPath('selected-page.pdf'));
+  expect(report.count).toBe(1);
+  expect(report.preservation?.internalLinks).toEqual([]);
+  expect(report.preservation?.tags.pages).toEqual([0]);
 });
 
 test('theme transition is scoped, settles after rapid toggles, and respects reduced motion', async ({

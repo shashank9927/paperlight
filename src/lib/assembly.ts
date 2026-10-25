@@ -15,6 +15,7 @@ import {
 } from 'pdf-lib';
 import type { PDFContext, PDFPage } from 'pdf-lib';
 import { MAX_OBJECTS, checkOutput, saveBoundedPdf } from './limits';
+import { AssemblyExtras } from './assembly-extras';
 
 const n = PDFName.of;
 const text = (value: PDFObject | undefined) =>
@@ -31,6 +32,9 @@ export interface AssemblyPage {
 export interface AssemblySource {
   document: PDFDocument;
   name: string;
+}
+export interface AssemblyOptions {
+  navigation?: 'all' | 'selected';
 }
 export interface CompatibilityIssue {
   source: string;
@@ -127,6 +131,7 @@ export class PreservationError extends Error {
 class Copier {
   readonly mapped = new Map<PDFObject, PDFObject>();
   readonly navigation = new Map<PDFObject, PDFObject>();
+  private readonly activeActions = new Set<PDFObject>();
   currentPage?: { source: PDFRef; output: PDFRef };
   constructor(
     readonly source: AssemblySource,
@@ -134,7 +139,86 @@ class Copier {
     readonly pages: Set<PDFObject>,
     readonly destinations: Map<string, string>,
     readonly budget: CopyBudget,
+    readonly policy: 'all' | 'selected',
+    readonly rawDestinations: Map<string, PDFObject>,
   ) {}
+  retainsDestination(value: PDFObject, seen = new Set<PDFObject>()): boolean {
+    const object = this.source.document.context.lookup(value);
+    if (!object || seen.has(object) || seen.size > 64)
+      return this.fail('internal destinations', 'A destination is missing, cyclic, or excessive.');
+    seen.add(object);
+    const label = text(object);
+    if (label !== undefined) {
+      const destination = this.rawDestinations.get(label);
+      if (!destination)
+        return this.fail('named destinations', 'An internal destination is missing.');
+      return this.retainsDestination(destination, seen);
+    }
+    if (object instanceof PDFDict) {
+      const destination = object.get(n('D'));
+      if (!destination) return this.fail('internal destinations', 'A destination has no target.');
+      return this.retainsDestination(destination, seen);
+    }
+    if (!(object instanceof PDFArray) || !this.pages.has(object.get(0)))
+      return this.fail('internal destinations', 'A destination does not identify a source page.');
+    if (this.navigation.has(object.get(0)) || object.get(0) === this.currentPage?.source)
+      return true;
+    if (this.policy === 'selected') return false;
+    return this.fail(
+      'internal destinations',
+      'A link or bookmark targets a page excluded from the output. Include that page.',
+    );
+  }
+  action(value: PDFObject): PDFObject | undefined {
+    const object = this.source.document.context.lookup(value);
+    if (!object || this.activeActions.has(object) || this.activeActions.size >= 64)
+      return this.fail('PDF actions', 'An action chain is missing, cyclic, or excessive.');
+    this.activeActions.add(object);
+    try {
+      if (object instanceof PDFArray) {
+        const actions = object
+          .asArray()
+          .map((item) => this.action(item))
+          .filter((item): item is PDFObject => !!item);
+        if (!actions.length) return undefined;
+        if (actions.length === 1) return actions[0];
+        const first = this.target.lookup(actions[0], PDFDict).clone(this.target);
+        const next = first.get(n('Next'));
+        const resolved = this.target.lookup(next);
+        first.set(
+          n('Next'),
+          this.target.obj([
+            ...(resolved instanceof PDFArray ? resolved.asArray() : next ? [next] : []),
+            ...actions.slice(1),
+          ]),
+        );
+        return first;
+      }
+      if (!(object instanceof PDFDict))
+        return this.fail('PDF actions', 'An action dictionary is invalid.');
+      if (this.source.document.context.lookup(object.get(n('S'))) === n('GoTo')) {
+        const destination = object.get(n('D'));
+        if (!destination)
+          return this.fail('internal destinations', 'A navigation action has no target.');
+        if (!this.retainsDestination(destination)) {
+          const next = object.get(n('Next'));
+          return next ? this.action(next) : undefined;
+        }
+      }
+      return this.copy(value);
+    } finally {
+      this.activeActions.delete(object);
+    }
+  }
+  events(value: PDFObject) {
+    const source = this.source.document.context.lookup(value, PDFDict);
+    const actions = PDFDict.withContext(this.target);
+    for (const [event, value] of source.entries()) {
+      const action = this.action(value);
+      if (action) actions.set(event, action);
+    }
+    return actions.keys().length ? actions : undefined;
+  }
   fail(feature: string, reason: string): never {
     throw new PreservationError(this.source.name, feature, reason);
   }
@@ -225,6 +309,24 @@ class Copier {
       const result = PDFDict.withContext(this.target);
       this.mapped.set(value, result);
       for (const [key, item] of value.entries()) {
+        if (key === n('Dest') && !this.retainsDestination(item)) continue;
+        const itemObject = this.source.document.context.lookup(item);
+        if (key === n('AA') && itemObject instanceof PDFDict) {
+          const actions = this.events(item);
+          if (actions) result.set(key, actions);
+          continue;
+        }
+        if (
+          (key === n('A') && itemObject instanceof PDFDict && itemObject.has(n('S'))) ||
+          key === n('Next')
+        ) {
+          // Next is also used by non-action objects (for example article beads).
+          if (key === n('A') || value.has(n('S'))) {
+            const action = this.action(item);
+            if (action) result.set(key, action);
+            continue;
+          }
+        }
         const destination =
           key === n('Dest') ||
           (key === n('D') && this.source.document.context.lookup(value.get(n('S'))) === n('GoTo'));
@@ -295,7 +397,11 @@ function nameTree(document: PDFDocument, root: PDFObject | undefined): [string, 
 }
 
 /** Assemble selected pages without discarding navigation or supported tag trees. */
-export async function assemblePdf(sources: AssemblySource[], selection: AssemblyPage[]) {
+export async function assemblePdf(
+  sources: AssemblySource[],
+  selection: AssemblyPage[],
+  options: AssemblyOptions = {},
+) {
   if (!selection.length || selection.length > 500)
     throw new Error('Keep between 1 and 500 output pages.');
   const output = await PDFDocument.create();
@@ -310,8 +416,25 @@ export async function assemblePdf(sources: AssemblySource[], selection: Assembly
     return { ...item, input, lane, output: output.addPage([input.getWidth(), input.getHeight()]) };
   });
   const selectedSourceIndices = new Set(records.map((record) => record.source));
+  const extras = new AssemblyExtras(
+    output,
+    sources,
+    records,
+    (value, literal) => {
+      if (!literal) return boundedText(value, budget);
+      budget.bytes += value.length * 4 + 8;
+      checkOutput(budget.bytes);
+      return PDFString.of(value);
+    },
+    () => {
+      if (++budget.objects > MAX_OBJECTS)
+        throw new Error('The assembled form tree exceeds the safe object limit.');
+    },
+  );
   const selectedSources = sources.filter((_, index) => selectedSourceIndices.has(index));
   const destinationPairs: [string, PDFObject][] = [];
+  const attachmentPairs: [string, PDFObject][] = [];
+  const associatedFiles: PDFObject[] = [];
   const firstCopiers = new Map<number, Copier>();
   const outlineRoots: PDFRef[] = [];
   const structureRoots: PDFRef[] = [];
@@ -427,7 +550,15 @@ export async function assemblePdf(sources: AssemblySource[], selection: Assembly
     const maxLane = Math.max(...own.map((record) => record.lane));
     for (let lane = 0; lane <= maxLane; lane++) {
       const lanePages = own.filter((record) => record.lane === lane);
-      const copier = new Copier(source, ctx, pageObjects, new Map(destinationNames), budget);
+      const copier = new Copier(
+        source,
+        ctx,
+        pageObjects,
+        new Map(destinationNames),
+        budget,
+        options.navigation || 'all',
+        new Map(rawDestinations),
+      );
       if (lane === 0) firstCopiers.set(sourceIndex, copier);
       // Navigation resolves to the first output occurrence, with self-links on a
       // duplicate resolving to that duplicate. Page order never determines refs.
@@ -441,6 +572,7 @@ export async function assemblePdf(sources: AssemblySource[], selection: Assembly
         copier.mapped.set(record.input.ref, record.output.ref);
         copier.mapped.set(record.input.node, record.output.node);
       }
+      extras.prepare(sourceIndex, lane, copier);
       for (const record of lanePages) {
         copier.currentPage = { source: record.input.ref, output: record.output.ref };
         copier.destinations.clear();
@@ -503,8 +635,14 @@ export async function assemblePdf(sources: AssemblySource[], selection: Assembly
             'OutputIntents',
             'Extensions',
             'URI',
+            'AA',
           ]) {
             const value = doc.catalog.get(n(key));
+            if (key === 'AA') {
+              const actions = value && copier.events(value);
+              if (actions) output.catalog.set(n(key), actions);
+              continue;
+            }
             if (value) output.catalog.set(n(key), copier.copy(value));
             if (key === 'ViewerPreferences' && value) {
               const sourcePreferences = doc.context.lookup(value, PDFDict);
@@ -528,7 +666,10 @@ export async function assemblePdf(sources: AssemblySource[], selection: Assembly
                     );
                   for (let index = start; index <= end; index++) requested.add(index);
                 }
-                if ([...requested].some((index) => !own.some((record) => record.index === index)))
+                if (
+                  copier.policy === 'all' &&
+                  [...requested].some((index) => !own.some((record) => record.index === index))
+                )
                   copier.fail(
                     'print page ranges',
                     'The print range targets an excluded page. Include that page to preserve its settings.',
@@ -542,17 +683,34 @@ export async function assemblePdf(sources: AssemblySource[], selection: Assembly
                     ranges[ranges.length - 1] = index;
                   else ranges.push(index, index);
                 }
-                output.catalog
-                  .lookup(n('ViewerPreferences'), PDFDict)
-                  .set(n('PrintPageRange'), ctx.obj(ranges));
+                const preferences = output.catalog.lookup(n('ViewerPreferences'), PDFDict);
+                if (ranges.length) preferences.set(n('PrintPageRange'), ctx.obj(ranges));
+                else preferences.delete(n('PrintPageRange'));
               }
             }
           }
           const info = doc.context.trailerInfo.Info;
           if (info) ctx.trailerInfo.Info = copier.copy(info) as PDFRef;
+          const opening = doc.catalog.get(n('OpenAction'));
+          if (opening) {
+            const object = doc.context.lookup(opening);
+            const action =
+              object instanceof PDFDict && object.has(n('S'))
+                ? copier.action(opening)
+                : copier.retainsDestination(opening)
+                  ? copier.destination(opening)
+                  : undefined;
+            if (action) output.catalog.set(n('OpenAction'), action);
+          }
         }
         for (const [key, value] of rawDestinations)
-          destinationPairs.push([destinationNames.get(key)!, copier.destination(value)]);
+          if (copier.retainsDestination(value))
+            destinationPairs.push([destinationNames.get(key)!, copier.destination(value)]);
+        for (const [key, value] of nameTree(doc, names?.get(n('EmbeddedFiles'))))
+          attachmentPairs.push([`pl-${sourceIndex + 1}:${key}`, copier.copy(value)]);
+        const associated = doc.catalog.lookupMaybe(n('AF'), PDFArray);
+        if (associated)
+          for (const file of associated.asArray()) associatedFiles.push(copier.copy(file));
         if (roles)
           for (const [key, value] of roles.entries()) {
             const target = doc.context.lookup(value);
@@ -593,13 +751,31 @@ export async function assemblePdf(sources: AssemblySource[], selection: Assembly
                   key,
                 )
               ) {
-                bookmark.set(
-                  key,
-                  key === n('Dest') ? copier.destination(value) : copier.copy(value),
-                );
+                if (key === n('Dest')) {
+                  if (copier.retainsDestination(value))
+                    bookmark.set(key, copier.destination(value));
+                } else if (key === n('A')) {
+                  const action = copier.action(value);
+                  if (action) bookmark.set(key, action);
+                } else bookmark.set(key, copier.copy(value));
               }
             bookmark.set(n('Parent'), parent);
             const children = copyOutlines(original.get(n('First')), ref, depth + 1);
+            const destination = original.get(n('Dest'));
+            const action = original.lookupMaybe(n('A'), PDFDict);
+            const actionDestination =
+              doc.context.lookup(action?.get(n('S'))) === n('GoTo')
+                ? action?.get(n('D'))
+                : undefined;
+            const excluded = destination
+              ? !copier.retainsDestination(destination)
+              : actionDestination
+                ? !copier.retainsDestination(actionDestination)
+                : false;
+            if (excluded && !children.length) {
+              current = original.get(n('Next'));
+              continue;
+            }
             if (children.length) {
               bookmark.set(n('First'), children[0]);
               bookmark.set(n('Last'), children.at(-1)!);
@@ -838,6 +1014,20 @@ export async function assemblePdf(sources: AssemblySource[], selection: Assembly
         },
       }),
     );
+  if (attachmentPairs.length) {
+    const names = output.catalog.lookupMaybe(n('Names'), PDFDict) || ctx.obj({});
+    names.set(
+      n('EmbeddedFiles'),
+      ctx.obj({
+        Names: attachmentPairs
+          .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+          .flatMap(([key, value]) => [boundedText(key, budget), value]),
+      }),
+    );
+    output.catalog.set(n('Names'), names);
+  }
+  if (associatedFiles.length) output.catalog.set(n('AF'), ctx.obj(associatedFiles));
+  extras.finish();
   if (extensions.keys().length) output.catalog.set(n('Extensions'), extensions);
   let version = 1.7;
   for (const source of selectedSources) {
