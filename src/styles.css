@@ -268,6 +268,9 @@ svg {
   font-size: 14px;
   color: var(--muted);
 }
+.main-nav > a {
+  color: var(--muted);
+}
 .main-nav a:hover,
 .main-nav .active {
   color: var(--ink);
@@ -779,6 +782,9 @@ svg {
   font-size: 11px;
   color: var(--subtle);
 }
+.footer-bottom > span {
+  color: var(--subtle);
+}
 /* Document workspace */
 .workspace-container {
   max-width: 1440px;
@@ -844,6 +850,7 @@ svg {
   display: flex;
   align-items: center;
   gap: 8px;
+  color: var(--subtle);
 }
 .flow-steps i {
   display: grid;
@@ -1035,6 +1042,7 @@ svg {
 }
 .field > span:first-child {
   font-weight: 500;
+  color: var(--ink);
 }
 .field-hint {
   font-size: 12px !important;
@@ -1520,6 +1528,9 @@ svg {
   color: var(--ink);
   font-weight: 500;
 }
+.page-navigator > span {
+  color: var(--muted);
+}
 .preview-instruction {
   font-size: 11px;
   text-align: center;
@@ -1653,6 +1664,7 @@ svg {
   display: flex;
   align-items: center;
   gap: 7px;
+  color: var(--muted);
 }
 .other-tools {
   display: flex;
@@ -1668,6 +1680,9 @@ svg {
   align-items: center;
   gap: 6px;
   color: var(--ink);
+}
+.other-tools > span {
+  color: var(--muted);
 }
 .modal-overlay {
   position: fixed;
@@ -2457,4 +2472,80 @@ svg {
 .document-file-navigation .field > span {
   font-size: 11px;
   color: var(--muted);
+}
+
+.tool-guide {
+  margin-top: 48px;
+  padding-top: 40px;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+  color: var(--muted);
+}
+.tool-guide h2 {
+  margin-bottom: 16px;
+  font-size: 20px;
+  color: var(--ink);
+}
+.guide-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 48px;
+  margin-bottom: 32px;
+}
+.tool-guide ol,
+.tool-guide ul {
+  padding-left: 24px;
+  margin: 0 0 16px;
+}
+.tool-guide ol {
+  list-style: decimal;
+}
+.tool-guide ul {
+  list-style: disc;
+}
+.tool-guide li {
+  margin-bottom: 8px;
+  color: var(--muted);
+}
+.tool-guide details {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+.tool-guide summary {
+  color: var(--ink);
+  font-weight: 500;
+  cursor: pointer;
+}
+.tool-guide details p {
+  max-width: 800px;
+  margin-top: 16px;
+}
+.guide-related {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 24px;
+}
+.guide-related a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.guide-related > span {
+  color: var(--muted);
+}
+.footer-bottom a {
+  color: var(--subtle);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (max-width: 640px) {
+  .guide-columns {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .tool-guide {
+    margin-top: 32px;
+    padding-top: 32px;
+  }
 }

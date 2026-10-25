@@ -1,8 +1,8 @@
 import { ArrowUpRight, Menu, X, Layers2, Moon, Sun } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { applyTheme, readTheme, resolveTheme, saveTheme } from '../lib/theme';
-import type { Theme } from '../lib/theme';
+import type { Theme, ResolvedTheme } from '../lib/theme';
 export function Brand() {
   return (
     <Link to="/" className="brand" aria-label="Paperlight home">
@@ -15,19 +15,23 @@ export function Brand() {
 }
 export function Header() {
   const [open, setOpen] = useState(false);
-  const [theme, setTheme] = useState<Theme>(readTheme);
-  const [resolvedTheme, setResolvedTheme] = useState(() => resolveTheme(theme));
+  // Match generated HTML, then restore once without temporarily applying the fallback theme.
+  const theme = useRef<Theme>('dark');
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>('dark');
+  const [ready, setReady] = useState(false);
   const location = useLocation();
   useEffect(() => {
     setOpen(false);
   }, [location]);
   useEffect(() => {
+    theme.current = readTheme();
     const media = matchMedia('(prefers-color-scheme: dark)');
-    const update = () => setResolvedTheme(applyTheme(theme));
+    const update = () => setResolvedTheme(applyTheme(theme.current));
     update();
+    setReady(true);
     media.addEventListener('change', update);
     return () => media.removeEventListener('change', update);
-  }, [theme]);
+  }, []);
   return (
     <header className="site-header">
       <div className="container header-inner">
@@ -43,11 +47,12 @@ export function Header() {
           <button
             className="icon-button theme-toggle"
             type="button"
+            disabled={!ready}
             aria-label={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} theme`}
             title={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} theme`}
             onClick={() => {
-              const next = resolvedTheme === 'dark' ? 'light' : 'dark';
-              setTheme(next);
+              const next = resolveTheme(theme.current) === 'dark' ? 'light' : 'dark';
+              theme.current = next;
               setResolvedTheme(next);
               saveTheme(next);
             }}
@@ -79,7 +84,9 @@ export function Footer() {
       </div>
       <div className="container footer-bottom">
         <span>© {new Date().getFullYear()} Paperlight</span>
-        <span>No uploads. No accounts. No tracking.</span>
+        <span>
+          No document uploads. No accounts. <Link to="/#privacy">Usage analytics</Link>.
+        </span>
       </div>
     </footer>
   );

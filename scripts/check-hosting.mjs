@@ -50,7 +50,15 @@ const wasm = sw.match(/"([^\"]+qpdf[^\"]+\.wasm)"/)[1];
 const wasmResponse = await get(wasm);
 assert.equal(wasmResponse.headers.get('content-type'), 'application/wasm');
 await wasmResponse.body?.cancel();
-for (const path of ['/assets/missing.js', '/pdf-assets/wasm/missing.wasm', '/missing/path']) {
+for (const path of [
+  '/assets/missing.js',
+  '/pdf-assets/wasm/missing.wasm',
+  '/missing/path',
+  '/tools',
+  '/tools/',
+  '/assets/',
+  '/licenses/',
+]) {
   const response = await get(path);
   assert.equal(response.status, 404, path);
   await response.body?.cancel();
