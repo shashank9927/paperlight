@@ -155,7 +155,7 @@ export type WorkerRequest = { type: 'process'; job: import('./tool-config').Conf
 export type WorkerResponse =
   | { type: 'progress'; message: string; completed?: number; total?: number }
   | { type: 'result'; result: ProcessingResult }
-  | { type: 'error'; message: string };
+  | { type: 'error'; message: string; issues?: import('./assembly').CompatibilityIssue[] };
 export const defaultOptions: ToolOptions = {
   range: '',
   splitMode: 'extract',

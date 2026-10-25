@@ -20,7 +20,10 @@ export default defineConfig({
   webServer: externalOrigin
     ? undefined
     : {
-        command: 'npm run build -- --logLevel error && npm run preview -- --port 4173',
+        command:
+          process.env.PAPERLIGHT_PREBUILT === '1'
+            ? 'npm run preview -- --port 4173'
+            : 'npm run build -- --logLevel error && npm run preview -- --port 4173',
         url: 'http://127.0.0.1:4173',
         reuseExistingServer: !process.env.CI,
         timeout: 120000,

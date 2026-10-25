@@ -68,44 +68,59 @@ export async function inspectFile(
     void task.destroy().catch(() => {});
   };
   signal?.addEventListener('abort', abort, { once: true });
-  try {
-    const document = await task.promise;
-    signal?.throwIfAborted();
-    const metadata = await document.getMetadata();
-    const info = metadata.info as { EncryptFilterName?: string };
-    // Includes permissions-only encryption that opens with an empty user password.
-    if (info.EncryptFilterName && password === undefined) password = '';
-    if (!document.numPages) {
-      throw new Error('This PDF has no pages.');
-    }
-    if (document.numPages > MAX_PAGES) {
-      throw new Error(
-        'Choose no more than 500 pages per job. Split this document into smaller batches first.',
+  let timer: number | undefined;
+  const deadline = new Promise<never>((_, reject) => {
+    timer = window.setTimeout(() => {
+      pool.worker.destroy();
+      if (previewPool === pool) previewPool = undefined;
+      reject(
+        new Error(
+          'PDF preview exceeded the 30-second safety limit. Try a smaller document. Existing files and settings are still available.',
+        ),
       );
-    }
-    const pages: PageInfo[] = [];
-    for (let i = 1; i <= document.numPages; i++) {
-      signal?.throwIfAborted();
-      const page = await document.getPage(i);
-      const viewport = page.getViewport({ scale: 1 });
-      pages.push({ width: viewport.width, height: viewport.height, rotation: page.rotate });
-    }
-    const dispose = async () => {
-      try {
-        await task.destroy();
-      } finally {
-        release();
-      }
-    };
-    return { file, password, document, pages, dispose };
+    }, 30000);
+  });
+  try {
+    return await Promise.race([
+      (async () => {
+        const document = await task.promise;
+        signal?.throwIfAborted();
+        const metadata = await document.getMetadata();
+        const info = metadata.info as { EncryptFilterName?: string };
+        // Includes permissions-only encryption that opens with an empty user password.
+        if (info.EncryptFilterName && password === undefined) password = '';
+        if (!document.numPages) {
+          throw new Error('This PDF has no pages.');
+        }
+        if (document.numPages > MAX_PAGES) {
+          throw new Error(
+            'Choose no more than 500 pages per job. Split this document into smaller batches first.',
+          );
+        }
+        const pages: PageInfo[] = [];
+        for (let i = 1; i <= document.numPages; i++) {
+          signal?.throwIfAborted();
+          const page = await document.getPage(i);
+          const viewport = page.getViewport({ scale: 1 });
+          pages.push({ width: viewport.width, height: viewport.height, rotation: page.rotate });
+        }
+        const dispose = async () => {
+          try {
+            await task.destroy();
+          } finally {
+            release();
+          }
+        };
+        return { file, password, document, pages, dispose };
+      })(),
+      deadline,
+    ]);
   } catch (error) {
-    try {
-      await task.destroy();
-    } finally {
-      release();
-    }
+    void task.destroy().catch(() => {});
+    release();
     throw error;
   } finally {
+    window.clearTimeout(timer);
     signal?.removeEventListener('abort', abort);
   }
 }

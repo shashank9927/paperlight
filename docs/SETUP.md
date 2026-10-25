@@ -84,4 +84,4 @@ $env:PAPERLIGHT_PYTHON = 'C:\Users\shash\.cache\codex-runtimes\codex-primary-run
 
 ## CI
 
-`.github/workflows/verify.yml` checks clean installation, advisories, types, formatting, processing, the complete desktop/mobile-emulation matrix, separate benchmarks and a real Nginx hosting contract. Synthetic evidence is retained for 14 days. Equivalent Linux commands ran locally; hosted GitHub Actions itself was not run because no remote repository is configured. No public deployment is part of this work.
+`.github/workflows/verify.yml` checks clean installation, advisories, types, formatting, processing, the complete desktop/mobile-emulation matrix, separate benchmarks and a real Nginx hosting contract. Synthetic evidence is retained for 14 days. Equivalent Linux commands ran locally; GitHub Actions publishes verification for the reviewed commit; see the attached PR for exact final results. No public deployment is part of this work.

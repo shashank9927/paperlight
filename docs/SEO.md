@@ -1,6 +1,6 @@
 # Search visibility and analytics
 
-The canonical site is https://paperlight-kappa.vercel.app. `npm run build` creates HTML for the homepage and all twelve existing tool URLs, a genuine 404 page, sitemap.xml, robots.txt, and a locally generated 1200×630 social card. React hydrates the same page components. PDF engines remain lazy and document processing stays local. Client navigation warms only missing public page HTML, so a tool opened through the directory can also reload offline. The service worker accepts only the thirteen known public paths, deduplicates concurrent warming, and never caches analytics, documents, query strings, or editing state.
+The canonical site is https://paperlight-kappa.vercel.app. `npm run build` creates HTML for the homepage and all twelve existing tool URLs and the factual iLovePDF-alternative page, a genuine 404 page, sitemap.xml, robots.txt, and a locally generated 1200×630 social card. React hydrates the same page components. PDF engines remain lazy and document processing stays local. Client navigation warms only missing public page HTML, so a tool opened through the directory can also reload offline. The service worker accepts only the fourteen known public paths, deduplicates concurrent warming, and never caches analytics, documents, query strings, or editing state.
 
 ## Deployment
 
@@ -31,6 +31,8 @@ After a production deployment, open the site, navigate between tools, and inspec
 
 ## Verification
 
-`tests/seo.test.ts` checks route/content coverage and analytics URL filtering. `tests/e2e/seo.spec.ts` checks all thirteen pages with JavaScript disabled, metadata and structured data, genuine 404s, redirects, navigation/hydration, delayed-script file-selection safety, and route-specific offline HTML. `tests/e2e/analytics.spec.ts` checks production SDK scheduling, URL sanitization, disabled local collection, and blocked-script resilience. Existing suites continue to cover PDF outputs, privacy, accessibility, responsive themes, and performance budgets.
+`tests/seo.test.ts` checks route/content coverage and analytics URL filtering. `tests/e2e/seo.spec.ts` checks all fourteen pages with JavaScript disabled, metadata and structured data, genuine 404s, redirects, navigation/hydration, delayed-script file-selection safety, and route-specific offline HTML. `tests/e2e/analytics.spec.ts` checks production SDK scheduling, URL sanitization, disabled local collection, and blocked-script resilience. Existing suites continue to cover PDF outputs, privacy, accessibility, responsive themes, and performance budgets.
 
 Local release results and deployment boundaries are recorded in [SEO-VERIFICATION.md](SEO-VERIFICATION.md). Full Linux browser and static-host results are published in the linked pull-request checks. Search Console ownership and dashboard ingestion require the site owner's account; neither is implied by a successful local test.
+
+The alternative page compares supported workflows using dated primary-source links. It does not claim affiliation, identical capabilities or guaranteed ranking. Tool FAQs explain specific options and limitations. Check Search Console for actual impressions, clicks, queries and indexing; laboratory performance checks are not field Core Web Vitals.

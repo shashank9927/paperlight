@@ -4,7 +4,10 @@ export function admitPdf(file: File, password?: string, signal?: AbortSignal): P
     const worker = new Worker(new URL('./admission.worker.ts', import.meta.url), {
       type: 'module',
     });
+    let settled = false;
     const done = (error?: Error, encrypted = false) => {
+      if (settled) return;
+      settled = true;
       clearTimeout(timer);
       worker.terminate();
       signal?.removeEventListener('abort', abort);
@@ -25,6 +28,8 @@ export function admitPdf(file: File, password?: string, signal?: AbortSignal): P
         ),
       );
     };
+    worker.onmessageerror = () =>
+      done(new Error('The PDF inspection worker returned an unreadable response. Try again.'));
     worker.onmessage = ({ data }) => {
       if (data.ok) done(undefined, data.encrypted);
       else {

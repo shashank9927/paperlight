@@ -26,6 +26,7 @@ const template = (await readFile('dist/index.html', 'utf8')).replace(
   `href="/assets/${icons[0]}"`,
 );
 const pageDigest = createHash('sha256');
+const renderedFiles = [];
 const escape = (value) =>
   String(value).replace(
     /[&<>"']/g,
@@ -84,6 +85,7 @@ for (const page of [
   const file = page.path === '/' ? 'dist/index.html' : `dist${page.path}.html`;
   await mkdir(resolve(file, '..'), { recursive: true });
   await writeFile(file, html);
+  renderedFiles.push(file);
   pageDigest.update(page.path).update(html);
 }
 await writeFile(
@@ -99,10 +101,17 @@ await writeFile(
 
 // Invalidate offline HTML whenever page content changes, even if chunk names do not.
 const digest = pageDigest.digest('hex').slice(0, 12);
+for (const file of renderedFiles) {
+  const html = await readFile(file, 'utf8');
+  await writeFile(file, html.replace('</head>', `<meta name="paperlight-release" content="${digest}">\n</head>`));
+}
+const manifest = JSON.parse(await readFile('dist/public-assets.json', 'utf8'));
+manifest.version = digest;
+await writeFile('dist/public-assets.json', JSON.stringify(manifest));
 const worker = await readFile('dist/sw.js', 'utf8');
 await writeFile(
   'dist/sw.js',
-  worker.replace(/paperlight-pages-v2-[a-f0-9]+/, `paperlight-pages-v2-${digest}`),
+  worker.replace(/paperlight-pages-v3-[a-f0-9]+/, `paperlight-pages-v3-${digest}`),
 );
 
 // Generate share artwork locally from the existing licensed bundled font.

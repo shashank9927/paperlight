@@ -4,9 +4,16 @@ import tailwindcss from '@tailwindcss/vite';
 import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { createHash } from 'node:crypto';
+import { serviceWorkerSource } from './scripts/service-worker';
+import { seoPages } from './src/lib/seo';
 
 const assetRoot = resolve('node_modules/pdfjs-dist');
 const assetFolders = ['cmaps', 'standard_fonts', 'wasm', 'iccs'];
+const pdfDigest = createHash('sha256');
+for (const folder of assetFolders)
+  for (const name of readdirSync(resolve(assetRoot, folder)))
+    pdfDigest.update(folder + '/' + name).update(readFileSync(resolve(assetRoot, folder, name)));
+const pdfAssetBase = '/pdf-assets/' + pdfDigest.digest('hex').slice(0, 12);
 const securityHeaders = {
   'Content-Security-Policy':
     "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' blob:; font-src 'self' blob:; connect-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'",
@@ -17,6 +24,7 @@ const securityHeaders = {
 };
 
 export default defineConfig(({ isSsrBuild }) => ({
+  define: { 'import.meta.env.VITE_PDF_ASSET_BASE': JSON.stringify(pdfAssetBase) },
   // Worker-only imports are not found by the normal entry-point scan. Include
   // them up front so the first PDF job cannot trigger an optimizer page reload.
   optimizeDeps: {
@@ -32,16 +40,20 @@ export default defineConfig(({ isSsrBuild }) => ({
           const path = (request.url || '').split('?')[0];
           const file = resolve('dist', path.slice(1));
           const isFile = existsSync(file) && statSync(file).isFile();
-          const toolPath = path.match(
-            /^\/tools\/(merge|split|compress|organize|rotate|images-to-pdf|pdf-to-images|watermark|page-numbers|protect|unlock|sign)(?:\/|\/index\.html|\.html)?$/,
+          const publicPage = seoPages.find(
+            (page) =>
+              page.path !== '/' &&
+              [page.path, page.path + '/', page.path + '/index.html', page.path + '.html'].includes(
+                path,
+              ),
           );
-          if (path === '/index.html' || (toolPath && path !== `/tools/${toolPath[1]}`)) {
+          if (path === '/index.html' || (publicPage && path !== publicPage.path)) {
             response.statusCode = 308;
-            response.setHeader('Location', toolPath ? `/tools/${toolPath[1]}` : '/');
+            response.setHeader('Location', publicPage?.path || '/');
             response.end();
             return;
           }
-          if (toolPath) request.url = `/tools/${toolPath[1]}.html`;
+          if (publicPage) request.url = publicPage.path + '.html';
           if (
             /^\/(assets|pdf-assets|licenses)\//.test(path) &&
             (!/^\/[A-Za-z0-9_./-]+$/.test(path) || path.includes('..') || !isFile)
@@ -50,16 +62,11 @@ export default defineConfig(({ isSsrBuild }) => ({
             response.end('Asset not found');
             return;
           }
-          if (
-            path === '/' ||
-            path === '/index.html' ||
-            path === '/sw.js' ||
-            path.startsWith('/tools/')
-          )
+          if (path === '/' || path === '/index.html' || path === '/sw.js' || !!publicPage)
             response.setHeader('Cache-Control', 'no-cache');
           if (
             path !== '/' &&
-            !toolPath &&
+            !publicPage &&
             !isFile &&
             !path.startsWith('/assets/') &&
             !path.startsWith('/pdf-assets/')
@@ -69,11 +76,13 @@ export default defineConfig(({ isSsrBuild }) => ({
             response.end(readFileSync(resolve('dist/404.html')));
             return;
           }
+          if (isFile && (/^\/assets\//.test(path) || /^\/pdf-assets\/[a-f0-9]{12}\//.test(path)))
+            response.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
           next();
         });
       },
       configureServer(server) {
-        server.middlewares.use('/pdf-assets', (request, response, next) => {
+        server.middlewares.use(pdfAssetBase, (request, response, next) => {
           const path = decodeURIComponent((request.url || '').split('?')[0]);
           const match = path.match(/^\/(cmaps|standard_fonts|wasm|iccs)\/([A-Za-z0-9_.-]+)$/);
           if (!match) return next();
@@ -103,10 +112,10 @@ export default defineConfig(({ isSsrBuild }) => ({
         if (!allowed.includes(`/${faviconPath}`)) allowed.push(`/${faviconPath}`);
         for (const folder of assetFolders)
           for (const name of readdirSync(resolve(assetRoot, folder))) {
-            allowed.push(`/pdf-assets/${folder}/${name}`);
+            allowed.push(`${pdfAssetBase}/${folder}/${name}`);
             this.emitFile({
               type: 'asset',
-              fileName: `pdf-assets/${folder}/${name}`,
+              fileName: `${pdfAssetBase.slice(1)}/${folder}/${name}`,
               source: readFileSync(resolve(assetRoot, folder, name)),
             });
           }
@@ -123,47 +132,18 @@ export default defineConfig(({ isSsrBuild }) => ({
           .map((name) => `/${name}`);
         this.emitFile({
           type: 'asset',
+          fileName: 'public-assets.json',
+          source: JSON.stringify({ version, assets: ['/favicon.svg', ...allowed] }),
+        });
+        this.emitFile({
+          type: 'asset',
           fileName: 'sw.js',
-          source: `
-const CACHE = 'paperlight-pages-v2-${version}';
-const SHELL = ${JSON.stringify(['/', '/favicon.svg', `/${faviconPath}`, ...shell])};
-const ASSETS = new Set(${JSON.stringify(['/favicon.svg', ...allowed])});
-const TOOLS = new Set(['merge','split','compress','organize','rotate','images-to-pdf','pdf-to-images','watermark','page-numbers','protect','unlock','sign'].map(tool => '/tools/' + tool));
-const PENDING_PAGES = new Map();
-self.addEventListener('install', event => { event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting())); });
-self.addEventListener('activate', event => { event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('paperlight-') && key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim())); });
-self.addEventListener('message', event => {
-  const path = event.data?.path;
-  if (event.data?.type !== 'cache-public-page' || (path !== '/' && !TOOLS.has(path))) return;
-  let pending = PENDING_PAGES.get(path);
-  if (!pending) {
-    pending = (async () => {
-      try {
-        const cache = await caches.open(CACHE);
-        if (await cache.match(path)) return;
-        const response = await fetch(path, { credentials: 'omit', redirect: 'error' });
-        if (response.ok && response.headers.get('content-type')?.includes('text/html')) await cache.put(path, response);
-      } catch { /* Unavailable network/storage must not interrupt document work. */ }
-    })().finally(() => PENDING_PAGES.delete(path));
-    PENDING_PAGES.set(path, pending);
-  }
-  event.waitUntil(pending);
-});
-self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
-  if (event.request.method !== 'GET' || url.origin !== self.location.origin || url.search) return;
-  const asset = ASSETS.has(url.pathname);
-  const appNavigation = event.request.mode === 'navigate' && (url.pathname === '/' || TOOLS.has(url.pathname));
-  if (!asset && !appNavigation) return;
-  event.respondWith(caches.open(CACHE).then(async cache => {
-    // These exact build assets are public and invariant. CORS Vary: Origin must
-    // not prevent a module/style request from matching its precached copy.
-    if (asset) { const cached = await cache.match(event.request, { ignoreVary: true }); if (cached) return cached; }
-    const key = appNavigation ? url.pathname : event.request;
-    try { const response = await fetch(event.request); if (response.ok) await cache.put(key, response.clone()); return response; }
-    catch (error) { const cached = await cache.match(key, { ignoreVary: asset }); if (cached) return cached; throw error; }
-  }));
-});`,
+          source: serviceWorkerSource(
+            'paperlight-pages-v3-' + version,
+            ['/', '/favicon.svg', '/' + faviconPath, ...shell],
+            ['/favicon.svg', ...allowed],
+            seoPages.map((page) => page.path),
+          ),
         });
       },
     },

@@ -32,6 +32,8 @@
   --violet-dark: var(--accent);
   --mint: var(--good);
   --radius: 10px;
+  --motion-fast: 120ms;
+  --motion-panel: 180ms;
   background: var(--bg);
   color: var(--ink);
   font-weight: 400;
@@ -70,6 +72,148 @@ body {
   margin: 0;
   color: var(--ink);
   background: var(--bg);
+}
+.theme-changing,
+.theme-changing
+  :is(
+    body,
+    .site-header,
+    .site-footer,
+    .brand,
+    h1,
+    h2,
+    h3,
+    p,
+    label,
+    summary,
+    .button,
+    .icon-button,
+    input,
+    textarea,
+    select,
+    .tool-card,
+    .workspace-main,
+    .settings-panel,
+    .page-card,
+    .file-card,
+    .modal-content,
+    .modal-overlay,
+    .segmented,
+    .error-notice,
+    .result-panel,
+    .tool-guide,
+    .guide-related,
+    .main-nav,
+    .eyebrow
+  ) {
+  transition:
+    color 240ms ease,
+    background-color 240ms ease,
+    border-color 240ms ease,
+    box-shadow 240ms ease;
+}
+.icon-button,
+input,
+select,
+textarea,
+.segmented button,
+.tool-card {
+  transition:
+    background-color var(--motion-fast) ease,
+    border-color var(--motion-fast) ease,
+    color var(--motion-fast) ease,
+    box-shadow var(--motion-fast) ease;
+}
+.modal-overlay[data-state='open'] {
+  animation: surface-in var(--motion-panel) ease-out;
+}
+.modal-content[data-state='open'] {
+  animation: panel-in var(--motion-panel) ease-out;
+}
+.modal-overlay[data-state='closed'],
+.modal-content[data-state='closed'] {
+  animation: surface-out var(--motion-fast) ease-in;
+}
+.theme-toggle svg {
+  animation: panel-in var(--motion-panel) ease-out;
+}
+@keyframes surface-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes surface-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.update-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 12px 24px;
+  background: var(--accent-bg);
+  color: var(--ink);
+  font-size: 14px;
+  flex-wrap: wrap;
+}
+.comparison-page {
+  padding-top: 72px;
+  padding-bottom: 64px;
+  max-width: 1000px;
+}
+.comparison-page h1 {
+  max-width: 800px;
+  margin-top: 16px;
+  font-size: clamp(32px, 4.8vw, 52px);
+}
+.comparison-intro {
+  max-width: 720px;
+  font-size: 18px;
+  color: var(--muted);
+  margin: 24px 0;
+}
+.comparison-table-wrap {
+  overflow-x: auto;
+  margin: 24px 0;
+}
+.comparison-page table {
+  width: 100%;
+  min-width: 580px;
+  border-collapse: collapse;
+  font-size: 14px;
+  text-align: left;
+}
+.comparison-page th,
+.comparison-page td {
+  border-bottom: 1px solid var(--line);
+  padding: 16px;
+  vertical-align: top;
+}
+.comparison-page th {
+  color: var(--ink);
+  font-weight: 550;
+}
+.comparison-page .tool-guide > p a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 /* Resolve foreground tokens on text components so theme changes do not depend
    on WebKit's delayed invalidation of inherited root colors. */

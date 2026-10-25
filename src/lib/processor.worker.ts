@@ -1,6 +1,7 @@
 import type { WorkerRequest, WorkerResponse } from './types';
 import { processJob } from './engine';
 import { expandJob } from './tool-config';
+import { PreservationError } from './assembly';
 
 // Libraries may include untrusted PDF strings in diagnostic messages. Diagnostics
 // are never a document-data channel; only our actionable result messages leave.
@@ -18,6 +19,7 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
     const message = error instanceof Error ? error.message : 'This file could not be processed.';
     send({
       type: 'error',
+      ...(error instanceof PreservationError ? { issues: error.issues } : {}),
       message: /memory|allocation|out of bounds|canvas area/i.test(message)
         ? 'Your device ran out of working memory. Try fewer pages or a lower image resolution.'
         : message,

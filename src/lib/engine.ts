@@ -11,6 +11,8 @@ import {
   PDFName,
   PDFRawStream,
   PDFNumber,
+  beginMarkedContent,
+  endMarkedContent,
 } from 'pdf-lib';
 import type { PDFPage, PDFFont } from 'pdf-lib';
 import { zipSync } from 'fflate';
@@ -34,6 +36,8 @@ import { validateKind } from './utils';
 import { checkCanvas, checkOutput, imageDimensions, MAX_RASTER_PIXELS } from './limits';
 import { fontAsset, numberText, numberPosition, tilePositions } from './annotation-style';
 import { extractImages } from './extract-images';
+import { assemblePdf, tagWriter, validateAssembly } from './assembly';
+import type { AssemblyPage } from './assembly';
 
 type Progress = (message: Extract<WorkerResponse, { type: 'progress' }>) => void;
 const pdfFile = (name: string, data: Uint8Array): OutputFile => ({
@@ -375,7 +379,7 @@ async function processSingle(
       if (budget.pages > MAX_PAGES) throw new Error('Choose no more than 500 pages per batch.');
       if (!document.getPageCount() || inputPages > MAX_PAGES)
         throw new Error('Choose 1–500 pages per job.');
-      checkDocument(document, job);
+      checkDocument(document, { ...job, sources: [sources[i]] });
       if (
         (tool === 'compress' && options.compression === 'optimized') ||
         (tool === 'split' && options.splitMode === 'size' && options.splitCompress)
@@ -399,6 +403,19 @@ async function processSingle(
       input.push(bytes);
     }
     const name = safeStem(sources[0].file.name);
+    const rewriteAssembly = async (selection: AssemblyPage[], extra: string[] = []) => {
+      const data = await assemblePdf(
+        documents.map((document, i) => ({ document, name: sources[i].file.name })),
+        selection,
+      );
+      const before = validateAssembly(await loadPdfSafely(data));
+      const bytes = await runQpdf(data, ['/input.pdf', ...extra, '/output.pdf']);
+      if (validateAssembly(await loadPdfSafely(bytes)) !== before)
+        throw new Error(
+          'The final PDF rewrite changed document navigation or accessibility structure. No output was returned.',
+        );
+      return bytes;
+    };
     let files: OutputFile[] = [];
     let note: string | undefined;
     if (tool === 'unlock') {
@@ -572,23 +589,20 @@ async function processSingle(
       if (documents.reduce((sum, document) => sum + document.getPageCount(), 0) > MAX_PAGES)
         throw new Error('Choose no more than 500 pages per job.');
       if (tool === 'split' && options.splitMode !== 'extract') {
-        const extract = (indices: number[]) =>
-          runQpdf(input[0], [
-            '/input.pdf',
-            '--pages',
-            '.',
-            indices.map((i) => i + 1).join(','),
-            '--',
-            ...(options.splitMode === 'size' && options.splitCompress
-              ? [
-                  '--object-streams=generate',
-                  '--recompress-flate',
-                  '--optimize-images',
-                  '--jpeg-quality=75',
-                ]
-              : []),
-            '/output.pdf',
-          ]);
+        const extract = async (indices: number[]) =>
+          rewriteAssembly(
+            indices.map((index) => ({ source: 0, index, rotation: 0 })),
+            [
+              ...(options.splitMode === 'size' && options.splitCompress
+                ? [
+                    '--object-streams=generate',
+                    '--recompress-flate',
+                    '--optimize-images',
+                    '--jpeg-quality=75',
+                  ]
+                : []),
+            ],
+          );
         let groups: number[][] = [];
         if (options.splitMode === 'individual') groups = selected.map((i) => [i]);
         if (options.splitMode === 'ranges') {
@@ -654,82 +668,60 @@ async function processSingle(
             );
           }
         }
-      } else if (tool === 'merge' || tool === 'organize' || tool === 'split' || tool === 'rotate') {
-        let args: string[] = ['/input.pdf'];
-        if (tool === 'rotate') {
-          const targeted = selected.filter((i) => {
-            const page = documents[0].getPage(i),
-              size = visibleSize(
-                visibleBox(page.getMediaBox(), page.getCropBox()),
-                page.getRotation().angle,
-              );
+      } else if (tool === 'merge' || tool === 'organize' || tool === 'split') {
+        const references =
+          tool === 'merge'
+            ? sources.flatMap((source, sourceIndex) =>
+                documents[sourceIndex].getPages().map((_, index) => ({
+                  source: sourceIndex,
+                  index,
+                  rotation:
+                    job.pages.find((page) => page.sourceId === source.id && page.index === index)
+                      ?.rotation || 0,
+                })),
+              )
+            : tool === 'split'
+              ? selected.map((index) => ({ source: 0, index, rotation: 0 }))
+              : job.pages.map((page) => ({
+                  source: sources.findIndex((source) => source.id === page.sourceId),
+                  index: page.index,
+                  rotation: page.rotation,
+                }));
+        files = [
+          pdfFile(
+            tool === 'merge'
+              ? 'paperlight-merged.pdf'
+              : `${name}-${tool === 'split' ? 'extracted' : 'organized'}.pdf`,
+            await rewriteAssembly(references),
+          ),
+        ];
+      } else if (tool === 'rotate') {
+        const args: string[] = ['/input.pdf'];
+        const targeted = new Set(
+          selected.filter((index) => {
+            const page = documents[0].getPage(index);
+            const size = visibleSize(
+              visibleBox(page.getMediaBox(), page.getCropBox()),
+              page.getRotation().angle,
+            );
             return (
               options.rotationTarget === 'all' ||
               (options.rotationTarget === 'portrait'
                 ? size.height >= size.width
                 : size.width > size.height)
             );
-          });
-          if (targeted.length && options.angle)
-            args.push('--rotate=+' + options.angle + ':' + targeted.map((i) => i + 1).join(','));
-          for (const ref of job.pages)
-            if (ref.rotation)
-              args.push(
-                '--rotate=+' +
-                  ((ref.rotation + (targeted.includes(ref.index) ? options.angle : 0)) % 360) +
-                  ':' +
-                  (ref.index + 1),
-              );
-        } else {
-          args.push('--pages');
-          if (tool === 'merge')
-            input.forEach((_, i) => args.push(i ? `/input-${i}.pdf` : '.', '1-z'));
-          else if (tool === 'split') args.push('.', selected.map((i) => i + 1).join(','));
-          else {
-            if (!job.pages.length) throw new Error('Keep at least one page in your document.');
-            for (const ref of job.pages) {
-              const i = sources.findIndex((source) => source.id === ref.sourceId);
-              if (
-                i < 0 ||
-                !Number.isInteger(ref.index) ||
-                ref.index < 0 ||
-                ref.index >= documents[i].getPageCount()
-              )
-                throw new Error(
-                  'A selected page is no longer available. Please select your file again.',
-                );
-              args.push(i ? `/input-${i}.pdf` : '.', String(ref.index + 1));
-            }
-          }
-          args.push('--');
-          if (tool === 'organize' || tool === 'merge')
-            (tool === 'merge'
-              ? sources.flatMap((source) =>
-                  Array.from(
-                    { length: documents[sources.indexOf(source)].getPageCount() },
-                    (_, index) => ({
-                      rotation:
-                        job.pages.find((ref) => ref.sourceId === source.id && ref.index === index)
-                          ?.rotation || 0,
-                    }),
-                  ),
-                )
-              : job.pages
-            ).forEach((ref, i) => {
-              if (ref.rotation) args.push('--rotate=+' + (ref.rotation % 360) + ':' + (i + 1));
-            });
+          }),
+        );
+        for (let index = 0; index < count; index++) {
+          const extra = job.pages.find((ref) => ref.index === index)?.rotation || 0;
+          const angle = (extra + (targeted.has(index) ? options.angle : 0)) % 360;
+          if (angle) args.push('--rotate=+' + angle + ':' + (index + 1));
         }
         args.push('/output.pdf');
-        files = [
-          pdfFile(
-            tool === 'merge'
-              ? 'paperlight-merged.pdf'
-              : `${name}-${tool === 'split' ? 'extracted' : tool === 'rotate' ? 'rotated' : 'organized'}.pdf`,
-            await qpdf.run(input, args),
-          ),
-        ];
+        files = [pdfFile(name + '-rotated.pdf', await qpdf.run(input, args))];
       } else {
         const document = documents[0];
+        const semanticMarks = tool === 'sign' ? tagWriter(document) : undefined;
         const fontCache = new Map<string, PDFFont>();
         const getFont = async (style: TextStyle) => {
           const key = fontAsset(style);
@@ -801,6 +793,7 @@ async function processSingle(
               options.layer === 'below'
                 ? page.node.normalizedEntries().Contents?.asArray() || []
                 : [];
+            page.pushOperators(beginMarkedContent('Artifact'));
             for (const point of tilePositions(options.tile, options.x, options.y)) {
               const style = { ...options, ...point };
               if (options.watermarkType === 'image')
@@ -816,6 +809,7 @@ async function processSingle(
                   options.textAngle,
                 );
             }
+            page.pushOperators(endMarkedContent());
             if (options.layer === 'below') {
               const contents = page.node.Contents();
               if (contents instanceof PDFArray) {
@@ -827,6 +821,7 @@ async function processSingle(
               }
             }
           } else if (tool === 'page-numbers') {
+            page.pushOperators(beginMarkedContent('Artifact'));
             const box = visibleSize(
               visibleBox(page.getMediaBox(), page.getCropBox()),
               page.getRotation().angle,
@@ -845,6 +840,7 @@ async function processSingle(
               options.opacity,
               0,
             );
+            page.pushOperators(endMarkedContent());
           } else if (tool === 'sign') {
             const fields: Annotation[] = options.annotations.length
               ? options.annotations.filter((a) => parseRange(a.range, count).includes(index))
@@ -864,6 +860,12 @@ async function processSingle(
             if (annotationPlacements > 2000)
               throw new Error('Use no more than 2,000 total signature field placements.');
             for (const field of fields) {
+              const mark = semanticMarks?.begin(
+                page,
+                field.image ? `Visual ${field.kind} mark` : field.text,
+                !!field.image,
+              );
+              if (mark) page.pushOperators(mark);
               if (field.image) await paintImage(page, field.image, field, field.width);
               else {
                 if (!field.text.trim())
@@ -878,9 +880,12 @@ async function processSingle(
                   field.textAngle,
                 );
               }
+              if (mark) page.pushOperators(endMarkedContent());
             }
           }
         }
+        semanticMarks?.finish();
+        if (document.catalog.has(PDFName.of('StructTreeRoot'))) validateAssembly(document);
         files = [
           pdfFile(
             `${name}-${tool === 'page-numbers' ? 'numbered' : tool === 'sign' ? 'signed' : 'watermarked'}.pdf`,

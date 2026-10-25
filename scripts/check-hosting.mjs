@@ -3,6 +3,7 @@ const origin = process.argv[2] || 'http://127.0.0.1:4180';
 const get = (path) => fetch(origin + path, { signal: AbortSignal.timeout(10000) });
 const routes = [
   '/',
+  '/alternatives/ilovepdf',
   ...[
     'merge',
     'split',
@@ -33,8 +34,20 @@ for (const route of routes) {
 const script = shell.match(/src="([^\"]+\.js)"/)[1];
 const entry = await get(script);
 assert.match(entry.headers.get('content-type'), /javascript/);
+assert.match(entry.headers.get('cache-control'), /immutable/);
 await entry.body?.cancel();
 const sw = await (await get('/sw.js')).text();
+const manifestResponse = await get('/public-assets.json');
+assert.equal(manifestResponse.status, 200);
+const manifest = await manifestResponse.json();
+assert.match(manifest.version, /^[a-f0-9]{12}$/);
+assert.ok(shell.includes(`name="paperlight-release" content="${manifest.version}"`));
+assert.ok(manifest.assets.every(path => path === '/favicon.svg' || /^\/(?:assets\/[A-Za-z0-9_.-]+|pdf-assets\/[a-f0-9]{12}\/(?:cmaps|standard_fonts|wasm|iccs)\/[A-Za-z0-9_.-]+)$/.test(path)));
+const pdfAsset = await get(manifest.assets.find(path => /^\/pdf-assets\/.+\/wasm\/.+\.wasm$/.test(path)));
+assert.equal(pdfAsset.status, 200);
+assert.equal(pdfAsset.headers.get('content-type'), 'application/wasm');
+assert.match(pdfAsset.headers.get('cache-control'), /immutable/);
+await pdfAsset.body?.cancel();
 const modules = [...sw.matchAll(/"([^\"]+\.(?:js|mjs))"/g)].map((match) => match[1]);
 assert.ok(
   modules.some((path) => path.endsWith('.mjs')),

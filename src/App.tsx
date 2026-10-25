@@ -2,10 +2,12 @@ import { lazy, Suspense, useEffect } from 'react';
 import { Link, Route, Routes, useLocation } from 'react-router-dom';
 import { Header, Footer } from './components/Layout';
 import Home from './pages/Home';
+import Alternative from './pages/Alternative';
 import { Seo } from './components/Seo';
 import { UsageAnalytics } from './components/UsageAnalytics';
 import { getTool } from './lib/tools';
 import { seoForPath } from './lib/seo';
+import { AppBoundary, UpdateNotice } from './components/Recovery';
 const Workspace = lazy(() => import('./pages/Workspace'));
 
 function NotFound() {
@@ -63,28 +65,32 @@ export default function App() {
         Skip to content
       </a>
       <Header />
-      <Suspense
-        fallback={
-          <main id="main" className="page-loading">
-            <span className="spinner" /> Opening your workspace…
-          </main>
-        }
-      >
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route
-            path="/tools/:toolId"
-            element={
-              getTool(location.pathname.split('/')[2] || '') ? (
-                <Workspace key={location.pathname} />
-              ) : (
-                <NotFound />
-              )
-            }
-          />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Suspense>
+      <UpdateNotice />
+      <AppBoundary key={location.pathname}>
+        <Suspense
+          fallback={
+            <main id="main" className="page-loading">
+              <span className="spinner" /> Opening your workspace…
+            </main>
+          }
+        >
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/alternatives/ilovepdf" element={<Alternative />} />
+            <Route
+              path="/tools/:toolId"
+              element={
+                getTool(location.pathname.split('/')[2] || '') ? (
+                  <Workspace key={location.pathname} />
+                ) : (
+                  <NotFound />
+                )
+              }
+            />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
+      </AppBoundary>
       <Footer />
     </>
   );

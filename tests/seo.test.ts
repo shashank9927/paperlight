@@ -5,9 +5,9 @@ import { publicAnalyticsUrl } from '../src/lib/analytics';
 
 describe('public SEO and analytics contract', () => {
   it('covers all tools with distinct, usable content and valid related routes', () => {
-    expect(seoPages).toHaveLength(13);
-    expect(new Set(seoPages.map((page) => page.title)).size).toBe(13);
-    expect(new Set(seoPages.map((page) => page.description)).size).toBe(13);
+    expect(seoPages).toHaveLength(14);
+    expect(new Set(seoPages.map((page) => page.title)).size).toBe(14);
+    expect(new Set(seoPages.map((page) => page.description)).size).toBe(14);
     for (const tool of tools) {
       const page = seoForPath(`/tools/${tool.id}`)!;
       expect(page.steps).toHaveLength(3);

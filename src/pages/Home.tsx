@@ -67,8 +67,9 @@ export default function Home() {
             <span>Private by design.</span>
           </h1>
           <p>
-            Everything you need to work with PDFs.
-            <br />A considered workspace. Completely private.
+            Merge, split, compress, convert and sign PDFs.
+            <br />
+            Your documents stay on your device.
           </p>
           <div className="hero-actions">
             <a href="#tools" className="button primary">

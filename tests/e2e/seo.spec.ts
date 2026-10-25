@@ -37,7 +37,7 @@ test('SEO: every public page has useful HTML without JavaScript', async ({ brows
       ).toHaveCount(3);
     }
   }
-  expect(titles.size).toBe(13);
+  expect(titles.size).toBe(14);
   const missing = await page.goto('/tools/not-a-tool');
   expect(missing?.status()).toBe(404);
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex,follow');
@@ -88,7 +88,7 @@ test('SEO: hosting exposes sitemap and normalizes duplicate URLs', async ({ requ
   const sitemap = await request.get('/sitemap.xml');
   expect(sitemap.status()).toBe(200);
   const xml = await sitemap.text();
-  expect(xml.match(/<loc>/g)).toHaveLength(13);
+  expect(xml.match(/<loc>/g)).toHaveLength(14);
   for (const entry of seoPages) expect(xml).toContain(`<loc>${siteOrigin}${entry.path}</loc>`);
   expect((await request.get('/robots.txt')).status()).toBe(200);
   for (const path of ['/tools', '/tools/', '/assets/', '/licenses/']) {
