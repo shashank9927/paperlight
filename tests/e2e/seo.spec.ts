@@ -63,8 +63,16 @@ test('SEO: hydration, navigation and per-route offline HTML remain consistent', 
     'href',
     `${siteOrigin}/tools/merge`,
   );
+  await expect
+    .poll(() => page.evaluate(async () => Boolean(await caches.match('/tools/merge'))))
+    .toBe(true);
+  await expect(page.getByLabel('Choose files', { exact: true })).toBeEnabled();
+  await context.setOffline(true);
   await page.reload();
+  await expect(page.locator('h1')).toHaveText('Merge PDF');
   await expect(page.locator('.dropzone')).toBeVisible();
+  await expect(page.getByLabel('Choose files', { exact: true })).toBeEnabled();
+  await context.setOffline(false);
   await page.goto('/tools/split');
   await expect(page.locator('.dropzone')).toBeVisible();
   await context.setOffline(true);
@@ -111,6 +119,42 @@ test('SEO: unknown tool pages hydrate as genuine 404s without a client render mi
   await page.getByRole('link', { name: 'Back to Paperlight', exact: true }).click();
   await expect(page.locator('h1')).toContainText('Free PDF tools.');
   expect(errors).toEqual([]);
+});
+
+test('SEO: saved light appearance never flashes dark during hydration', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('paperlight-theme', 'light');
+    const darkTransitions: string[] = [];
+    Object.defineProperty(window, '__themeHydrationTransitions', { value: darkTransitions });
+    new MutationObserver((records) => {
+      for (const record of records) {
+        if (
+          record.oldValue === 'dark' ||
+          (record.target as Element).getAttribute('data-theme') === 'dark'
+        )
+          darkTransitions.push('dark');
+      }
+    }).observe(document, {
+      attributes: true,
+      subtree: true,
+      attributeFilter: ['data-theme'],
+      attributeOldValue: true,
+    });
+  });
+  await page.goto('/');
+  const toggle = page.getByRole('button', { name: 'Switch to dark theme' });
+  await expect(toggle).toBeEnabled();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  expect(
+    await page.evaluate(
+      () =>
+        (window as unknown as { __themeHydrationTransitions: string[] })
+          .__themeHydrationTransitions,
+    ),
+  ).toEqual([]);
+  await toggle.click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  expect(await page.evaluate(() => localStorage.getItem('paperlight-theme'))).toBe('dark');
 });
 
 test('SEO: a delayed workspace cannot accept files before hydration is ready', async ({ page }) => {

@@ -18,6 +18,7 @@ const verification =
   process.env.GOOGLE_SITE_VERIFICATION ||
   loadEnv('production', process.cwd(), 'GOOGLE_SITE_VERIFICATION').GOOGLE_SITE_VERIFICATION;
 const template = await readFile('dist/index.html', 'utf8');
+const pageDigest = createHash('sha256');
 const escape = (value) =>
   String(value).replace(
     /[&<>"']/g,
@@ -76,6 +77,7 @@ for (const page of [
   const file = page.path === '/' ? 'dist/index.html' : `dist${page.path}.html`;
   await mkdir(resolve(file, '..'), { recursive: true });
   await writeFile(file, html);
+  pageDigest.update(page.path).update(html);
 }
 await writeFile(
   'dist/sitemap.xml',
@@ -89,10 +91,7 @@ await writeFile(
 );
 
 // Invalidate offline HTML whenever page content changes, even if chunk names do not.
-const digest = createHash('sha256')
-  .update(await readFile('dist/index.html'))
-  .digest('hex')
-  .slice(0, 12);
+const digest = pageDigest.digest('hex').slice(0, 12);
 const worker = await readFile('dist/sw.js', 'utf8');
 await writeFile(
   'dist/sw.js',

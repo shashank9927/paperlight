@@ -111,7 +111,11 @@ export default defineConfig(({ isSsrBuild }) => ({
           .digest('hex')
           .slice(0, 12);
         const shell = Object.keys(bundle)
-          .filter((name) => /^assets\/index-.*\.(js|css)$/.test(name))
+          .filter(
+            (name) =>
+              /^assets\/index-.*\.(js|css)$/.test(name) ||
+              /^assets\/inter-latin-wght-normal-.*\.woff2$/.test(name),
+          )
           .map((name) => `/${name}`);
         this.emitFile({
           type: 'asset',
@@ -121,8 +125,26 @@ const CACHE = 'paperlight-pages-v2-${version}';
 const SHELL = ${JSON.stringify(['/', '/favicon.svg', ...shell])};
 const ASSETS = new Set(${JSON.stringify(['/favicon.svg', ...allowed])});
 const TOOLS = new Set(['merge','split','compress','organize','rotate','images-to-pdf','pdf-to-images','watermark','page-numbers','protect','unlock','sign'].map(tool => '/tools/' + tool));
+const PENDING_PAGES = new Map();
 self.addEventListener('install', event => { event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', event => { event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('paperlight-') && key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim())); });
+self.addEventListener('message', event => {
+  const path = event.data?.path;
+  if (event.data?.type !== 'cache-public-page' || (path !== '/' && !TOOLS.has(path))) return;
+  let pending = PENDING_PAGES.get(path);
+  if (!pending) {
+    pending = (async () => {
+      try {
+        const cache = await caches.open(CACHE);
+        if (await cache.match(path)) return;
+        const response = await fetch(path, { credentials: 'omit', redirect: 'error' });
+        if (response.ok && response.headers.get('content-type')?.includes('text/html')) await cache.put(path, response);
+      } catch { /* Unavailable network/storage must not interrupt document work. */ }
+    })().finally(() => PENDING_PAGES.delete(path));
+    PENDING_PAGES.set(path, pending);
+  }
+  event.waitUntil(pending);
+});
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   if (event.request.method !== 'GET' || url.origin !== self.location.origin || url.search) return;
@@ -130,10 +152,12 @@ self.addEventListener('fetch', event => {
   const appNavigation = event.request.mode === 'navigate' && (url.pathname === '/' || TOOLS.has(url.pathname));
   if (!asset && !appNavigation) return;
   event.respondWith(caches.open(CACHE).then(async cache => {
-    if (asset) { const cached = await cache.match(event.request); if (cached) return cached; }
+    // These exact build assets are public and invariant. CORS Vary: Origin must
+    // not prevent a module/style request from matching its precached copy.
+    if (asset) { const cached = await cache.match(event.request, { ignoreVary: true }); if (cached) return cached; }
     const key = appNavigation ? url.pathname : event.request;
     try { const response = await fetch(event.request); if (response.ok) await cache.put(key, response.clone()); return response; }
-    catch (error) { const cached = await cache.match(key); if (cached) return cached; throw error; }
+    catch (error) { const cached = await cache.match(key, { ignoreVary: asset }); if (cached) return cached; throw error; }
   }));
 });`,
         });

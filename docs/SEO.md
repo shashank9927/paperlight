@@ -1,6 +1,6 @@
 # Search visibility and analytics
 
-The canonical site is https://paperlight-kappa.vercel.app. `npm run build` creates HTML for the homepage and all twelve existing tool URLs, a genuine 404 page, sitemap.xml, robots.txt, and a locally generated 1200×630 social card. React hydrates the same page components. PDF engines remain lazy and document processing stays local.
+The canonical site is https://paperlight-kappa.vercel.app. `npm run build` creates HTML for the homepage and all twelve existing tool URLs, a genuine 404 page, sitemap.xml, robots.txt, and a locally generated 1200×630 social card. React hydrates the same page components. PDF engines remain lazy and document processing stays local. Client navigation warms only missing public page HTML, so a tool opened through the directory can also reload offline. The service worker accepts only the thirteen known public paths, deduplicates concurrent warming, and never caches analytics, documents, query strings, or editing state.
 
 ## Deployment
 

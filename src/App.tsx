@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import { Seo } from './components/Seo';
 import { UsageAnalytics } from './components/UsageAnalytics';
 import { getTool } from './lib/tools';
+import { seoForPath } from './lib/seo';
 const Workspace = lazy(() => import('./pages/Workspace'));
 
 function NotFound() {
@@ -22,6 +23,27 @@ function NotFound() {
 
 export default function App() {
   const location = useLocation();
+  useEffect(() => {
+    const page = seoForPath(location.pathname);
+    if (!import.meta.env.PROD || !page || !('serviceWorker' in navigator)) return;
+    let active = true;
+    const message = { type: 'cache-public-page', path: page.path };
+    const warm = () => {
+      if (active) navigator.serviceWorker.controller?.postMessage(message);
+    };
+    navigator.serviceWorker.addEventListener('controllerchange', warm);
+    void navigator.serviceWorker.ready
+      .then((registration) => {
+        if (active) registration.active?.postMessage(message);
+      })
+      .catch(() => {
+        /* Offline caching is optional; document processing is independent. */
+      });
+    return () => {
+      active = false;
+      navigator.serviceWorker.removeEventListener('controllerchange', warm);
+    };
+  }, [location.pathname]);
   useEffect(() => {
     if (location.hash)
       requestAnimationFrame(() =>

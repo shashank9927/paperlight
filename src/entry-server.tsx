@@ -9,6 +9,7 @@ export { seoPages, siteOrigin, structuredData } from './lib/seo';
 export function render(path: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const output = new PassThrough();
+    output.setEncoding('utf8');
     let html = '';
     let failed = false;
     output.on('data', (chunk) => {
