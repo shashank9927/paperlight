@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import type { PointerEvent } from 'react';
 import type { RenderTask } from 'pdfjs-dist';
 import type { PreviewFile } from '../lib/preview';
@@ -6,8 +6,9 @@ import type { PageRef, ToolOptions, Annotation } from '../lib/types';
 import type { ToolId } from '../lib/tools';
 import { PreviewAnnotations } from './PreviewAnnotations';
 import { previewSlot, reservePreview } from '../lib/preview-budget';
+import { useFrameUpdate } from '../lib/use-frame-update';
 
-export function PagePreview({
+export const PagePreview = memo(function PagePreview({
   source,
   page,
   large = false,
@@ -37,6 +38,7 @@ export function PagePreview({
   const [width, setWidth] = useState(220);
   const [imageUrl, setImageUrl] = useState('');
   const [renderError, setRenderError] = useState(false);
+  const position = useFrameUpdate((x: number, y: number) => onPosition?.(x, y));
   const rotation =
     (page.rotation +
       (tool === 'rotate' &&
@@ -86,6 +88,7 @@ export function PagePreview({
     let current: RenderTask | undefined;
     let release: (() => void) | undefined;
     let releaseCanvas: (() => void) | undefined;
+    let deadline: number | undefined;
     setRenderError(false);
     void (async () => {
       release = await previewSlot();
@@ -118,14 +121,25 @@ export function PagePreview({
         background: 'rgba(0,0,0,0)',
       });
       renderTask.current = current;
-      await current.promise;
+      await Promise.race([
+        current.promise,
+        new Promise<never>((_, reject) => {
+          deadline = window.setTimeout(() => {
+            current?.cancel();
+            reject(new Error('Preview rendering exceeded its safety deadline.'));
+          }, 30000);
+        }),
+      ]);
       if (!cancelled) element.dataset.ready = 'true';
       pdfPage.cleanup();
     })()
       .catch((error) => {
         if (!cancelled && error?.name !== 'RenderingCancelledException') setRenderError(true);
       })
-      .finally(() => release?.());
+      .finally(() => {
+        window.clearTimeout(deadline);
+        release?.();
+      });
     return () => {
       cancelled = true;
       current?.cancel();
@@ -140,7 +154,7 @@ export function PagePreview({
   const move = (event: PointerEvent<HTMLDivElement>) => {
     if (!draggable || !event.currentTarget.hasPointerCapture(event.pointerId)) return;
     const box = event.currentTarget.getBoundingClientRect();
-    onPosition!(
+    position.update(
       Math.max(0.05, Math.min(0.95, (event.clientX - box.left) / box.width)),
       Math.max(0.05, Math.min(0.95, (event.clientY - box.top) / box.height)),
     );
@@ -190,6 +204,7 @@ export function PagePreview({
       }}
       onPointerMove={move}
       onPointerUp={(event) => {
+        position.flush();
         if (event.currentTarget.hasPointerCapture(event.pointerId))
           event.currentTarget.releasePointerCapture(event.pointerId);
       }}
@@ -216,7 +231,7 @@ export function PagePreview({
       )}
       {!visible && <span className="preview-placeholder">{page.index + 1}</span>}
       {renderError && <span className="preview-error">Preview unavailable</span>}
-      {options && (
+      {options && visible && (
         <PreviewAnnotations
           tool={tool}
           options={options}
@@ -233,4 +248,4 @@ export function PagePreview({
       )}
     </div>
   );
-}
+});

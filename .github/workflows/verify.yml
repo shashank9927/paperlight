@@ -1,5 +1,12 @@
 name: Verify Paperlight
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+concurrency:
+  group: verify-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -8,6 +15,7 @@ jobs:
     timeout-minutes: 25
     env:
       PAPERLIGHT_STRICT_BROWSERS: '1'
+      PAPERLIGHT_PREBUILT: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -73,3 +81,10 @@ jobs:
           echo "Static host did not become ready" >&2
           exit 1
       - run: node scripts/check-hosting.mjs
+      - run: node scripts/load-static.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: static-host-load
+          path: .cache/static-load-report.json
+          retention-days: 14

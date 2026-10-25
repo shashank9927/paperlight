@@ -1,6 +1,7 @@
 import { PDFArray, PDFDict, PDFDocument, PDFName, PDFNumber, PDFRawStream } from 'pdf-lib';
 import type { ProcessingJob } from './types';
 import { MAX_OBJECTS, MAX_IMAGE_PIXELS } from './limits';
+import { PreservationError } from './assembly';
 
 export function checkDocument(document: PDFDocument, job: ProcessingJob) {
   const name = (s: string) => PDFName.of(s);
@@ -12,37 +13,63 @@ export function checkDocument(document: PDFDocument, job: ProcessingJob) {
   const content = ['watermark', 'page-numbers', 'sign'].includes(job.tool);
   const raster =
     job.tool === 'pdf-to-images' ||
-    (job.tool === 'compress' && job.options.compression !== 'lossless');
+    (job.tool === 'compress' && job.options.compression === 'image');
   const unsupported = new Set<string>();
   const catalog = document.catalog;
   const names = catalog.lookupMaybe(name('Names'), PDFDict);
   if (assembly) {
+    const supportedCatalog = new Set([
+      'Type',
+      'Pages',
+      'Names',
+      'Dests',
+      'Outlines',
+      'StructTreeRoot',
+      'MarkInfo',
+      'Lang',
+      'Metadata',
+      'PageLabels',
+      'PageMode',
+      'PageLayout',
+      'ViewerPreferences',
+      'Version',
+      'Extensions',
+      'OutputIntents',
+      'URI',
+    ]);
+    const blockedCatalog = new Set([
+      'AcroForm',
+      'Collection',
+      'AF',
+      'OCProperties',
+      'Threads',
+      'OpenAction',
+      'AA',
+      'Perms',
+    ]);
+    for (const key of catalog.keys())
+      if (!supportedCatalog.has(key.decodeText()) && !blockedCatalog.has(key.decodeText()))
+        unsupported.add(`document-level ${key.decodeText()} data`);
     for (const [key, label] of [
       ['AcroForm', 'interactive forms (including duplicate field names)'],
-      ['Outlines', 'bookmarks'],
-      ['StructTreeRoot', 'accessibility tags'],
       ['Collection', 'portfolios'],
       ['AF', 'associated attachments'],
-      ['Dests', 'named destinations'],
       ['OCProperties', 'optional-content layers'],
       ['Threads', 'article threads'],
       ['OpenAction', 'document open actions'],
       ['AA', 'document actions'],
+      ['Perms', 'certification or usage-right signatures'],
     ])
       if (has(catalog, key)) unsupported.add(label);
     if (names)
-      for (const key of ['EmbeddedFiles', 'Dests', 'JavaScript'])
+      for (const key of names.keys())
+        if (!['Dests', 'EmbeddedFiles', 'JavaScript'].includes(key.decodeText()))
+          unsupported.add(`${key.decodeText()} name trees`);
+    if (names)
+      for (const key of ['EmbeddedFiles', 'JavaScript'])
         if (has(names, key))
-          unsupported.add(
-            key === 'Dests'
-              ? 'named destinations'
-              : key === 'JavaScript'
-                ? 'document scripts'
-                : 'attachments',
-          );
+          unsupported.add(key === 'JavaScript' ? 'document scripts' : 'attachments');
   }
-  if (content && has(catalog, 'StructTreeRoot'))
-    unsupported.add('accessibility tags for added content');
   const form = catalog.lookupMaybe(name('AcroForm'), PDFDict);
   if ((content || raster) && form && has(form, 'XFA')) unsupported.add('XFA forms');
   const pending = objects.map(([, object]) => object);
@@ -63,10 +90,9 @@ export function checkDocument(document: PDFDocument, job: ProcessingJob) {
     // Inline action dictionaries are as consequential as indirect objects.
     pending.push(...dict.values());
     if (assembly) {
+      if (has(dict, 'SD')) unsupported.add('structure destinations');
       if (dict.get(name('Subtype'))?.toString() === '/Widget')
         unsupported.add('interactive forms (including duplicate field names)');
-      if (has(dict, 'Dest') || dict.get(name('S'))?.toString() === '/GoTo')
-        unsupported.add('internal links (destinations may be removed or duplicated)');
       if (has(dict, 'FS') || has(dict, 'EF')) unsupported.add('attachments');
     }
     if (dict.get(name('Subtype'))?.toString() === '/Image') {
@@ -85,7 +111,9 @@ export function checkDocument(document: PDFDocument, job: ProcessingJob) {
     if (annots && annots.size() > 10000) unsupported.add('more than 10,000 annotations per page');
   }
   if (unsupported.size)
-    throw new Error(
-      `This operation cannot safely preserve: ${[...unsupported].join('; ')}. Choose another tool or use a PDF editor that supports these features. Your original is unchanged.`,
+    throw new PreservationError(
+      job.sources[0]?.file.name || 'This PDF',
+      [...unsupported].join('; '),
+      'This document structure is outside the verified preservation support for this tool.',
     );
 }

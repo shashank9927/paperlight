@@ -4,6 +4,24 @@ import { dirname, resolve } from 'node:path';
 import { createCanvas, loadImage } from '@napi-rs/canvas';
 
 export interface IndependentReport {
+  preservation?: {
+    outlines: Array<{
+      title: string;
+      page: number | null;
+      children: Array<{ title: string; page: number | null }>;
+    }>;
+    destinations: Array<{ name: string; page: number }>;
+    internalLinks: Array<{ page: number; target: number }>;
+    tags: {
+      valid: boolean;
+      pages: number[];
+      alt: string[];
+      languages: string[];
+      ids: string[];
+      roles: string[];
+      classes: Array<{ owner: string; spaceAfter: number | null }>;
+    };
+  };
   count: number;
   encrypted: boolean;
   permissions: number | null;

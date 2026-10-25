@@ -33,6 +33,7 @@ const privacyItems = [
 export default function Home() {
   const [category, setCategory] = useState<Category>('All tools');
   const [query, setQuery] = useState('');
+  const [ready, setReady] = useState(false);
   const search = useRef<HTMLInputElement>(null);
   useEffect(() => {
     const shortcut = (e: KeyboardEvent) => {
@@ -47,6 +48,7 @@ export default function Home() {
       }
     };
     window.addEventListener('keydown', shortcut);
+    setReady(true);
     return () => window.removeEventListener('keydown', shortcut);
   }, []);
   const visible = tools.filter(
@@ -67,8 +69,9 @@ export default function Home() {
             <span>Private by design.</span>
           </h1>
           <p>
-            Everything you need to work with PDFs.
-            <br />A considered workspace. Completely private.
+            Merge, split, compress, convert and sign PDFs.
+            <br />
+            Your documents stay on your device.
           </p>
           <div className="hero-actions">
             <a href="#tools" className="button primary">
@@ -169,6 +172,7 @@ export default function Home() {
             <Search size={16} />
             <input
               ref={search}
+              disabled={!ready}
               aria-label="Search tools"
               placeholder="Search tools…"
               value={query}

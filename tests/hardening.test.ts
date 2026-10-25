@@ -22,16 +22,9 @@ function job(tool: ProcessingJob['tool'], bytes: Uint8Array): ProcessingJob {
 }
 describe('preservation boundaries', () => {
   it.each(['merge', 'split', 'organize'] as const)(
-    '%s rejects forms, duplicate field names and internal destinations',
+    '%s rejects unverified forms, attachments and active structures',
     async (tool) => {
-      for (const feature of [
-        'form',
-        'internal',
-        'attachment',
-        'tags',
-        'bookmarks',
-        'active',
-      ] as const) {
+      for (const feature of ['form', 'attachment', 'active'] as const) {
         const input = job(tool, await featurePdf(feature));
         if (tool === 'merge') input.sources.push({ ...input.sources[0], id: 'b' });
         await expect(processJob(input)).rejects.toThrow('cannot safely preserve');
@@ -97,6 +90,7 @@ describe('resource and password boundaries', () => {
     expect(() => validatePassword('e\u0301', true)).not.toThrow();
   });
   it('checks output and canvas allocations at the boundary', () => {
+    expect(() => checkOutput(-1)).toThrow();
     expect(() => checkOutput(MAX_OUTPUT_BYTES)).not.toThrow();
     expect(() => checkOutput(MAX_OUTPUT_BYTES + 1)).toThrow();
     expect(() => checkCanvas(4096, 4096)).not.toThrow();

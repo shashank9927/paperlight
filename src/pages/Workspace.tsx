@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
   ArrowDown,
@@ -97,7 +97,14 @@ export default function Workspace() {
   const input = useRef<HTMLInputElement>(null);
   const worker = useRef<Worker | null>(null);
   const processingTimer = useRef<number | undefined>(undefined);
+  const progressFrame = useRef<number | undefined>(undefined);
+  const latestProgress = useRef<Extract<WorkerResponse, { type: 'progress' }> | undefined>(
+    undefined,
+  );
   const stopWorker = useCallback(() => {
+    if (progressFrame.current !== undefined) cancelAnimationFrame(progressFrame.current);
+    progressFrame.current = undefined;
+    latestProgress.current = undefined;
     window.clearTimeout(processingTimer.current);
     processingTimer.current = undefined;
     worker.current?.terminate();
@@ -152,6 +159,59 @@ export default function Workspace() {
         : previous,
     );
   }, [pages]);
+  const sourceMap = useMemo(() => new Map(files.map((file) => [file.id, file])), [files]);
+  const blanks = useMemo(
+    () =>
+      new Map(
+        pages
+          .filter((page) => page.blank)
+          .map((page) => [
+            page.id,
+            {
+              id: page.id,
+              file: new File([], 'Blank page'),
+              pages: [{ ...page.blank!, rotation: 0 }],
+            } as PreviewFile,
+          ]),
+      ),
+    [pages],
+  );
+  const selections = useMemo(() => {
+    const result = new Map<
+      string,
+      { selected: Set<number>; ordinals: Map<number, number>; count: number }
+    >();
+    for (const file of [...files, ...blanks.values()]) {
+      let indices: number[] = [];
+      try {
+        indices = parseRange(options.range, file.pages.length).filter(
+          (index) => !(toolId === 'page-numbers' && options.coverPage && index === 0),
+        );
+      } catch {
+        /* Submit reports invalid selections. */
+      }
+      result.set(file.id, {
+        selected: new Set(indices),
+        ordinals: new Map(indices.map((value, index) => [value, index])),
+        count: indices.length,
+      });
+    }
+    return result;
+  }, [files, blanks, options.range, options.coverPage, toolId]);
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent('paperlight-workspace-state', {
+        detail: { hasDocuments: files.length > 0, busy: adding || !!progress },
+      }),
+    );
+    return () => {
+      window.dispatchEvent(
+        new CustomEvent('paperlight-workspace-state', {
+          detail: { hasDocuments: false, busy: false },
+        }),
+      );
+    };
+  }, [files.length, adding, !!progress]);
   if (!tool)
     return (
       <main id="main" className="not-found">
@@ -347,8 +407,15 @@ export default function Workspace() {
         if (worker.current !== instance) return;
         // PDF.js may emit its own worker initialization messages while loading.
         if (!event.data || !['progress', 'result', 'error'].includes(event.data.type)) return;
-        if (event.data.type === 'progress') setProgress(event.data);
-        else {
+        if (event.data.type === 'progress') {
+          latestProgress.current = event.data;
+          if (progressFrame.current === undefined)
+            progressFrame.current = requestAnimationFrame(() => {
+              progressFrame.current = undefined;
+              if (worker.current === instance && latestProgress.current)
+                setProgress(latestProgress.current);
+            });
+        } else {
           setProgress(null);
           if (event.data.type === 'result') {
             setResult(event.data.result);
@@ -372,6 +439,13 @@ export default function Workspace() {
         );
         stopWorker();
       };
+      instance.onmessageerror = () => {
+        stopWorker();
+        setProgress(null);
+        setError(
+          'The processing response could not be read. Your files and settings are still here; please try again.',
+        );
+      };
       instance.postMessage({
         type: 'process',
         job: configureJob({
@@ -383,6 +457,8 @@ export default function Workspace() {
       });
       requestAnimationFrame(() => progressRegion.current?.focus());
     } catch (failure) {
+      stopWorker();
+      setProgress(null);
       setError(
         failure instanceof Error ? failure.message : 'Please check your settings and try again.',
       );
@@ -396,24 +472,11 @@ export default function Workspace() {
   const focusIndex = Math.min(focus, pages.length - 1);
   const focusPage = pages[focusIndex];
   const focusSource = files.find((file) => file.id === focusPage?.sourceId) || focusPage?.blank;
-  const blankSource: PreviewFile = {
-    id: 'blank',
-    file: new File([], 'Blank page'),
-    pages: [{ width: 595.28, height: 841.89, rotation: 0 }],
-  };
   const sourceFor = (page: PageRef) =>
-    page.blank
-      ? { ...blankSource, pages: [{ ...page.blank, rotation: 0 }] }
-      : files.find((file) => file.id === page.sourceId)!;
+    page.blank ? blanks.get(page.id)! : sourceMap.get(page.sourceId)!;
   const preview = (page: PageRef, large = false) => {
-    let previewIndices: number[] = [];
-    try {
-      previewIndices = parseRange(options.range, sourceFor(page).pages.length).filter(
-        (index) => !(tool.id === 'page-numbers' && options.coverPage && index === 0),
-      );
-    } catch {
-      /* Validation occurs on export. */
-    }
+    const source = sourceFor(page);
+    const selection = selections.get(source.id);
     return (
       <PagePreview
         key={page.id}
@@ -422,18 +485,9 @@ export default function Workspace() {
         large={large}
         tool={tool.id}
         options={options}
-        selected={(() => {
-          try {
-            return (
-              parseRange(options.range, sourceFor(page).pages.length).includes(page.index) &&
-              !(tool.id === 'page-numbers' && options.coverPage && page.index === 0)
-            );
-          } catch {
-            return false;
-          }
-        })()}
-        pageOrdinal={Math.max(0, previewIndices.indexOf(page.index))}
-        selectedCount={previewIndices.length}
+        selected={selection?.selected.has(page.index) || false}
+        pageOrdinal={selection?.ordinals.get(page.index) || 0}
+        selectedCount={selection?.count || 0}
         onPosition={large && !busy ? (x, y) => onOptionsChange({ x, y }) : undefined}
         onAnnotationChange={
           large && !busy
@@ -587,7 +641,7 @@ export default function Workspace() {
                   <div>
                     <span className="document-count">
                       {multiple
-                        ? `${files.length} ${isImages ? 'images' : 'files'}`
+                        ? `${files.length} ${isImages ? (files.length === 1 ? 'image' : 'images') : files.length === 1 ? 'file' : 'files'}`
                         : files[0].file.name}
                     </span>
                     <span className="document-meta">

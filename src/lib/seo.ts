@@ -3,6 +3,7 @@ import type { ToolId } from './tools';
 
 export const siteOrigin = 'https://paperlight-kappa.vercel.app';
 export interface SeoPage {
+  kind: 'home' | 'tool' | 'comparison';
   path: string;
   title: string;
   description: string;
@@ -27,7 +28,7 @@ const content: Record<ToolId, ToolContent> = {
       'Page rotation before merging',
     ],
     limitations:
-      'Documents with forms, bookmarks, attachments, tags, or internal links may be rejected when safe preservation is unsupported.',
+      'Supported bookmarks, tags and internal links are preserved across inputs. Interactive forms, attachments, tagged form XObjects and other unverified structures are rejected explicitly when preservation cannot be guaranteed.',
     related: ['split', 'organize', 'compress'],
   },
   split: {
@@ -198,6 +199,7 @@ const content: Record<ToolId, ToolContent> = {
 };
 
 export const homeSeo: SeoPage = {
+  kind: 'home',
   path: '/',
   title: 'Free PDF Tools — Merge, Split, Compress & Edit | Paperlight',
   description:
@@ -215,18 +217,117 @@ export const homeSeo: SeoPage = {
   ],
 };
 
+export const alternativeSeo: SeoPage = {
+  kind: 'comparison',
+  path: '/alternatives/ilovepdf',
+  title: 'iLovePDF Alternative for Private PDF Tools | Paperlight',
+  description:
+    'Compare Paperlight’s twelve free, local PDF workflows with the broader iLovePDF suite. Merge, split, compress and sign without uploading your documents.',
+  steps: [
+    'Choose a supported PDF tool for your task.',
+    'Select files from your device and review the available settings.',
+    'Process locally and download the result.',
+  ],
+  features: [
+    'Twelve PDF workflows with no document uploads or account required',
+    'Lossless compression by default, with explicit image-quality controls',
+    'Local previews, batch results, and offline use after the required assets load',
+  ],
+  limitations:
+    'Paperlight does not provide Office conversion, OCR, cloud imports, signature requests or certified signing. Jobs share 100 MB input and 500-page limits, with additional memory and image ceilings. Unsupported document structures are rejected rather than silently removed.',
+  related: ['merge', 'split', 'compress'],
+  faqs: [
+    {
+      question: 'Is Paperlight affiliated with iLovePDF?',
+      answer:
+        'No. Paperlight is an independent PDF application. iLovePDF is a separate service with its own tools, terms and security policies.',
+    },
+    {
+      question: 'Does Paperlight replace every iLovePDF feature?',
+      answer:
+        'No. Paperlight focuses on twelve local workflows. The iLovePDF suite also lists Office conversions, OCR and requests for signatures, which Paperlight does not offer.',
+    },
+    {
+      question: 'Can I process PDFs offline?',
+      answer:
+        'Once the application and required tool assets are loaded, supported workflows run offline. Document processing uses your browser’s resources; limits and browser capabilities still apply.',
+    },
+  ],
+};
+
+const specificFaq: Record<ToolId, { question: string; answer: string }> = {
+  merge: {
+    question: 'Can I merge PDFs without uploading them?',
+    answer:
+      'Yes. Choose two or more files, order and rotate them, and merge in your browser. Supported bookmarks, accessibility tags and internal links are mapped into the combined PDF. Unsupported structures are identified before a download is offered.',
+  },
+  split: {
+    question: 'Can I split a PDF into files below a size limit?',
+    answer:
+      'Use Maximum file size to measure actual serialized PDF bytes. A page that cannot fit alone is reported explicitly. Optional image compression requires your selection. Internal links to excluded pages may require a different grouping to preserve navigation.',
+  },
+  compress: {
+    question: 'Can I reduce PDF size while keeping selectable text?',
+    answer:
+      'Lossless optimization keeps text and vectors. The three image-optimization levels also retain them while reducing embedded-image quality. Whole-page rasterization is a separate advanced choice that removes selectable text. If output is larger, Paperlight keeps the exact original.',
+  },
+  organize: {
+    question: 'Can I combine, duplicate and reorder PDF pages?',
+    answer:
+      'Import multiple PDFs, insert blank pages, reorder, rotate, duplicate or delete pages, and undo or redo changes. Links and accessibility relationships are remapped where supported. A selection that leaves unresolved destinations is rejected.',
+  },
+  rotate: {
+    question: 'Can I rotate only landscape or selected PDF pages?',
+    answer:
+      'Choose a page range or target portrait/landscape pages, rotate left or right, and preview the result. Page rotation changes orientation; it does not deskew scanned content.',
+  },
+  'images-to-pdf': {
+    question: 'Can I turn JPG, PNG and WebP into one PDF?',
+    answer:
+      'Yes. Arrange and rotate supported still images, select page size, orientation, margins and fit, then download combined or separate PDFs. Transparent PNG artwork is retained.',
+  },
+  'pdf-to-images': {
+    question: 'What is the difference between rendering pages and extracting images?',
+    answer:
+      'Rendering creates a complete PNG or JPEG of each selected page. Extraction exports supported embedded image data instead of text or vector artwork. PNG can retain image transparency; JPEG uses a white background.',
+  },
+  watermark: {
+    question: 'Can I add a text or image watermark to multiple PDFs?',
+    answer:
+      'Yes. Choose text or artwork, position, size, opacity, rotation and selected pages. You can repeat a watermark in a tile pattern and place it above or below existing content.',
+  },
+  'page-numbers': {
+    question: 'Can numbering skip a cover page and use a custom format?',
+    answer:
+      'Yes. Exclude the cover, set the starting counter and selected range, then use {n}, {p}, {r} and {rf} for the current counter, document pages, selected pages and final counter. The excluded cover does not advance numbering.',
+  },
+  protect: {
+    question: 'Does PDF password protection prevent copying in every viewer?',
+    answer:
+      'An opening password uses AES-256 encryption. Optional owner permissions request restrictions on printing, copying and editing, but enforcement depends on the PDF viewer. They cannot prevent screenshots.',
+  },
+  unlock: {
+    question: 'Can Paperlight unlock a PDF if I forgot its password?',
+    answer:
+      'No. Supply the current opening password when required. Permissions-only encryption can open with an empty user password. Successful outputs are verified as unencrypted copies.',
+  },
+  sign: {
+    question: 'Is a signature added here a certified digital signature?',
+    answer:
+      'No. Draw, type or upload a visual signature and add independently positioned initials, name, date, text or stamp fields. Paperlight does not certify identity or request signatures from other people.',
+  },
+};
+
 export const seoPages: SeoPage[] = [
   homeSeo,
   ...tools.map((tool): SeoPage => ({
+    kind: 'tool',
     path: `/tools/${tool.id}`,
     title: `${tool.title === 'Page numbers' ? 'Add PDF Page Numbers' : tool.title === 'PDF to images' ? 'PDF to JPG & PNG' : tool.title} Online Free | Paperlight`,
     description: `${tool.detail} Free, private processing in your browser with Paperlight. No document uploads or account required.`,
     ...content[tool.id],
     faqs: [
-      {
-        question: `How do I use ${tool.title}?`,
-        answer: content[tool.id].steps.join(' '),
-      },
+      specificFaq[tool.id],
       {
         question: 'Are my documents uploaded?',
         answer:
@@ -238,6 +339,7 @@ export const seoPages: SeoPage[] = [
       },
     ],
   })),
+  alternativeSeo,
 ];
 
 export function seoForPath(path: string) {
@@ -248,16 +350,19 @@ export function seoForPath(path: string) {
 
 export function structuredData(page: SeoPage) {
   const application = {
-    '@type': 'WebApplication',
-    '@id': `${siteOrigin}${page.path}#application`,
+    '@type': page.kind === 'comparison' ? 'WebPage' : 'WebApplication',
+    '@id': `${siteOrigin}${page.path}#${page.kind === 'comparison' ? 'page' : 'application'}`,
     name:
-      page.path === '/'
-        ? 'Paperlight'
-        : tools.find((tool) => page.path.endsWith(`/${tool.id}`))?.title,
+      page.kind === 'comparison'
+        ? 'Paperlight as an iLovePDF alternative'
+        : page.path === '/'
+          ? 'Paperlight'
+          : tools.find((tool) => page.path.endsWith(`/${tool.id}`))?.title,
     url: `${siteOrigin}${page.path}`,
     description: page.description,
-    applicationCategory: 'UtilitiesApplication',
-    operatingSystem: 'Web browser',
+    ...(page.kind === 'comparison'
+      ? {}
+      : { applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web browser' }),
     isAccessibleForFree: true,
   };
   return {

@@ -13,4 +13,7 @@
 /tools/protect /tools/protect.html 200
 /tools/unlock /tools/unlock.html 200
 /tools/sign /tools/sign.html 200
+/alternatives/ilovepdf/index.html /alternatives/ilovepdf 301
+/alternatives/ilovepdf/ /alternatives/ilovepdf 301
+/alternatives/ilovepdf /alternatives/ilovepdf.html 200
 /* /404.html 404

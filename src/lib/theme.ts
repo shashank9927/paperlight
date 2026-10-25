@@ -22,11 +22,18 @@ export function applyTheme(theme: Theme): ResolvedTheme {
   document.documentElement.dataset.theme = resolved;
   return resolved;
 }
+let transitionTimer: number | undefined;
 export function saveTheme(theme: Theme) {
   try {
     localStorage.setItem(key, theme);
   } catch {
     /* Storage is optional. */
   }
+  const root = document.documentElement;
+  window.clearTimeout(transitionTimer);
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    root.classList.add('theme-changing');
+    transitionTimer = window.setTimeout(() => root.classList.remove('theme-changing'), 260);
+  } else root.classList.remove('theme-changing');
   applyTheme(theme);
 }

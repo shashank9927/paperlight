@@ -85,7 +85,8 @@ export function Footer() {
       <div className="container footer-bottom">
         <span>© {new Date().getFullYear()} Paperlight</span>
         <span>
-          No document uploads. No accounts. <Link to="/#privacy">Usage analytics</Link>.
+          No document uploads. No accounts. <Link to="/#privacy">Usage analytics</Link>.{' '}
+          <Link to="/alternatives/ilovepdf">iLovePDF alternative</Link>.
         </span>
       </div>
     </footer>

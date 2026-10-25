@@ -247,7 +247,7 @@ for (const tool of [
         continue;
       }
       expect(parsed.pathname).toMatch(
-        /^\/(?:$|tools\/[a-z-]+$|assets\/[A-Za-z0-9_.-]+$|pdf-assets\/(?:cmaps|wasm|standard_fonts|iccs)\/[A-Za-z0-9_.-]+$|sw.js$|favicon.svg$)/,
+        /^\/(?:$|tools\/[a-z-]+$|assets\/[A-Za-z0-9_.-]+$|pdf-assets\/[a-f0-9]{12}\/(?:cmaps|wasm|standard_fonts|iccs)\/[A-Za-z0-9_.-]+$|sw.js$|favicon.svg$)/,
       );
     }
     await context.setOffline(false);

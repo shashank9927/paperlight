@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 import type { Annotation, ToolOptions, TextStyle } from '../lib/types';
 import { fontCss, numberPosition, numberText, tilePositions } from '../lib/annotation-style';
 import { parseRange, toBlob } from '../lib/utils';
+import { useFrameUpdate } from '../lib/use-frame-update';
 type Item = TextStyle & {
   id: string;
   image?: Uint8Array;
@@ -20,6 +21,7 @@ function Mark({
   onMove?: (x: number, y: number) => void;
 }) {
   const [url, setUrl] = useState('');
+  const movement = useFrameUpdate((x: number, y: number) => onMove?.(x, y));
   useEffect(() => {
     if (!item.image) {
       setUrl('');
@@ -62,12 +64,13 @@ function Mark({
         if (!onMove || !e.currentTarget.hasPointerCapture(e.pointerId)) return;
         e.stopPropagation();
         const box = e.currentTarget.parentElement!.getBoundingClientRect();
-        onMove(
+        movement.update(
           Math.max(0, Math.min(1, (e.clientX - box.left) / box.width)),
           Math.max(0, Math.min(1, (e.clientY - box.top) / box.height)),
         );
       }}
       onPointerUp={(e) => {
+        movement.flush();
         if (e.currentTarget.hasPointerCapture(e.pointerId))
           e.currentTarget.releasePointerCapture(e.pointerId);
       }}

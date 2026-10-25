@@ -6,12 +6,13 @@ export async function getPdfJs() {
 }
 export function pdfOptions() {
   const origin = globalThis.location.origin;
+  const base = `${origin}${import.meta.env.VITE_PDF_ASSET_BASE || '/pdf-assets'}`;
   return {
-    cMapUrl: `${origin}/pdf-assets/cmaps/`,
+    cMapUrl: `${base}/cmaps/`,
     cMapPacked: true,
-    iccUrl: `${origin}/pdf-assets/iccs/`,
-    standardFontDataUrl: `${origin}/pdf-assets/standard_fonts/`,
-    wasmUrl: `${origin}/pdf-assets/wasm/`,
+    iccUrl: `${base}/iccs/`,
+    standardFontDataUrl: `${base}/standard_fonts/`,
+    wasmUrl: `${base}/wasm/`,
     isEvalSupported: false,
     stopAtErrors: true,
     isImageDecoderSupported: false,
