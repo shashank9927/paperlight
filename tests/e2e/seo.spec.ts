@@ -1,7 +1,38 @@
 import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 import { seoPages, siteOrigin } from '../../src/lib/seo';
 import { makeFixtures } from '../fixtures';
 import { pdfInput } from './helpers';
+
+test('SEO: comparison stays accessible in both themes at mobile, tablet and desktop widths', async ({
+  page,
+}) => {
+  await page.goto('/alternatives/ilovepdf');
+  for (const theme of ['dark', 'light']) {
+    if ((await page.locator('html').getAttribute('data-theme')) !== theme)
+      await page.getByRole('button', { name: `Switch to ${theme} theme` }).click();
+    await expect(page.locator('html')).not.toHaveClass(/theme-changing/);
+    for (const width of [390, 768, 1440]) {
+      await page.setViewportSize({ width, height: 1000 });
+      const comparison = page.getByRole('region', { name: 'PDF workflow comparison' });
+      await comparison.focus();
+      await expect(comparison).toBeFocused();
+      if (width === 390) {
+        await comparison.press('ArrowRight');
+        await expect
+          .poll(() => comparison.evaluate((element) => element.scrollLeft))
+          .toBeGreaterThan(0);
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+        true,
+      );
+      expect(
+        (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze())
+          .violations,
+      ).toEqual([]);
+    }
+  }
+});
 
 test('SEO: every public page has useful HTML without JavaScript', async ({ browser }, info) => {
   const context = await browser.newContext({

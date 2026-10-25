@@ -23,7 +23,12 @@ export default function Alternative() {
           ))}
         </ul>
         <h2>Choose the workflow that fits</h2>
-        <div className="comparison-table-wrap">
+        <div
+          className="comparison-table-wrap"
+          role="region"
+          aria-label="PDF workflow comparison"
+          tabIndex={0}
+        >
           <table>
             <thead>
               <tr>
