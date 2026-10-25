@@ -30,6 +30,20 @@ const job = (tool: ProcessingJob['tool'], data: Uint8Array, options = {}) => ({
 });
 
 describe('ordinary document compatibility', () => {
+  it('does not confuse a custom accessibility role with an executable action', async () => {
+    const document = await PDFDocument.load(await structuredPdf());
+    const tree = document.catalog.lookup(n('StructTreeRoot'), PDFDict);
+    const section = tree.lookup(n('K'), PDFDict);
+    section.set(n('S'), n('JavaScript'));
+    tree.lookup(n('RoleMap'), PDFDict).set(n('JavaScript'), n('Sect'));
+    const result = await processJob(job('merge', await document.save()));
+    const report = await independentPdf(
+      result.files[0].data,
+      '.cache/independent/role-not-action.pdf',
+    );
+    expect(report.preservation?.tags.valid).toBe(true);
+    expect(report.preservation?.tags.roles).toContain('/Sect');
+  });
   it('keeps headings with retained bookmark children and deactivates only removed-target actions', async () => {
     const document = await PDFDocument.load(await structuredPdf());
     const annotation = document.context.obj({

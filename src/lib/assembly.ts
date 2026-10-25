@@ -196,6 +196,14 @@ class Copier {
       }
       if (!(object instanceof PDFDict))
         return this.fail('PDF actions', 'An action dictionary is invalid.');
+      const actionType = this.source.document.context.lookup(object.get(n('S')));
+      if (
+        ['JavaScript', 'Launch', 'SubmitForm', 'ImportData'].some((type) => actionType === n(type))
+      )
+        return this.fail(
+          'executable actions',
+          'This action is outside the supported local document workflow.',
+        );
       if (this.source.document.context.lookup(object.get(n('S'))) === n('GoTo')) {
         const destination = object.get(n('D'));
         if (!destination)

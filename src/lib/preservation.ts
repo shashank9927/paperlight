@@ -92,7 +92,15 @@ export function checkDocument(document: PDFDocument, job: ProcessingJob) {
     if (assembly) {
       if (has(dict, 'SD')) unsupported.add('structure destinations');
       const action = document.context.lookup(dict.get(name('S')))?.toString();
-      if (['/JavaScript', '/Launch', '/SubmitForm', '/ImportData'].includes(action || ''))
+      const actionDictionary =
+        document.context.lookup(dict.get(name('Type')))?.toString() === '/Action' ||
+        (action === '/JavaScript' && has(dict, 'JS')) ||
+        (['/Launch', '/SubmitForm', '/ImportData'].includes(action || '') &&
+          ['F', 'Win', 'Mac', 'Unix'].some((key) => has(dict, key)));
+      if (
+        actionDictionary &&
+        ['/JavaScript', '/Launch', '/SubmitForm', '/ImportData'].includes(action || '')
+      )
         unsupported.add(`${action!.slice(1)} executable actions`);
     }
     if (dict.get(name('Subtype'))?.toString() === '/Image') {
