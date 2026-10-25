@@ -36,6 +36,11 @@ export function checkDocument(document: PDFDocument, job: ProcessingJob) {
       'Extensions',
       'OutputIntents',
       'URI',
+      'OpenAction',
+      'AF',
+      'AcroForm',
+      'OCProperties',
+      'AA',
     ]);
     const blockedCatalog = new Set([
       'AcroForm',
@@ -51,13 +56,8 @@ export function checkDocument(document: PDFDocument, job: ProcessingJob) {
       if (!supportedCatalog.has(key.decodeText()) && !blockedCatalog.has(key.decodeText()))
         unsupported.add(`document-level ${key.decodeText()} data`);
     for (const [key, label] of [
-      ['AcroForm', 'interactive forms (including duplicate field names)'],
       ['Collection', 'portfolios'],
-      ['AF', 'associated attachments'],
-      ['OCProperties', 'optional-content layers'],
       ['Threads', 'article threads'],
-      ['OpenAction', 'document open actions'],
-      ['AA', 'document actions'],
       ['Perms', 'certification or usage-right signatures'],
     ])
       if (has(catalog, key)) unsupported.add(label);
@@ -66,12 +66,12 @@ export function checkDocument(document: PDFDocument, job: ProcessingJob) {
         if (!['Dests', 'EmbeddedFiles', 'JavaScript'].includes(key.decodeText()))
           unsupported.add(`${key.decodeText()} name trees`);
     if (names)
-      for (const key of ['EmbeddedFiles', 'JavaScript'])
+      for (const key of ['JavaScript'])
         if (has(names, key))
           unsupported.add(key === 'JavaScript' ? 'document scripts' : 'attachments');
   }
   const form = catalog.lookupMaybe(name('AcroForm'), PDFDict);
-  if ((content || raster) && form && has(form, 'XFA')) unsupported.add('XFA forms');
+  if ((assembly || content || raster) && form && has(form, 'XFA')) unsupported.add('XFA forms');
   const pending = objects.map(([, object]) => object);
   const seen = new Set<object>();
   while (pending.length) {
@@ -91,9 +91,17 @@ export function checkDocument(document: PDFDocument, job: ProcessingJob) {
     pending.push(...dict.values());
     if (assembly) {
       if (has(dict, 'SD')) unsupported.add('structure destinations');
-      if (dict.get(name('Subtype'))?.toString() === '/Widget')
-        unsupported.add('interactive forms (including duplicate field names)');
-      if (has(dict, 'FS') || has(dict, 'EF')) unsupported.add('attachments');
+      const action = document.context.lookup(dict.get(name('S')))?.toString();
+      const actionDictionary =
+        document.context.lookup(dict.get(name('Type')))?.toString() === '/Action' ||
+        (action === '/JavaScript' && has(dict, 'JS')) ||
+        (['/Launch', '/SubmitForm', '/ImportData'].includes(action || '') &&
+          ['F', 'Win', 'Mac', 'Unix'].some((key) => has(dict, key)));
+      if (
+        actionDictionary &&
+        ['/JavaScript', '/Launch', '/SubmitForm', '/ImportData'].includes(action || '')
+      )
+        unsupported.add(`${action!.slice(1)} executable actions`);
     }
     if (dict.get(name('Subtype'))?.toString() === '/Image') {
       const w = dict.lookupMaybe(name('Width'), PDFNumber)?.asNumber() || 0;

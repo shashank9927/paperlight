@@ -2,6 +2,7 @@
 import json
 import subprocess
 import sys
+import hashlib
 from pathlib import Path
 from pypdf import PdfReader
 from pypdf.generic import IndirectObject, ArrayObject, DictionaryObject
@@ -206,6 +207,55 @@ for page in reader.pages:
     })
 report = {'preservation': preservation, 'permissions': int(reader.trailer['/Encrypt']['/P']) if encrypted else None, 'encrypted': encrypted, 'count': len(pages), 'pages': pages,
           'fields': {name: str(value.get('/V', '')) for name, value in (reader.get_fields() or {}).items()}}
+embedded, media, seen_features = [], [], set()
+def feature_object(value, depth=0):
+    if value is None:
+        return
+    obj = value.get_object()
+    if not isinstance(obj, (DictionaryObject, ArrayObject)) or id(obj) in seen_features:
+        return
+    assert depth <= 64 and len(seen_features) < 100000, 'Excessive embedded-file graph'
+    seen_features.add(id(obj))
+    if isinstance(obj, DictionaryObject):
+        if '/EF' in obj:
+            payloads = {key: {'bytes': len(stream.get_object().get_data()), 'sha256': hashlib.sha256(stream.get_object().get_data()).hexdigest()} for key, stream in obj['/EF'].items()}
+            embedded.append({'name': str(obj.get('/UF', obj.get('/F', ''))), 'payloads': payloads})
+        for key, item in obj.items():
+            if key not in ['/Parent', '/P', '/Pages', '/StructTreeRoot']:
+                feature_object(item, depth + 1)
+    else:
+        for item in obj:
+            feature_object(item, depth + 1)
+names = catalog.get('/Names')
+if names:
+    feature_object(names.get_object().get('/EmbeddedFiles'))
+feature_object(catalog.get('/AF'))
+for index, page in enumerate(reader.pages):
+    feature_object(page.get('/Annots'))
+    for ref in page.get('/Annots', []):
+        annotation = ref.get_object()
+        action = annotation.get('/A')
+        if action and action.get_object().get('/S') == '/Rendition':
+            action = action.get_object()
+            assert action['/AN'].get_object() is annotation, 'Media action targets the wrong annotation'
+            assert annotation.raw_get('/P') == page.indirect_reference, 'Media annotation targets the wrong page'
+            media.append({'page': index, 'type': str(action['/R']['/C'].get('/CT'))})
+layer_report = None
+if '/OCProperties' in catalog:
+    properties = catalog['/OCProperties']
+    groups = properties['/OCGs']
+    group_refs = {(group.idnum, group.generation) for group in groups}
+    assert len(group_refs) == len(groups), 'Duplicate layer groups'
+    def check_config(config):
+        for key in ['/ON', '/OFF', '/Locked']:
+            for group in config.get(key, []):
+                assert (group.idnum, group.generation) in group_refs, 'Unknown layer reference'
+    defaults = properties['/D'] if '/D' in properties else {}
+    check_config(defaults)
+    for config in properties.get('/Configs', []):
+        check_config(config.get_object())
+    layer_report = {'groups': len(groups), 'defaultOff': len(defaults.get('/OFF', [])), 'configurations': len(properties.get('/Configs', []))}
+report.update({'embeddedFiles': embedded, 'media': media, 'layers': layer_report})
 if not encrypted:
     info = subprocess.run(['pdfinfo', str(path)], capture_output=True, check=True)
     # Always render at least one page with a separate engine. Optional page index

@@ -44,6 +44,7 @@ import { fontAsset, numberText, numberPosition, tilePositions } from './annotati
 import { extractImages } from './extract-images';
 import { assemblePdf, tagWriter, validateAssembly, outputIntentsSignature } from './assembly';
 import type { AssemblyPage } from './assembly';
+import { documentFeaturesSignature } from './document-features';
 
 type Progress = (message: Extract<WorkerResponse, { type: 'progress' }>) => void;
 const pdfFile = (name: string, data: Uint8Array): OutputFile => ({
@@ -419,10 +420,17 @@ async function processSingle(
       const data = await assemblePdf(
         documents.map((document, i) => ({ document, name: sources[i].file.name })),
         selection,
+        { navigation: tool === 'merge' ? 'all' : 'selected' },
       );
       const snapshot = async (bytes: Uint8Array) => {
         const document = await loadPdfSafely(bytes);
-        return validateAssembly(document) + '\n' + (await outputIntentsSignature(document));
+        return (
+          validateAssembly(document) +
+          '\n' +
+          (await outputIntentsSignature(document)) +
+          '\n' +
+          (await documentFeaturesSignature(document))
+        );
       };
       const before = await snapshot(data);
       const bytes = await runQpdf(data, ['/input.pdf', ...extra, '/output.pdf']);
