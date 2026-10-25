@@ -63,7 +63,7 @@ docker exec -e PAPERLIGHT_PYTHON=/opt/paperlight-tests/bin/python -e LANG=C.UTF-
 docker exec -e PAPERLIGHT_PYTHON=/opt/paperlight-tests/bin/python -e LANG=C.UTF-8 -e LC_ALL=C.UTF-8 -e PAPERLIGHT_STRICT_BROWSERS=1 -e PAPERLIGHT_TEST_ORIGIN=http://127.0.0.1:8080 paperlight-release-verify sh -lc 'cd /workspace && npx --no-install playwright test tests/e2e/benchmark.spec.ts --workers=1 --output=.cache/benchmarks'
 ```
 
-`deployment/nginx.conf` handles all 13 application routes, real assets, missing-file 404s, restrictive headers and shell/service-worker revalidation. It explicitly maps `.js`/`.mjs` to JavaScript and `.wasm` to `application/wasm`. All runtime fonts remain same-origin files, including small subsets; no data-font CSP exception is needed.
+`deployment/nginx.conf` handles all 14 application routes, real assets, missing-file 404s, restrictive headers and shell/service-worker revalidation. It explicitly maps `.js`/`.mjs` to JavaScript and `.wasm` to `application/wasm`. All runtime fonts remain same-origin files, including small subsets; no data-font CSP exception is needed.
 
 The complete browser suite targets this server, including warm offline processing. A different hosting provider still needs its own routing, MIME, headers and HTTPS checks. `public/_headers` and `_redirects` are templates, not proof of another provider's configuration.
 

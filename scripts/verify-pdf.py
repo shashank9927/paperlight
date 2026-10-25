@@ -76,10 +76,11 @@ def inspect_tags():
     catalog = reader.trailer['/Root']
     root_ref = catalog.raw_get('/StructTreeRoot') if '/StructTreeRoot' in catalog else None
     if root_ref is None:
-        return {'valid': True, 'pages': [], 'alt': [], 'languages': [], 'ids': [], 'roles': []}
+        return {'valid': True, 'pages': [], 'alt': [], 'languages': [], 'ids': [], 'roles': [], 'classes': []}
     root = root_ref.get_object()
     parents = number_tree(root.get('/ParentTree'))
     visited, mapped_pages, alts, languages, ids, roles = set(), set(), [], [], [], []
+    classes = []
     content_ids = {}
     for index, page in enumerate(reader.pages):
         content_ids[index] = set()
@@ -130,15 +131,32 @@ def inspect_tags():
                     languages.append(str(value['/Lang']))
                 if '/ID' in value:
                     ids.append(str(value['/ID']))
-                role = value.get('/S')
+                role = value['/S'] if '/S' in value else None
                 role_map = root.get('/RoleMap', {})
                 for _ in range(64):
                     if role not in role_map:
                         break
-                    role = role_map[role]
+                    target = role_map[role]
+                    if target == role:
+                        break
+                    role = target
                 else:
                     raise AssertionError('Cyclic role mapping')
                 roles.append(str(role))
+                if '/C' in value:
+                    references = value['/C']
+                    references = references if isinstance(references, ArrayObject) else [references]
+                    for reference in references:
+                        reference = reference.get_object()
+                        if isinstance(reference, int):
+                            continue
+                        assert str(reference) in root.get('/ClassMap', {}), 'Unresolved attribute class'
+                        attributes = root['/ClassMap'][str(reference)]
+                        attributes = attributes if isinstance(attributes, ArrayObject) else [attributes]
+                        for attribute in attributes:
+                            attribute = attribute.get_object()
+                            assert isinstance(attribute, DictionaryObject), 'Invalid attribute definition'
+                            classes.append({'owner': str(attribute.get('/O', '')), 'spaceAfter': float(attribute['/SpaceAfter']) if '/SpaceAfter' in attribute else None})
                 if '/K' in value:
                     walk(value.raw_get('/K'), original_ref, page_ref, depth + 1)
         else:
@@ -150,7 +168,7 @@ def inspect_tags():
     for index, page in enumerate(reader.pages):
         if '/StructParents' in page:
             assert index in mapped_pages, 'Tagged page has no mapped content'
-    return {'valid': True, 'pages': sorted(mapped_pages), 'alt': alts, 'languages': languages, 'ids': ids, 'roles': roles}
+    return {'valid': True, 'pages': sorted(mapped_pages), 'alt': alts, 'languages': languages, 'ids': ids, 'roles': roles, 'classes': classes}
 
 catalog = reader.trailer['/Root']
 outlines = catalog.raw_get('/Outlines') if '/Outlines' in catalog else None

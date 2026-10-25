@@ -11,7 +11,7 @@ there is no automatic simplification, tag removal, or raster fallback.
 
 Split/Organize share the assembler. A link/bookmark/destination to an excluded
 page is rejected rather than left dangling. Links resolve to the first retained
-target occurrence, with direct self-links on a duplicated page targeting its copy.
+target occurrence, with self-links on a duplicated page targeting its copy.
 Page labels, rotations and page resources remain associated with their source.
 Size splitting measures final serialized output after structure reconstruction.
 
@@ -55,3 +55,9 @@ Record final unit counts, complete browser results, Nginx contract, performance,
 bounded local load, accessibility/visual inspection, dependency audit and actual
 CI revision before declaring release verification complete. Public deployment,
 firewall activation and Search Console ownership remain separate account steps.
+
+## Additional audit corrections
+
+Output serialization is checked before pdf-lib allocates its final buffer. Copied strings/streams and repeated traversal have aggregate limits. Organize ignores compatibility features of fully excluded source documents, and generated blanks do not consume the external-input page ceiling. Matching decoded ICC output conditions survive differing stream encodings; conflicting conditions are explicit errors. Primary print-page ranges are remapped, extension declarations retained/combined, and the highest selected PDF version is declared. Unknown catalog/name-tree features remain explicit restrictions.
+
+The first Linux run passed 248 browser checks but found three UI timing failures: premature keyboard interaction during homepage hydration, transition sampling after its short lifetime, and contrast sampling mid-animation. Search now has an explicit ready state; motion is sampled synchronously and contrast checked after settling. Final full Linux results and counts are published in the [PR #3 description and checks](https://github.com/shashank9927/paperlight/pull/3), which identify the exact verified revision.

@@ -230,6 +230,9 @@ test('themes remain accessible and responsive, and persist only appearance', asy
       if ((await page.locator('html').getAttribute('data-theme')) !== theme) {
         await themeButton.click();
       }
+      // Contrast is evaluated at the settled theme; the dedicated motion test
+      // observes the transition itself in the same browser event as the click.
+      await expect(page.locator('html')).not.toHaveClass(/theme-changing/);
       await expect(page.locator('.header-right select')).toHaveCount(0);
       await expect(page.locator('.tool-card')).toHaveCount(12);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(

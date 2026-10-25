@@ -12,6 +12,7 @@ test('homepage: search, categories, keyboard navigation, FAQ and accessibility',
 }) => {
   await page.goto('/');
   await expect(page.locator('.tool-card')).toHaveCount(12);
+  await expect(page.getByRole('textbox', { name: 'Search tools' })).toBeEnabled();
   await page.keyboard.press('/');
   await expect(page.getByRole('textbox', { name: 'Search tools' })).toBeFocused();
   await page.keyboard.type('watermark');

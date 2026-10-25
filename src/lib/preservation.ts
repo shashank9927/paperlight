@@ -18,6 +18,38 @@ export function checkDocument(document: PDFDocument, job: ProcessingJob) {
   const catalog = document.catalog;
   const names = catalog.lookupMaybe(name('Names'), PDFDict);
   if (assembly) {
+    const supportedCatalog = new Set([
+      'Type',
+      'Pages',
+      'Names',
+      'Dests',
+      'Outlines',
+      'StructTreeRoot',
+      'MarkInfo',
+      'Lang',
+      'Metadata',
+      'PageLabels',
+      'PageMode',
+      'PageLayout',
+      'ViewerPreferences',
+      'Version',
+      'Extensions',
+      'OutputIntents',
+      'URI',
+    ]);
+    const blockedCatalog = new Set([
+      'AcroForm',
+      'Collection',
+      'AF',
+      'OCProperties',
+      'Threads',
+      'OpenAction',
+      'AA',
+      'Perms',
+    ]);
+    for (const key of catalog.keys())
+      if (!supportedCatalog.has(key.decodeText()) && !blockedCatalog.has(key.decodeText()))
+        unsupported.add(`document-level ${key.decodeText()} data`);
     for (const [key, label] of [
       ['AcroForm', 'interactive forms (including duplicate field names)'],
       ['Collection', 'portfolios'],
@@ -26,8 +58,13 @@ export function checkDocument(document: PDFDocument, job: ProcessingJob) {
       ['Threads', 'article threads'],
       ['OpenAction', 'document open actions'],
       ['AA', 'document actions'],
+      ['Perms', 'certification or usage-right signatures'],
     ])
       if (has(catalog, key)) unsupported.add(label);
+    if (names)
+      for (const key of names.keys())
+        if (!['Dests', 'EmbeddedFiles', 'JavaScript'].includes(key.decodeText()))
+          unsupported.add(`${key.decodeText()} name trees`);
     if (names)
       for (const key of ['EmbeddedFiles', 'JavaScript'])
         if (has(names, key))
@@ -53,6 +90,7 @@ export function checkDocument(document: PDFDocument, job: ProcessingJob) {
     // Inline action dictionaries are as consequential as indirect objects.
     pending.push(...dict.values());
     if (assembly) {
+      if (has(dict, 'SD')) unsupported.add('structure destinations');
       if (dict.get(name('Subtype'))?.toString() === '/Widget')
         unsupported.add('interactive forms (including duplicate field names)');
       if (has(dict, 'FS') || has(dict, 'EF')) unsupported.add('attachments');

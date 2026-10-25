@@ -1,3 +1,5 @@
+> Current preservation/reliability changes and final PR verification: [PRESERVATION-RELEASE.md](PRESERVATION-RELEASE.md). Earlier counts and restrictions below are retained as historical release evidence.
+
 # Paperlight production-hardening audit
 
 > **Redesign update:** the current release capability map, verification results and remaining device limits are in [REDESIGN.md](REDESIGN.md). The dated audit below is retained as the pre-redesign hardening baseline; its counts and hashes describe that earlier build.

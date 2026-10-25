@@ -11,9 +11,10 @@ import {
   PDFString,
   PDFOperator,
   PDFOperatorNames,
+  decodePDFRawStream,
 } from 'pdf-lib';
 import type { PDFContext, PDFPage } from 'pdf-lib';
-import { MAX_OBJECTS, checkOutput } from './limits';
+import { MAX_OBJECTS, checkOutput, saveBoundedPdf } from './limits';
 
 const n = PDFName.of;
 const text = (value: PDFObject | undefined) =>
@@ -35,6 +36,80 @@ export interface CompatibilityIssue {
   source: string;
   feature: string;
   reason: string;
+}
+interface CopyBudget {
+  objects: number;
+  bytes: number;
+  visits: number;
+}
+function boundedText(value: string, budget: CopyBudget) {
+  budget.bytes += value.length * 4 + 8;
+  checkOutput(budget.bytes);
+  return PDFHexString.fromText(value);
+}
+
+// A document-wide color condition can be retained unchanged only when selected
+// inputs agree. Compare decoded ICC bytes, not object IDs or compression details.
+export async function outputIntentsSignature(document: PDFDocument) {
+  const intents = document.catalog.get(n('OutputIntents'));
+  if (!intents) return 'none';
+  const resolved = document.context.lookup(intents);
+  if (resolved instanceof PDFArray && !resolved.size()) return 'none';
+  const seen = new Set<PDFObject>();
+  let visits = 0,
+    decoded = 0;
+  const normalize = async (value: PDFObject, depth = 0): Promise<unknown> => {
+    const object = document.context.lookup(value);
+    if (!object || depth > 64 || ++visits > MAX_OBJECTS || seen.has(object))
+      throw new Error('The output color profile contains an invalid or excessive object graph.');
+    if (object instanceof PDFArray || object instanceof PDFDict || object instanceof PDFRawStream)
+      seen.add(object);
+    try {
+      if (object instanceof PDFRawStream) {
+        const bytes = decodePDFRawStream(object).decode();
+        decoded += bytes.length;
+        if (decoded > 64 * 1024 * 1024)
+          throw new Error('Output color profiles exceed the safe decoded-data limit.');
+        const hash = await crypto.subtle.digest('SHA-256', bytes as Uint8Array<ArrayBuffer>);
+        const attributes: unknown[] = [];
+        for (const [key, item] of object.dict
+          .entries()
+          .sort(([a], [b]) => a.toString().localeCompare(b.toString()))) {
+          if (![n('Length'), n('Filter'), n('DecodeParms')].includes(key))
+            attributes.push([key.toString(), await normalize(item, depth + 1)]);
+        }
+        return [
+          'stream',
+          attributes,
+          Array.from(new Uint8Array(hash), (byte) => byte.toString(16).padStart(2, '0')).join(''),
+        ];
+      }
+      if (object instanceof PDFDict) {
+        const entries: unknown[] = [];
+        for (const [key, item] of object
+          .entries()
+          .sort(([a], [b]) => a.toString().localeCompare(b.toString())))
+          entries.push([key.toString(), await normalize(item, depth + 1)]);
+        return ['dictionary', entries];
+      }
+      if (object instanceof PDFArray) {
+        const entries: unknown[] = [];
+        for (const item of object.asArray()) entries.push(await normalize(item, depth + 1));
+        return ['array', entries];
+      }
+      return [
+        object instanceof PDFName
+          ? 'name'
+          : object instanceof PDFString || object instanceof PDFHexString
+            ? 'string'
+            : 'value',
+        text(object) ?? object.toString(),
+      ];
+    } finally {
+      seen.delete(object);
+    }
+  };
+  return JSON.stringify(await normalize(intents));
 }
 export class PreservationError extends Error {
   readonly issues: CompatibilityIssue[];
@@ -58,7 +133,7 @@ class Copier {
     readonly target: PDFContext,
     readonly pages: Set<PDFObject>,
     readonly destinations: Map<string, string>,
-    readonly budget: { objects: number; bytes: number },
+    readonly budget: CopyBudget,
   ) {}
   fail(feature: string, reason: string): never {
     throw new PreservationError(this.source.name, feature, reason);
@@ -69,14 +144,14 @@ class Copier {
         'internal destinations',
         'A destination contains a cycle or excessive nesting.',
       );
-    const label = text(value);
+    const original = this.source.document.context.lookup(value);
+    const label = text(original);
     if (label !== undefined) {
       const renamed = this.destinations.get(label);
       if (!renamed)
         return this.fail('named destinations', 'An internal link has no resolvable destination.');
-      return PDFHexString.fromText(renamed);
+      return boundedText(renamed, this.budget);
     }
-    const original = this.source.document.context.lookup(value);
     if (original instanceof PDFDict) {
       const target = original.get(n('D'));
       if (!target)
@@ -111,6 +186,8 @@ class Copier {
     ]);
   }
   copy(value: PDFObject, depth = 0): PDFObject {
+    if (++this.budget.visits > 1_000_000 || depth > 64)
+      return this.fail('document structure', 'The assembly exceeds the safe traversal limit.');
     const known = this.mapped.get(value);
     if (known) return known;
     if (depth > 64 || ++this.budget.objects > MAX_OBJECTS)
@@ -149,21 +226,46 @@ class Copier {
       this.mapped.set(value, result);
       for (const [key, item] of value.entries()) {
         const destination =
-          key === n('Dest') || (key === n('D') && value.get(n('S')) === n('GoTo'));
-        result.set(
-          key,
-          destination ? this.destination(item, depth + 1) : this.copy(item, depth + 1),
-        );
+          key === n('Dest') ||
+          (key === n('D') && this.source.document.context.lookup(value.get(n('S'))) === n('GoTo'));
+        const uri =
+          key === n('URI') && this.source.document.context.lookup(value.get(n('S'))) === n('URI')
+            ? text(this.source.document.context.lookup(item))
+            : undefined;
+        const base = this.source.document.catalog.lookupMaybe(n('URI'), PDFDict)?.get(n('Base'));
+        if (uri !== undefined && base && !/^[A-Za-z][A-Za-z0-9+.-]*:/.test(uri)) {
+          try {
+            result.set(
+              key,
+              boundedText(
+                new URL(uri, text(this.source.document.context.lookup(base))).href,
+                this.budget,
+              ),
+            );
+          } catch {
+            return this.fail(
+              'URI links',
+              'A relative link cannot be resolved against the document base URL.',
+            );
+          }
+        } else
+          result.set(
+            key,
+            destination ? this.destination(item, depth + 1) : this.copy(item, depth + 1),
+          );
       }
       return result;
     }
+    this.budget.bytes += value.sizeInBytes();
+    checkOutput(this.budget.bytes);
     return value.clone(this.target);
   }
 }
 
 function nameTree(document: PDFDocument, root: PDFObject | undefined): [string, PDFObject][] {
   const values: [string, PDFObject][] = [],
-    seen = new Set<PDFObject>();
+    seen = new Set<PDFObject>(),
+    keys = new Set<string>();
   const visit = (value: PDFObject | undefined, depth: number) => {
     if (!value) return;
     const node = document.context.lookup(value);
@@ -175,11 +277,14 @@ function nameTree(document: PDFDocument, root: PDFObject | undefined): [string, 
       if (entries.size() % 2)
         throw new Error('The document contains an incomplete name/number tree.');
       for (let i = 0; i < entries.size(); i += 2) {
-        const key = entries.get(i);
-        values.push([
-          key instanceof PDFNumber ? String(key.asNumber()) : (text(key) ?? ''),
-          entries.get(i + 1),
-        ]);
+        const key = document.context.lookup(entries.get(i));
+        const label = key instanceof PDFNumber ? String(key.asNumber()) : text(key);
+        if (label === undefined || keys.has(label) || values.length >= MAX_OBJECTS)
+          throw new Error(
+            'The document contains duplicate/invalid tree keys or exceeds the safe tree limit.',
+          );
+        keys.add(label);
+        values.push([label, entries.get(i + 1)]);
       }
     }
     const kids = node.lookupMaybe(n('Kids'), PDFArray);
@@ -195,7 +300,7 @@ export async function assemblePdf(sources: AssemblySource[], selection: Assembly
     throw new Error('Keep between 1 and 500 output pages.');
   const output = await PDFDocument.create();
   const ctx = output.context;
-  const budget = { objects: 0, bytes: 0 };
+  const budget = { objects: 0, bytes: 0, visits: 0 };
   const occurrences = sources.map(() => new Map<number, number>());
   const records = selection.map((item) => {
     const input = sources[item.source]?.document.getPages()[item.index];
@@ -204,6 +309,8 @@ export async function assemblePdf(sources: AssemblySource[], selection: Assembly
     occurrences[item.source].set(item.index, lane + 1);
     return { ...item, input, lane, output: output.addPage([input.getWidth(), input.getHeight()]) };
   });
+  const selectedSourceIndices = new Set(records.map((record) => record.source));
+  const selectedSources = sources.filter((_, index) => selectedSourceIndices.has(index));
   const destinationPairs: [string, PDFObject][] = [];
   const firstCopiers = new Map<number, Copier>();
   const outlineRoots: PDFRef[] = [];
@@ -212,6 +319,7 @@ export async function assemblePdf(sources: AssemblySource[], selection: Assembly
   const idEntries: [string, PDFObject][] = [];
   const roleMap = PDFDict.withContext(ctx),
     classMap = PDFDict.withContext(ctx);
+  const extensions = PDFDict.withContext(ctx);
   const tagRoot = PDFDict.withContext(ctx),
     tagRootRef = ctx.register(tagRoot);
   tagRoot.set(n('Type'), n('StructTreeRoot'));
@@ -219,12 +327,21 @@ export async function assemblePdf(sources: AssemblySource[], selection: Assembly
     outlineRootRef = ctx.register(outlineRoot);
   outlineRoot.set(n('Type'), n('Outlines'));
   let nextParent = 0;
+  let intentSignature: string | undefined;
 
   for (const [sourceIndex, source] of sources.entries()) {
     const doc = source.document,
       sourcePages = doc.getPages();
     const own = records.filter((record) => record.source === sourceIndex);
     if (!own.length) continue;
+    const signature = await outputIntentsSignature(doc);
+    if (intentSignature !== undefined && signature !== intentSignature)
+      throw new PreservationError(
+        source.name,
+        'output color profiles',
+        'The selected documents declare different output conditions. Combining them requires a color-managed editor to preserve every source condition.',
+      );
+    intentSignature = signature;
     const pageObjects = new Set<PDFObject>(sourcePages.flatMap((page) => [page.ref, page.node]));
     const names = doc.catalog.lookupMaybe(n('Names'), PDFDict);
     const rawDestinations = nameTree(doc, names?.get(n('Dests')));
@@ -287,11 +404,25 @@ export async function assemblePdf(sources: AssemblySource[], selection: Assembly
     const classes = sourceTags?.lookupMaybe(n('ClassMap'), PDFDict);
     const renameRole = (value: PDFName) =>
       roles?.has(value) ? n(`pl-${sourceIndex + 1}-${value.decodeText()}`) : value;
-    const renameClass = (value: PDFObject): PDFObject => {
-      if (value instanceof PDFName && classes?.has(value))
-        return n(`pl-${sourceIndex + 1}-${value.decodeText()}`);
-      if (value instanceof PDFArray) return ctx.obj(value.asArray().map(renameClass));
-      return value;
+    const renameClass = (value: PDFObject, depth = 0): PDFObject => {
+      if (depth > 64 || ++budget.visits > 1_000_000)
+        throw new PreservationError(
+          source.name,
+          'attribute classes',
+          'The class reference exceeds the safe traversal limit.',
+        );
+      const object = doc.context.lookup(value);
+      if (!object)
+        throw new PreservationError(
+          source.name,
+          'attribute classes',
+          'A class reference points to a missing object.',
+        );
+      if (object instanceof PDFName && classes?.has(object))
+        return n(`pl-${sourceIndex + 1}-${object.decodeText()}`);
+      if (object instanceof PDFArray)
+        return ctx.obj(object.asArray().map((child) => renameClass(child, depth + 1)));
+      return object;
     };
     const maxLane = Math.max(...own.map((record) => record.lane));
     for (let lane = 0; lane <= maxLane; lane++) {
@@ -340,6 +471,27 @@ export async function assemblePdf(sources: AssemblySource[], selection: Assembly
       copier.destinations.clear();
       for (const [key, value] of destinationNames) copier.destinations.set(key, value);
       if (lane === 0) {
+        const declaredExtensions = doc.catalog.lookupMaybe(n('Extensions'), PDFDict);
+        if (declaredExtensions)
+          for (const [namespace, value] of declaredExtensions.entries()) {
+            const existing = extensions.get(namespace);
+            if (!existing) extensions.set(namespace, copier.copy(value));
+            else {
+              const previous = ctx.lookup(existing, PDFDict),
+                incoming = doc.context.lookup(value, PDFDict);
+              for (const key of new Set([...previous.keys(), ...incoming.keys()])) {
+                const a = ctx.lookup(previous.get(key)),
+                  b = doc.context.lookup(incoming.get(key));
+                if (key === n('ExtensionLevel') && a instanceof PDFNumber && b instanceof PDFNumber)
+                  previous.set(key, PDFNumber.of(Math.max(a.asNumber(), b.asNumber())));
+                else if (a?.toString() !== b?.toString())
+                  copier.fail(
+                    'PDF extension declarations',
+                    'Conflicting declarations require a dedicated compatibility mapping.',
+                  );
+              }
+            }
+          }
         if (sourceIndex === records[0].source) {
           for (const key of [
             'Lang',
@@ -348,9 +500,53 @@ export async function assemblePdf(sources: AssemblySource[], selection: Assembly
             'PageLayout',
             'ViewerPreferences',
             'Version',
+            'OutputIntents',
+            'Extensions',
+            'URI',
           ]) {
             const value = doc.catalog.get(n(key));
             if (value) output.catalog.set(n(key), copier.copy(value));
+            if (key === 'ViewerPreferences' && value) {
+              const sourcePreferences = doc.context.lookup(value, PDFDict);
+              const printRange = sourcePreferences.lookupMaybe(n('PrintPageRange'), PDFArray);
+              if (printRange) {
+                if (printRange.size() % 2)
+                  copier.fail('print page ranges', 'The source print range is incomplete.');
+                const requested = new Set<number>();
+                for (let i = 0; i < printRange.size(); i += 2) {
+                  const start = printRange.lookup(i, PDFNumber).asNumber(),
+                    end = printRange.lookup(i + 1, PDFNumber).asNumber();
+                  if (
+                    ![start, end].every(Number.isSafeInteger) ||
+                    start < 0 ||
+                    end < start ||
+                    end >= sourcePages.length
+                  )
+                    copier.fail(
+                      'print page ranges',
+                      'A source print range has invalid page indices.',
+                    );
+                  for (let index = start; index <= end; index++) requested.add(index);
+                }
+                if ([...requested].some((index) => !own.some((record) => record.index === index)))
+                  copier.fail(
+                    'print page ranges',
+                    'The print range targets an excluded page. Include that page to preserve its settings.',
+                  );
+                const indices = records.flatMap((record, index) =>
+                  record.source === sourceIndex && requested.has(record.index) ? [index] : [],
+                );
+                const ranges: number[] = [];
+                for (const index of indices) {
+                  if (ranges.length && ranges.at(-1) === index - 1)
+                    ranges[ranges.length - 1] = index;
+                  else ranges.push(index, index);
+                }
+                output.catalog
+                  .lookup(n('ViewerPreferences'), PDFDict)
+                  .set(n('PrintPageRange'), ctx.obj(ranges));
+              }
+            }
           }
           const info = doc.context.trailerInfo.Info;
           if (info) ctx.trailerInfo.Info = copier.copy(info) as PDFRef;
@@ -359,9 +555,10 @@ export async function assemblePdf(sources: AssemblySource[], selection: Assembly
           destinationPairs.push([destinationNames.get(key)!, copier.destination(value)]);
         if (roles)
           for (const [key, value] of roles.entries()) {
-            if (!(value instanceof PDFName))
+            const target = doc.context.lookup(value);
+            if (!(target instanceof PDFName))
               copier.fail('role mappings', 'A structure role has an invalid mapping.');
-            roleMap.set(renameRole(key), renameRole(value as PDFName));
+            roleMap.set(renameRole(key), target === key ? key : renameRole(target as PDFName));
           }
         if (classes)
           for (const [key, value] of classes.entries())
@@ -579,14 +776,15 @@ export async function assemblePdf(sources: AssemblySource[], selection: Assembly
               'accessibility tags',
               'Cross-references between structure elements require a dedicated mapping.',
             );
-          if (key === n('S') && item instanceof PDFName) element.set(key, renameRole(item));
+          if (key === n('S') && doc.context.lookup(item) instanceof PDFName)
+            element.set(key, renameRole(doc.context.lookup(item) as PDFName));
           else if (key === n('C')) element.set(key, copier.copy(renameClass(item)));
           else if (key === n('ID')) {
             const id = text(item);
             if (id === undefined)
               return copier.fail('accessibility tags', 'A structure identifier is invalid.');
             const renamed = `pl-${sourceIndex + 1}-${lane}-${id}`;
-            element.set(key, PDFHexString.fromText(renamed));
+            element.set(key, boundedText(renamed, budget));
             idEntries.push([renamed, ref]);
           } else element.set(key, copier.copy(item));
         }
@@ -622,7 +820,7 @@ export async function assemblePdf(sources: AssemblySource[], selection: Assembly
           }
           continue;
         }
-        const size = Math.max(...entries.keys()) + 1;
+        const size = [...entries.keys()].reduce((max, value) => Math.max(max, value), -1) + 1;
         const array = ctx.obj(Array.from({ length: size }, (_, i) => entries.get(i) || null));
         record.output.node.set(n('StructParents'), PDFNumber.of(nextParent));
         parentEntries.push([nextParent++, array]);
@@ -636,10 +834,30 @@ export async function assemblePdf(sources: AssemblySource[], selection: Assembly
         Dests: {
           Names: destinationPairs
             .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-            .flatMap(([key, value]) => [PDFHexString.fromText(key), value]),
+            .flatMap(([key, value]) => [boundedText(key, budget), value]),
         },
       }),
     );
+  if (extensions.keys().length) output.catalog.set(n('Extensions'), extensions);
+  let version = 1.7;
+  for (const source of selectedSources) {
+    const header = source.document.context.header.toString().match(/%PDF-(\d+\.\d+)/)?.[1];
+    const declared = text(
+      source.document.context.lookup(source.document.catalog.get(n('Version'))),
+    );
+    for (const value of [header, declared])
+      if (value) {
+        const parsed = Number(value);
+        if (!Number.isFinite(parsed) || parsed < 1 || parsed > 2)
+          throw new PreservationError(
+            source.name,
+            'PDF version',
+            'The declared PDF version is outside supported versions.',
+          );
+        version = Math.max(version, parsed);
+      }
+  }
+  output.catalog.set(n('Version'), n(version.toFixed(1)));
   if (outlineRoots.length) {
     outlineRoots.forEach((ref, index) => {
       const entry = ctx.lookup(ref, PDFDict);
@@ -674,7 +892,7 @@ export async function assemblePdf(sources: AssemblySource[], selection: Assembly
   }
   if (
     structureRoots.length ||
-    sources.some((source) => source.document.catalog.has(n('StructTreeRoot')))
+    selectedSources.some((source) => source.document.catalog.has(n('StructTreeRoot')))
   ) {
     tagRoot.set(n('K'), ctx.obj(structureRoots));
     tagRoot.set(
@@ -694,7 +912,7 @@ export async function assemblePdf(sources: AssemblySource[], selection: Assembly
         ctx.obj({
           Names: idEntries
             .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-            .flatMap(([key, value]) => [PDFHexString.fromText(key), value]),
+            .flatMap(([key, value]) => [boundedText(key, budget), value]),
         }),
       );
     output.catalog.set(n('StructTreeRoot'), tagRootRef);
@@ -705,7 +923,7 @@ export async function assemblePdf(sources: AssemblySource[], selection: Assembly
         ...['Suspects', 'UserProperties'].reduce(
           (flags, key) => {
             if (
-              sources.some(
+              selectedSources.some(
                 (source) =>
                   source.document.catalog
                     .lookupMaybe(n('MarkInfo'), PDFDict)
@@ -743,11 +961,11 @@ export async function assemblePdf(sources: AssemblySource[], selection: Assembly
       labels.push(PDFNumber.of(index), label);
     } else labels.push(PDFNumber.of(index), ctx.obj({ S: 'D', St: record.index + 1 }));
   }
-  if (sources.some((source) => source.document.catalog.has(n('PageLabels'))))
+  if (selectedSources.some((source) => source.document.catalog.has(n('PageLabels'))))
     output.catalog.set(n('PageLabels'), ctx.obj({ Nums: labels }));
   if (ctx.enumerateIndirectObjects().length > MAX_OBJECTS)
     throw new Error('The assembled PDF exceeds the safe object limit.');
-  const bytes = await output.save({ updateFieldAppearances: false });
+  const bytes = await saveBoundedPdf(output);
   checkOutput(bytes.length);
   return bytes;
 }
@@ -769,12 +987,12 @@ export function validateAssembly(document: PDFDocument) {
   };
   const destination = (value: PDFObject, depth = 0): number => {
     if (depth > 64) return fail('cyclic destination');
-    const label = text(value);
+    const object = context.lookup(value);
+    const label = text(object);
     if (label !== undefined) {
       const target = destinations.get(label);
       return target ? destination(target, depth + 1) : fail('unresolved named destination');
     }
-    const object = context.lookup(value);
     if (object instanceof PDFDict) {
       const target = object.get(n('D'));
       return target ? destination(target, depth + 1) : fail('missing destination');
@@ -880,17 +1098,41 @@ export function validateAssembly(document: PDFDocument) {
         if (ids.has(id)) fail('duplicate structure identifier');
         ids.add(id);
       }
-      let role = object.get(n('S'));
+      let role = context.lookup(object.get(n('S')));
       const roleMap = tree.lookupMaybe(n('RoleMap'), PDFDict);
       const rolePath = new Set<PDFObject>();
       while (roleMap && role instanceof PDFName && roleMap.has(role)) {
         if (rolePath.has(role) || rolePath.size >= 64) fail('cyclic accessibility role mapping');
         rolePath.add(role);
-        role = roleMap.get(role);
+        const target = context.lookup(roleMap.get(role));
+        if (target === role) break;
+        role = target;
       }
       if (!(role instanceof PDFName)) fail('invalid accessibility role');
+      const classMap = tree.lookupMaybe(n('ClassMap'), PDFDict);
+      const classValue = context.lookup(object.get(n('C')));
+      const classNames: string[] = [];
+      for (const value of classValue instanceof PDFArray
+        ? classValue.asArray()
+        : classValue
+          ? [classValue]
+          : []) {
+        const item = context.lookup(value);
+        if (item instanceof PDFName) {
+          const definition = classMap && context.lookup(classMap.get(item));
+          if (!(definition instanceof PDFDict) && !(definition instanceof PDFArray))
+            fail('unresolved accessibility attribute class');
+          classNames.push(item.toString());
+        } else if (
+          !(item instanceof PDFNumber) ||
+          !Number.isSafeInteger(item.asNumber()) ||
+          item.asNumber() < 0
+        )
+          fail('invalid accessibility class revision');
+      }
       tags.push([
         String(role),
+        classNames,
         text(object.get(n('Alt'))),
         text(object.get(n('ActualText'))),
         text(object.get(n('Lang'))),
@@ -918,7 +1160,11 @@ export function tagWriter(document: PDFDocument) {
   const parents = new Map(
     nameTree(document, root.get(n('ParentTree'))).map(([key, value]) => [Number(key), value]),
   );
-  let nextKey = Math.max(-1, ...parents.keys()) + 1;
+  let nextKey = [...parents.keys()].reduce((max, key) => Math.max(max, key), -1) + 1;
+  const kids = root.get(n('K'));
+  const existingKids = kids && ctx.lookup(kids);
+  const children = existingKids instanceof PDFArray ? existingKids : ctx.obj(kids ? [kids] : []);
+  if (!(existingKids instanceof PDFArray)) root.set(n('K'), children);
   return {
     begin(page: PDFPage, label: string, image: boolean) {
       let key = page.node.lookupMaybe(n('StructParents'), PDFNumber)?.asNumber();
@@ -945,15 +1191,7 @@ export function tagWriter(document: PDFDocument) {
       });
       const ref = ctx.register(element);
       array.push(ref);
-      const kids = root.get(n('K'));
-      const existingKids = kids && ctx.lookup(kids);
-      root.set(
-        n('K'),
-        ctx.obj([
-          ...(existingKids instanceof PDFArray ? existingKids.asArray() : kids ? [kids] : []),
-          ref,
-        ]),
-      );
+      children.push(ref);
       // Inline BDC property dictionaries are valid PDF operands; pdf-lib's
       // operator argument typing omits dictionaries (serialization supports it).
       return PDFOperator.of(PDFOperatorNames.BeginMarkedContentSequence, [

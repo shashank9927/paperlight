@@ -33,6 +33,7 @@ const privacyItems = [
 export default function Home() {
   const [category, setCategory] = useState<Category>('All tools');
   const [query, setQuery] = useState('');
+  const [ready, setReady] = useState(false);
   const search = useRef<HTMLInputElement>(null);
   useEffect(() => {
     const shortcut = (e: KeyboardEvent) => {
@@ -47,6 +48,7 @@ export default function Home() {
       }
     };
     window.addEventListener('keydown', shortcut);
+    setReady(true);
     return () => window.removeEventListener('keydown', shortcut);
   }, []);
   const visible = tools.filter(
@@ -170,6 +172,7 @@ export default function Home() {
             <Search size={16} />
             <input
               ref={search}
+              disabled={!ready}
               aria-label="Search tools"
               placeholder="Search tools…"
               value={query}

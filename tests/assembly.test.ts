@@ -1,17 +1,193 @@
 import { describe, it, expect, vi } from 'vitest';
-import { PDFDocument, PDFName, PDFDict, PDFArray, PDFString, endMarkedContent } from 'pdf-lib';
+import {
+  PDFDocument,
+  PDFName,
+  PDFDict,
+  PDFArray,
+  PDFString,
+  endMarkedContent,
+  decodePDFRawStream,
+  PDFRawStream,
+} from 'pdf-lib';
 import { structuredPdf } from './preservation-fixtures';
 import { featurePdf } from './feature-fixtures';
 import { processJob } from '../src/lib/engine';
 import { assemblePdf, tagWriter } from '../src/lib/assembly';
 import { defaultOptions } from '../src/lib/types';
 import { independentPdf } from './independent';
+import { MAX_OUTPUT_BYTES, saveBoundedPdf } from '../src/lib/limits';
 import { readFile } from 'node:fs/promises';
+import { boundaryPdf } from './resource-fixtures';
 vi.mock('../src/generated/qpdf.wasm?url', async () => ({
   default: (await import('node:path')).resolve('src/generated/qpdf.wasm'),
 }));
 
 describe('preservation-aware assembly', () => {
+  it('remaps indirect role and attribute-class references without losing their definitions', async () => {
+    const document = await PDFDocument.load(await structuredPdf());
+    const root = document.catalog.lookup(PDFName.of('StructTreeRoot'), PDFDict);
+    const section = document.context.lookup(root.get(PDFName.of('K')), PDFDict);
+    const paragraph = section.lookup(PDFName.of('K'), PDFArray).lookup(0, PDFDict);
+    paragraph.set(PDFName.of('S'), document.context.register(PDFName.of('SharedRole')));
+    paragraph.set(
+      PDFName.of('C'),
+      document.context.register(
+        document.context.obj([document.context.register(PDFName.of('SharedClass')), 0]),
+      ),
+    );
+    root
+      .lookup(PDFName.of('RoleMap'), PDFDict)
+      .set(PDFName.of('SharedRole'), document.context.register(PDFName.of('P')));
+    root.lookup(PDFName.of('RoleMap'), PDFDict).set(PDFName.of('P'), PDFName.of('P'));
+    const bytes = await assemblePdf(
+      [{ document, name: 'indirect.pdf' }],
+      [0, 1].map((index) => ({ source: 0, index, rotation: 0 })),
+    );
+    const report = await independentPdf(bytes, '.cache/independent/indirect-roles-classes.pdf');
+    expect(report.preservation?.tags.classes.map((item) => item.spaceAfter)).toEqual([4, 4]);
+    expect(report.preservation?.tags.roles).toContain('/P');
+  });
+  it('preserves matching ICC output conditions across different stream encodings', async () => {
+    const profile = await readFile('node_modules/pdfjs-dist/iccs/CGATS001Compat-v2-micro.icc');
+    const documents = await Promise.all(
+      [0, 1].map(async (variant) => {
+        const document = await PDFDocument.load(await structuredPdf(`COLOR${variant}`));
+        const ctx = document.context;
+        const stream = variant ? ctx.stream(profile, { N: 4 }) : ctx.flateStream(profile, { N: 4 });
+        document.catalog.set(
+          PDFName.of('OutputIntents'),
+          ctx.obj([
+            {
+              Type: 'OutputIntent',
+              S: 'GTS_PDFX',
+              OutputConditionIdentifier: PDFString.of('Coated print'),
+              DestOutputProfile: ctx.register(stream),
+            },
+          ]),
+        );
+        return document;
+      }),
+    );
+    const output = await assemblePdf(
+      documents.map((document, i) => ({ document, name: `${i}.pdf` })),
+      [0, 1].flatMap((source) => [0, 1].map((index) => ({ source, index, rotation: 0 }))),
+    );
+    const parsed = await PDFDocument.load(output);
+    const intent = parsed.catalog.lookup(PDFName.of('OutputIntents'), PDFArray).lookup(0, PDFDict);
+    expect(
+      Buffer.from(
+        decodePDFRawStream(intent.lookup(PDFName.of('DestOutputProfile')) as PDFRawStream).decode(),
+      ),
+    ).toEqual(profile);
+    await independentPdf(output, '.cache/independent/profile-merge.pdf');
+    documents[1].catalog
+      .lookup(PDFName.of('OutputIntents'), PDFArray)
+      .lookup(0, PDFDict)
+      .set(PDFName.of('OutputConditionIdentifier'), PDFString.of('Different condition'));
+    await expect(
+      assemblePdf(
+        documents.map((document, i) => ({ document, name: `${i}.pdf` })),
+        [0, 1].flatMap((source) => [0, 1].map((index) => ({ source, index, rotation: 0 }))),
+      ),
+    ).rejects.toThrow('output color profiles');
+  });
+  it('maps declared print ranges and retains extension/version declarations', async () => {
+    const document = await PDFDocument.load(await featurePdf('plain'));
+    document.catalog.set(
+      PDFName.of('ViewerPreferences'),
+      document.context.obj({ PrintPageRange: [0, 0] }),
+    );
+    document.catalog.set(
+      PDFName.of('Extensions'),
+      document.context.obj({ ADBE: { BaseVersion: '1.7', ExtensionLevel: 8 } }),
+    );
+    document.catalog.set(PDFName.of('Version'), PDFName.of('2.0'));
+    const bytes = await assemblePdf(
+      [{ document, name: 'source.pdf' }],
+      [1, 0, 0].map((index) => ({ source: 0, index, rotation: 0 })),
+    );
+    const output = await PDFDocument.load(bytes);
+    expect(
+      output.catalog
+        .lookup(PDFName.of('ViewerPreferences'), PDFDict)
+        .lookup(PDFName.of('PrintPageRange'), PDFArray)
+        .asArray()
+        .map((value) => value.toString()),
+    ).toEqual(['1', '2']);
+    expect(output.catalog.get(PDFName.of('Version'))).toBe(PDFName.of('2.0'));
+    expect(output.catalog.has(PDFName.of('Extensions'))).toBe(true);
+  });
+  it('organizes a blank page after excluding every page of a form document', async () => {
+    const file = new File([await featurePdf('form')], 'unused-form.pdf');
+    const result = await processJob({
+      tool: 'organize',
+      sources: [{ id: 'a', file }],
+      pages: [
+        {
+          id: 'blank',
+          sourceId: 'blank',
+          index: 0,
+          rotation: 0,
+          blank: { width: 300, height: 400 },
+        },
+      ],
+      options: { ...defaultOptions },
+    });
+    const report = await independentPdf(result.files[0].data, '.cache/independent/blank-only.pdf');
+    expect(report.count).toBe(1);
+    expect(report.fields).toEqual({});
+    expect(report.pages[0].media).toEqual([0, 0, 300, 400]);
+  });
+  it('replaces one of 500 input pages with a blank without counting generated pages as new input', async () => {
+    const file = new File([new Uint8Array(boundaryPdf(500))], 'boundary.pdf');
+    const pages = Array.from({ length: 499 }, (_, index) => ({
+      id: String(index),
+      sourceId: 'a',
+      index,
+      rotation: 0,
+    }));
+    const result = await processJob({
+      tool: 'organize',
+      sources: [{ id: 'a', file }],
+      pages: [
+        ...pages,
+        {
+          id: 'blank',
+          sourceId: 'blank',
+          index: 0,
+          rotation: 0,
+          blank: { width: 300, height: 400 },
+        },
+      ],
+      options: { ...defaultOptions },
+    });
+    const output = await PDFDocument.load(result.files[0].data);
+    expect(output.getPageCount()).toBe(500);
+    expect(output.getPage(499).getSize()).toEqual({ width: 300, height: 400 });
+  });
+  it('rejects repeated large streams before allocating an oversized assembled output', async () => {
+    const document = await PDFDocument.create();
+    const page = document.addPage();
+    page.node.set(
+      PDFName.of('PrivateData'),
+      document.context.register(document.context.stream(new Uint8Array(64 * 1024 * 1024))),
+    );
+    await expect(
+      assemblePdf(
+        [{ document, name: 'large.pdf' }],
+        [0, 0, 0].map((index) => ({ source: 0, index, rotation: 0 })),
+      ),
+    ).rejects.toThrow('128 MB');
+  });
+  it('rejects serialization before save allocates the complete PDF buffer', async () => {
+    const document = await PDFDocument.create();
+    document.addPage();
+    const stream = document.context.stream(new Uint8Array(MAX_OUTPUT_BYTES + 1));
+    document.context.register(stream);
+    const save = vi.spyOn(document, 'save');
+    await expect(saveBoundedPdf(document)).rejects.toThrow('serialization safety budget');
+    expect(save).not.toHaveBeenCalled();
+  });
   it('adds semantic marks when the original root children use an indirect array', async () => {
     const document = await PDFDocument.load(await structuredPdf());
     const root = document.catalog.lookup(PDFName.of('StructTreeRoot'), PDFDict);
@@ -145,6 +321,9 @@ describe('preservation-aware assembly', () => {
     );
     expect(report.preservation?.tags.languages).toEqual(expect.arrayContaining(['en-US', 'fr-FR']));
     expect(report.preservation?.tags.ids).toHaveLength(6);
+    expect(report.preservation?.tags.classes.map((item) => item.spaceAfter)).toEqual([
+      4, 4, 5, 5, 6, 6,
+    ]);
     expect(new Set(report.preservation?.tags.ids).size).toBe(6);
     const { getDocument } = await import('pdfjs-dist/legacy/build/pdf.mjs');
     const task = getDocument({ data: result.files[0].data.slice() });

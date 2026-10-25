@@ -14,8 +14,28 @@ export function checkCanvas(width: number, height: number) {
     );
 }
 export function checkOutput(bytes: number) {
-  if (!Number.isSafeInteger(bytes) || bytes > MAX_OUTPUT_BYTES)
+  if (!Number.isSafeInteger(bytes) || bytes < 0 || bytes > MAX_OUTPUT_BYTES)
     throw new Error('Output exceeds the 128 MB limit. Choose fewer pages or a lower resolution.');
+}
+
+// Bound the serialized allocation before pdf-lib creates its complete buffer.
+// Assets are flushed first; the estimate includes conservative xref/header space.
+export async function saveBoundedPdf(document: import('pdf-lib').PDFDocument) {
+  await document.flush();
+  const objects = document.context.enumerateIndirectObjects();
+  if (objects.length > MAX_OBJECTS)
+    throw new Error('The output exceeds the 100,000 object safety limit.');
+  let bytes = 4096;
+  for (const [, object] of objects) {
+    bytes += object.sizeInBytes() + 64;
+    if (bytes > MAX_OUTPUT_BYTES)
+      throw new Error(
+        'This export exceeds the 128 MB serialization safety budget before compression. Choose fewer pages or smaller images.',
+      );
+  }
+  const output = await document.save({ updateFieldAppearances: false });
+  checkOutput(output.length);
+  return output;
 }
 
 // Read bounded headers BEFORE decoding. Reject ambiguous/unsupported headers.

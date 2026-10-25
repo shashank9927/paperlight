@@ -19,6 +19,7 @@ export interface IndependentReport {
       languages: string[];
       ids: string[];
       roles: string[];
+      classes: Array<{ owner: string; spaceAfter: number | null }>;
     };
   };
   count: number;

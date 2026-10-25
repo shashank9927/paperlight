@@ -90,6 +90,7 @@ describe('resource and password boundaries', () => {
     expect(() => validatePassword('e\u0301', true)).not.toThrow();
   });
   it('checks output and canvas allocations at the boundary', () => {
+    expect(() => checkOutput(-1)).toThrow();
     expect(() => checkOutput(MAX_OUTPUT_BYTES)).not.toThrow();
     expect(() => checkOutput(MAX_OUTPUT_BYTES + 1)).toThrow();
     expect(() => checkCanvas(4096, 4096)).not.toThrow();

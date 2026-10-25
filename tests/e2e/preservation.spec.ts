@@ -65,13 +65,24 @@ test('theme transition is scoped, settles after rapid toggles, and respects redu
   page,
 }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Switch to light theme' }).click();
-  await expect(page.locator('html')).toHaveClass(/theme-changing/);
-  const duration = await page
-    .locator('body')
-    .evaluate((element) => getComputedStyle(element).transitionDuration);
-  expect(duration).toContain('0.24s');
-  await page.getByRole('button', { name: 'Switch to dark theme' }).click();
+  const button = page.getByRole('button', { name: 'Switch to light theme' });
+  await expect(button).toBeEnabled();
+  // Sample synchronously with the event; a remote protocol round-trip may take
+  // longer than the complete 240 ms animation on a busy CI host.
+  const sample = await button.evaluate((element) => {
+    const before = getComputedStyle(document.body).backgroundColor;
+    (element as HTMLButtonElement).click();
+    return {
+      before,
+      color: getComputedStyle(document.body).backgroundColor,
+      duration: getComputedStyle(document.body).transitionDuration,
+      active: document.documentElement.classList.contains('theme-changing'),
+    };
+  });
+  expect(sample.active).toBe(true);
+  expect(sample.duration).toContain('0.24s');
+  expect(sample.color).not.toBe('rgb(250, 250, 250)');
+  await page.getByRole('button', { name: 'Switch to dark theme' }).press('Enter');
   await expect(page.locator('html')).not.toHaveClass(/theme-changing/);
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.emulateMedia({ reducedMotion: 'reduce' });

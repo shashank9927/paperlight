@@ -33,10 +33,16 @@ import { loadPdfSafely } from './safe-pdf';
 import { validatePassword } from './password';
 import { validateJob } from './validate-job';
 import { validateKind } from './utils';
-import { checkCanvas, checkOutput, imageDimensions, MAX_RASTER_PIXELS } from './limits';
+import {
+  checkCanvas,
+  checkOutput,
+  imageDimensions,
+  MAX_RASTER_PIXELS,
+  saveBoundedPdf,
+} from './limits';
 import { fontAsset, numberText, numberPosition, tilePositions } from './annotation-style';
 import { extractImages } from './extract-images';
-import { assemblePdf, tagWriter, validateAssembly } from './assembly';
+import { assemblePdf, tagWriter, validateAssembly, outputIntentsSignature } from './assembly';
 import type { AssemblyPage } from './assembly';
 
 type Progress = (message: Extract<WorkerResponse, { type: 'progress' }>) => void;
@@ -330,7 +336,12 @@ async function rasterize(
       page.cleanup();
     }
     return job.tool === 'compress'
-      ? [pdfFile(`${safeStem(job.sources[0].file.name)}-compressed.pdf`, await output.save())]
+      ? [
+          pdfFile(
+            `${safeStem(job.sources[0].file.name)}-compressed.pdf`,
+            await saveBoundedPdf(output),
+          ),
+        ]
       : files;
   } finally {
     await task.destroy();
@@ -379,7 +390,8 @@ async function processSingle(
       if (budget.pages > MAX_PAGES) throw new Error('Choose no more than 500 pages per batch.');
       if (!document.getPageCount() || inputPages > MAX_PAGES)
         throw new Error('Choose 1–500 pages per job.');
-      checkDocument(document, { ...job, sources: [sources[i]] });
+      if (tool !== 'organize' || job.pages.some((page) => page.sourceId === sources[i].id))
+        checkDocument(document, { ...job, sources: [sources[i]] });
       if (
         (tool === 'compress' && options.compression === 'optimized') ||
         (tool === 'split' && options.splitMode === 'size' && options.splitCompress)
@@ -408,9 +420,13 @@ async function processSingle(
         documents.map((document, i) => ({ document, name: sources[i].file.name })),
         selection,
       );
-      const before = validateAssembly(await loadPdfSafely(data));
+      const snapshot = async (bytes: Uint8Array) => {
+        const document = await loadPdfSafely(bytes);
+        return validateAssembly(document) + '\n' + (await outputIntentsSignature(document));
+      };
+      const before = await snapshot(data);
       const bytes = await runQpdf(data, ['/input.pdf', ...extra, '/output.pdf']);
-      if (validateAssembly(await loadPdfSafely(bytes)) !== before)
+      if ((await snapshot(bytes)) !== before)
         throw new Error(
           'The final PDF rewrite changed document navigation or accessibility structure. No output was returned.',
         );
@@ -551,9 +567,7 @@ async function processSingle(
         });
         page.pushOperators(popGraphicsState());
       }
-      files = [
-        pdfFile('paperlight-images.pdf', await document.save({ updateFieldAppearances: false })),
-      ];
+      files = [pdfFile('paperlight-images.pdf', await saveBoundedPdf(document))];
     } else {
       if (tool === 'organize' && job.pages.some((p) => p.blank)) {
         const blankDoc = await PDFDocument.create();
@@ -586,8 +600,7 @@ async function processSingle(
       }
       const count = documents[0].getPageCount();
       const selected = parseRange(options.range, count);
-      if (documents.reduce((sum, document) => sum + document.getPageCount(), 0) > MAX_PAGES)
-        throw new Error('Choose no more than 500 pages per job.');
+      if (inputPages > MAX_PAGES) throw new Error('Choose no more than 500 pages per job.');
       if (tool === 'split' && options.splitMode !== 'extract') {
         const extract = async (indices: number[]) =>
           rewriteAssembly(
@@ -889,7 +902,7 @@ async function processSingle(
         files = [
           pdfFile(
             `${name}-${tool === 'page-numbers' ? 'numbered' : tool === 'sign' ? 'signed' : 'watermarked'}.pdf`,
-            await document.save({ updateFieldAppearances: false }),
+            await saveBoundedPdf(document),
           ),
         ];
       }
