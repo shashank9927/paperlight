@@ -13,7 +13,7 @@ export function InstallButton() {
   const [open, setOpen] = useState(false);
   const button = useRef<HTMLButtonElement>(null);
   useEffect(() => {
-    if (mode !== 'ios' && mode !== 'manual') setOpen(false);
+    if (mode !== 'ios' && mode !== 'mac' && mode !== 'manual') setOpen(false);
   }, [mode]);
   if (mode === 'unavailable') return null;
   return (
@@ -34,11 +34,19 @@ export function InstallButton() {
           setOpen(false);
           requestAnimationFrame(() => button.current?.focus());
         }}
-        title={mode === 'ios' ? 'Add Havisu PDF to your Home Screen' : 'Install Havisu PDF'}
+        title={
+          mode === 'ios'
+            ? 'Add Havisu PDF to your Home Screen'
+            : mode === 'mac'
+              ? 'Add Havisu PDF to your Dock'
+              : 'Install Havisu PDF'
+        }
         description={
           mode === 'ios'
             ? 'Install from your browser’s Share menu.'
-            : 'You can use your browser’s menu to install.'
+            : mode === 'mac'
+              ? 'Install from Safari’s File menu.'
+              : 'You can use your browser’s menu to install.'
         }
       >
         {mode === 'ios' ? (
@@ -53,6 +61,15 @@ export function InstallButton() {
             </ol>
             <p>If you don’t see that option, open this page in Safari and try again.</p>
           </>
+        ) : mode === 'mac' ? (
+          <ol className="install-steps">
+            <li>
+              In Safari, open the <strong>File</strong> menu.
+            </li>
+            <li>
+              Choose <strong>Add to Dock</strong>, then select <strong>Add</strong>.
+            </li>
+          </ol>
         ) : (
           <p>
             Open your browser’s menu and choose <strong>Install app</strong> or{' '}

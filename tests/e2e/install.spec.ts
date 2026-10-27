@@ -37,6 +37,8 @@ test('install manifest, icons and warmed files remain available offline', async 
     expect([data.readUInt32BE(16), data.readUInt32BE(20)]).toEqual([size, size]);
   }
   await page.goto('/');
+  const bootstrap = await page.locator('script[src*="install-capture-"]').getAttribute('src');
+  expect(bootstrap).toMatch(/^\/assets\/install-capture-[a-f0-9]{12}\.js$/);
   await page.evaluate(async () => {
     await navigator.serviceWorker.ready;
     if (!navigator.serviceWorker.controller)
@@ -48,7 +50,7 @@ test('install manifest, icons and warmed files remain available offline', async 
   });
   const paths = [
     '/manifest.webmanifest',
-    '/install-capture.js',
+    bootstrap!,
     ...manifest.icons.map((icon: { src: string }) => icon.src),
   ];
   await expect
@@ -117,7 +119,7 @@ test('an install event before the app bundle loads is retained', async ({ page }
 });
 
 test('a missing install bootstrap never prevents the app from opening', async ({ page }) => {
-  await page.route('**/install-capture.js', (route) => route.abort());
+  await page.route(/\/assets\/install-capture-[a-f0-9]{12}\.js$/, (route) => route.abort());
   await page.goto('/');
   await expect(page.getByRole('textbox', { name: 'Search tools' })).toBeEnabled();
   await page.evaluate(() =>
@@ -134,6 +136,10 @@ test('install control follows the browser prompt and does not persist document d
   page,
 }) => {
   await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'userAgent', {
+      value: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130.0.0.0 Safari/537.36',
+      configurable: true,
+    });
     window.addEventListener(
       'beforeinstallprompt',
       (event) => {
@@ -248,6 +254,39 @@ test('iPhone and iPad get accessible manual instructions, hidden in standalone m
   await installedPage.goto('/');
   await expect(installedPage.getByRole('button', { name: 'Install Havisu PDF' })).toHaveCount(0);
   await standalone.close();
+});
+
+test('macOS Safari offers Dock instructions only on supported versions', async ({ browser }) => {
+  const open = async (version: number) => {
+    const context = await browser.newContext({
+      userAgent: `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/${version}.0 Safari/605.1.15`,
+    });
+    await context.addInitScript(() =>
+      window.addEventListener(
+        'beforeinstallprompt',
+        (event) => {
+          if (event.isTrusted) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }
+        },
+        true,
+      ),
+    );
+    const page = await context.newPage();
+    await page.goto('/');
+    return { context, page };
+  };
+  const supported = await open(17);
+  await supported.page.getByRole('button', { name: 'Install Havisu PDF' }).click();
+  const dialog = supported.page.getByRole('dialog', { name: 'Add Havisu PDF to your Dock' });
+  await expect(dialog).toContainText('File');
+  await expect(dialog).toContainText('Add to Dock');
+  await supported.page.keyboard.press('Escape');
+  await supported.context.close();
+  const older = await open(16);
+  await expect(older.page.getByRole('button', { name: 'Install Havisu PDF' })).toHaveCount(0);
+  await older.context.close();
 });
 
 test('a warmed standalone workspace processes documents offline without storing them', async ({

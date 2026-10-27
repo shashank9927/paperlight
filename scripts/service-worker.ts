@@ -34,7 +34,7 @@ const latestManifest = async expected => {
       while (true) { const chunk = await reader.read(); if (chunk.done) break; size += chunk.value.length; if (size > 262144) { await reader.cancel(); return null; } body += decoder.decode(chunk.value, { stream: true }); }
       body += decoder.decode();
       const manifest = JSON.parse(body);
-      if (!/^[a-f0-9]{12}$/.test(manifest.version) || !Array.isArray(manifest.assets) || manifest.assets.length > 2000 || !manifest.assets.every(path => typeof path === 'string' && (path === '/favicon.svg' || path === '/manifest.webmanifest' || path === '/install-capture.js' || /^\\/(?:assets\\/[A-Za-z0-9_.-]+|pdf-assets\\/[a-f0-9]{12}\\/(?:cmaps|standard_fonts|wasm|iccs)\\/[A-Za-z0-9_.-]+)$/.test(path)))) return null;
+      if (!/^[a-f0-9]{12}$/.test(manifest.version) || !Array.isArray(manifest.assets) || manifest.assets.length > 2000 || !manifest.assets.every(path => typeof path === 'string' && (path === '/favicon.svg' || path === '/manifest.webmanifest' || /^\\/(?:assets\\/[A-Za-z0-9_.-]+|pdf-assets\\/[a-f0-9]{12}\\/(?:cmaps|standard_fonts|wasm|iccs)\\/[A-Za-z0-9_.-]+)$/.test(path)))) return null;
       let cache = null; try { cache = await caches.open('paperlight-pages-v3-' + manifest.version); } catch { /* Online only. */ }
       await put(cache, '/public-assets.json', new Response(body, { headers: { 'content-type': 'application/json' } }));
       return { cache, version: manifest.version, assets: new Set(manifest.assets) };
@@ -90,7 +90,7 @@ self.addEventListener('fetch', event => {
     const cache = await openCache();
     const key = navigation ? url.pathname : event.request;
     // Unlike content-hashed files, the install manifest can change at the same URL.
-    if (asset && url.pathname !== '/manifest.webmanifest' && url.pathname !== '/install-capture.js') { const cached = await match(cache, key, { ignoreVary: true }); if (cached) return cached; }
+    if (asset && url.pathname !== '/manifest.webmanifest') { const cached = await match(cache, key, { ignoreVary: true }); if (cached) return cached; }
     if (oldAsset) {
       const cached = await previous(key); if (cached) return cached;
       const manifest = latestManifest();

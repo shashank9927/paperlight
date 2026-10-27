@@ -173,6 +173,9 @@ export default defineConfig(({ isSsrBuild }) => ({
         const icon192 = brandPaths.find((path) => /^\/assets\/havisu-icon-192-.*\.png$/.test(path));
         const icon512 = brandPaths.find((path) => /^\/assets\/havisu-icon-512-.*\.png$/.test(path));
         if (!icon192 || !icon512) throw new Error('Missing install icons');
+        const installCapture = readFileSync(resolve('public/install-capture.js'));
+        const installCapturePath = `assets/install-capture-${createHash('sha256').update(installCapture).digest('hex').slice(0, 12)}.js`;
+        this.emitFile({ type: 'asset', fileName: installCapturePath, source: installCapture });
         this.emitFile({
           type: 'asset',
           fileName: 'manifest.webmanifest',
@@ -183,7 +186,7 @@ export default defineConfig(({ isSsrBuild }) => ({
           .map((name) => `/${name}`);
         if (!allowed.includes(`/${faviconPath}`)) allowed.push(`/${faviconPath}`);
         allowed.push('/manifest.webmanifest');
-        allowed.push('/install-capture.js');
+        if (!allowed.includes('/' + installCapturePath)) allowed.push('/' + installCapturePath);
         for (const path of brandPaths) if (!allowed.includes(path)) allowed.push(path);
         for (const folder of assetFolders)
           for (const name of readdirSync(resolve(assetRoot, folder))) {
@@ -220,7 +223,7 @@ export default defineConfig(({ isSsrBuild }) => ({
               '/favicon.svg',
               '/' + faviconPath,
               '/manifest.webmanifest',
-              '/install-capture.js',
+              '/' + installCapturePath,
               icon192,
               icon512,
               ...shell,

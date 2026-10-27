@@ -68,12 +68,13 @@ for (const size of ['192x192', '512x512']) {
   assert.match(response.headers.get('content-type'), /image\/png/);
   await response.body?.cancel();
 }
-const installCapture = await get('/install-capture.js');
+const capturePath = shell.match(/src="(\/assets\/install-capture-[a-f0-9]{12}\.js)"/)[1];
+const installCapture = await get(capturePath);
 assert.equal(installCapture.status, 200);
 assert.match(installCapture.headers.get('content-type'), /javascript/);
-assert.match(installCapture.headers.get('cache-control'), /no-cache/);
+assert.match(installCapture.headers.get('cache-control'), /immutable/);
 await installCapture.body?.cancel();
-const script = shell.match(/src="(\/assets\/[^\"]+\.js)"/)[1];
+const script = shell.match(/src="(\/assets\/index-[^\"]+\.js)"/)[1];
 const entry = await get(script);
 assert.match(entry.headers.get('content-type'), /javascript/);
 assert.match(entry.headers.get('cache-control'), /immutable/);
@@ -89,7 +90,6 @@ assert.ok(
     (path) =>
       path === '/favicon.svg' ||
       path === '/manifest.webmanifest' ||
-      path === '/install-capture.js' ||
       /^\/(?:assets\/[A-Za-z0-9_.-]+|pdf-assets\/[a-f0-9]{12}\/(?:cmaps|standard_fonts|wasm|iccs)\/[A-Za-z0-9_.-]+)$/.test(
         path,
       ),
@@ -129,7 +129,7 @@ for (const path of [
   '/sw.js',
   '/public-assets.json',
   '/manifest.webmanifest',
-  '/install-capture.js',
+  capturePath,
 ]) {
   const response = await legacyGet(path);
   assert.equal(response.status, 200, `legacy editing asset: ${path}`);

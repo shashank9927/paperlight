@@ -1,6 +1,6 @@
 type InstallPrompt = Event & { prompt(): Promise<{ outcome?: string } | void> };
 type InstallWindow = Window & { __havisuInstall?: { prompt?: InstallPrompt; installed: boolean } };
-export type InstallMode = 'unavailable' | 'prompt' | 'ios' | 'manual';
+export type InstallMode = 'unavailable' | 'prompt' | 'ios' | 'mac' | 'manual';
 
 let mode: InstallMode = 'unavailable';
 let prompt: InstallPrompt | undefined;
@@ -23,16 +23,20 @@ function update() {
   const ios =
     /iPad|iPhone|iPod/.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  const next: InstallMode =
-    installed || standalone
-      ? 'unavailable'
-      : prompt
-        ? 'prompt'
-        : ios
-          ? 'ios'
-          : manual
-            ? 'manual'
-            : 'unavailable';
+  const safariVersion = navigator.userAgent.match(/Version\/(\d+).*Safari\//);
+  const macSafari =
+    !ios &&
+    /Macintosh/.test(navigator.userAgent) &&
+    !!safariVersion &&
+    Number(safariVersion[1]) >= 17 &&
+    !/Chrome|Chromium|CriOS|Edg|OPR|FxiOS/.test(navigator.userAgent);
+  let next: InstallMode = 'unavailable';
+  if (!installed && !standalone) {
+    if (prompt) next = 'prompt';
+    else if (ios) next = 'ios';
+    else if (macSafari) next = 'mac';
+    else if (manual) next = 'manual';
+  }
   if (next !== mode) {
     mode = next;
     listeners.forEach((listener) => listener());

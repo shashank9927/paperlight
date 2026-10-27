@@ -26,7 +26,7 @@ npm run preview
 
 ## Install Havisu PDF
 
-Havisu PDF can be installed as a web app on supported devices. When the browser offers installation, select **Install** in the header and confirm the browser's prompt. If the prompt is dismissed or unavailable, the control offers browser-menu instructions. On iPhone and iPad, select **Install** for instructions: use the browser's Share menu, choose **Add to Home Screen**, and confirm. The control is hidden in unsupported browsers and while the app is running standalone. An iOS browser tab cannot reliably detect whether a separate home-screen copy is already installed.
+Havisu PDF can be installed as a web app on supported devices. When the browser offers installation, select **Install** in the header and confirm the browser's prompt. If the prompt is dismissed or unavailable, the control offers browser-menu instructions. On iPhone and iPad, select **Install** for instructions: use the browser's Share menu, choose **Add to Home Screen**, and confirm. On Safari 17 or later for macOS, use **File → Add to Dock**. The control is hidden in unsupported browsers and while the app is running standalone. An iOS browser tab cannot reliably detect whether a separate home-screen copy is already installed.
 
 Installation saves application assets, not documents, passwords or editing history. Open each tool in the installed app while online before relying on it offline; browsers can clear cached assets, and installed iOS web apps may have storage separate from the browser. The offline notice reports the browser's connection state, which cannot detect every network failure. Browser/device memory limits still apply. Installed-app behavior should also be checked on physical iOS and Android devices before public deployment.
 
