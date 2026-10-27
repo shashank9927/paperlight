@@ -1,7 +1,8 @@
+import { brand } from './brand';
 import { tools } from './tools';
 import type { ToolId } from './tools';
 
-export const siteOrigin = 'https://paperlight-kappa.vercel.app';
+export const siteOrigin = brand.origin;
 export interface SeoPage {
   kind: 'home' | 'tool' | 'comparison';
   path: string;
@@ -163,7 +164,7 @@ const content: Record<ToolId, ToolContent> = {
       'Batch protection without uploading documents',
     ],
     limitations:
-      'Printing, copying, and editing permissions depend on PDF viewer enforcement. Paperlight cannot recover a forgotten password.',
+      'Printing, copying, and editing permissions depend on PDF viewer enforcement. Havisu PDF cannot recover a forgotten password.',
     related: ['unlock', 'watermark', 'sign'],
   },
   unlock: {
@@ -193,7 +194,7 @@ const content: Record<ToolId, ToolContent> = {
       'Repeat fields across selected pages',
     ],
     limitations:
-      'Signatures are visual marks. Paperlight does not verify identities, request signatures from others, or create certified digital signatures.',
+      'Signatures are visual marks. Havisu PDF does not verify identities, request signatures from others, or create certified digital signatures.',
     related: ['watermark', 'page-numbers', 'protect'],
   },
 };
@@ -201,18 +202,18 @@ const content: Record<ToolId, ToolContent> = {
 export const homeSeo: SeoPage = {
   kind: 'home',
   path: '/',
-  title: 'Free PDF Tools — Merge, Split, Compress & Edit | Paperlight',
+  title: 'Free PDF Tools — Merge, Split, Compress & Edit | Havisu PDF',
   description:
-    'Merge, split, compress, convert and sign PDFs for free with Paperlight. Twelve private PDF tools that process your files in your browser. No account needed.',
+    'Merge, split, compress, convert and sign PDFs for free with Havisu PDF. Twelve private PDF tools that process your files in your browser. No account needed.',
   steps: [],
   features: [],
   limitations: '',
   related: [],
   faqs: [
     {
-      question: 'Is Paperlight an iLovePDF alternative?',
+      question: 'Is Havisu PDF an iLovePDF alternative?',
       answer:
-        'Paperlight is an independent alternative for twelve common PDF workflows, including merging, splitting, compression, conversion, and visual signing. Files are processed on your device. It is not affiliated with iLovePDF and does not offer every iLovePDF feature, such as cloud services or signature requests.',
+        'Havisu PDF is an independent alternative for twelve common PDF workflows, including merging, splitting, compression, conversion, and visual signing. Files are processed on your device. It is not affiliated with iLovePDF and does not offer every iLovePDF feature, such as cloud services or signature requests.',
     },
   ],
 };
@@ -220,9 +221,9 @@ export const homeSeo: SeoPage = {
 export const alternativeSeo: SeoPage = {
   kind: 'comparison',
   path: '/alternatives/ilovepdf',
-  title: 'iLovePDF Alternative for Private PDF Tools | Paperlight',
+  title: 'iLovePDF Alternative for Private PDF Tools | Havisu PDF',
   description:
-    'Compare Paperlight’s twelve free, local PDF workflows with the broader iLovePDF suite. Merge, split, compress and sign without uploading your documents.',
+    'Compare Havisu PDF’s twelve free, local PDF workflows with the broader iLovePDF suite. Merge, split, compress and sign without uploading your documents.',
   steps: [
     'Choose a supported PDF tool for your task.',
     'Select files from your device and review the available settings.',
@@ -234,18 +235,18 @@ export const alternativeSeo: SeoPage = {
     'Local previews, batch results, and offline use after the required assets load',
   ],
   limitations:
-    'Paperlight does not provide Office conversion, OCR, cloud imports, signature requests or certified signing. Jobs share 100 MB input and 500-page limits, with additional memory and image ceilings. Unsupported document structures are rejected rather than silently removed.',
+    'Havisu PDF does not provide Office conversion, OCR, cloud imports, signature requests or certified signing. Jobs share 100 MB input and 500-page limits, with additional memory and image ceilings. Unsupported document structures are rejected rather than silently removed.',
   related: ['merge', 'split', 'compress'],
   faqs: [
     {
-      question: 'Is Paperlight affiliated with iLovePDF?',
+      question: 'Is Havisu PDF affiliated with iLovePDF?',
       answer:
-        'No. Paperlight is an independent PDF application. iLovePDF is a separate service with its own tools, terms and security policies.',
+        'No. Havisu PDF is an independent PDF application. iLovePDF is a separate service with its own tools, terms and security policies.',
     },
     {
-      question: 'Does Paperlight replace every iLovePDF feature?',
+      question: 'Does Havisu PDF replace every iLovePDF feature?',
       answer:
-        'No. Paperlight focuses on twelve local workflows. The iLovePDF suite also lists Office conversions, OCR and requests for signatures, which Paperlight does not offer.',
+        'No. Havisu PDF focuses on twelve local workflows. The iLovePDF suite also lists Office conversions, OCR and requests for signatures, which Havisu PDF does not offer.',
     },
     {
       question: 'Can I process PDFs offline?',
@@ -269,7 +270,7 @@ const specificFaq: Record<ToolId, { question: string; answer: string }> = {
   compress: {
     question: 'Can I reduce PDF size while keeping selectable text?',
     answer:
-      'Lossless optimization keeps text and vectors. The three image-optimization levels also retain them while reducing embedded-image quality. Whole-page rasterization is a separate advanced choice that removes selectable text. If output is larger, Paperlight keeps the exact original.',
+      'Lossless optimization keeps text and vectors. The three image-optimization levels also retain them while reducing embedded-image quality. Whole-page rasterization is a separate advanced choice that removes selectable text. If output is larger, Havisu PDF keeps the exact original.',
   },
   organize: {
     question: 'Can I combine, duplicate and reorder PDF pages?',
@@ -307,14 +308,14 @@ const specificFaq: Record<ToolId, { question: string; answer: string }> = {
       'An opening password uses AES-256 encryption. Optional owner permissions request restrictions on printing, copying and editing, but enforcement depends on the PDF viewer. They cannot prevent screenshots.',
   },
   unlock: {
-    question: 'Can Paperlight unlock a PDF if I forgot its password?',
+    question: 'Can Havisu PDF unlock a PDF if I forgot its password?',
     answer:
       'No. Supply the current opening password when required. Permissions-only encryption can open with an empty user password. Successful outputs are verified as unencrypted copies.',
   },
   sign: {
     question: 'Is a signature added here a certified digital signature?',
     answer:
-      'No. Draw, type or upload a visual signature and add independently positioned initials, name, date, text or stamp fields. Paperlight does not certify identity or request signatures from other people.',
+      'No. Draw, type or upload a visual signature and add independently positioned initials, name, date, text or stamp fields. Havisu PDF does not certify identity or request signatures from other people.',
   },
 };
 
@@ -323,15 +324,15 @@ export const seoPages: SeoPage[] = [
   ...tools.map((tool): SeoPage => ({
     kind: 'tool',
     path: `/tools/${tool.id}`,
-    title: `${tool.title === 'Page numbers' ? 'Add PDF Page Numbers' : tool.title === 'PDF to images' ? 'PDF to JPG & PNG' : tool.title} Online Free | Paperlight`,
-    description: `${tool.detail} Free, private processing in your browser with Paperlight. No document uploads or account required.`,
+    title: `${tool.title === 'Page numbers' ? 'Add PDF Page Numbers' : tool.title === 'PDF to images' ? 'PDF to JPG & PNG' : tool.title} Online Free | Havisu PDF`,
+    description: `${tool.detail} Free, private processing in your browser with Havisu PDF. No document uploads or account required.`,
     ...content[tool.id],
     faqs: [
       specificFaq[tool.id],
       {
         question: 'Are my documents uploaded?',
         answer:
-          'No. Document processing happens in your browser. Files, passwords, signatures, and editing history are not uploaded or stored by Paperlight. The public site uses Vercel Web Analytics for page-view statistics.',
+          'No. Document processing happens in your browser. Files, passwords, signatures, and editing history are not uploaded or stored by Havisu PDF. The public site uses Vercel Web Analytics for page-view statistics.',
       },
       {
         question: 'What limits should I know about?',
@@ -354,9 +355,9 @@ export function structuredData(page: SeoPage) {
     '@id': `${siteOrigin}${page.path}#${page.kind === 'comparison' ? 'page' : 'application'}`,
     name:
       page.kind === 'comparison'
-        ? 'Paperlight as an iLovePDF alternative'
+        ? `${brand.productName} as an iLovePDF alternative`
         : page.path === '/'
-          ? 'Paperlight'
+          ? brand.productName
           : tools.find((tool) => page.path.endsWith(`/${tool.id}`))?.title,
     url: `${siteOrigin}${page.path}`,
     description: page.description,
@@ -373,7 +374,7 @@ export function structuredData(page: SeoPage) {
             {
               '@type': 'WebSite',
               '@id': `${siteOrigin}/#website`,
-              name: 'Paperlight',
+              name: brand.productName,
               url: `${siteOrigin}/`,
             },
             application,
@@ -383,7 +384,12 @@ export function structuredData(page: SeoPage) {
             {
               '@type': 'BreadcrumbList',
               itemListElement: [
-                { '@type': 'ListItem', position: 1, name: 'Paperlight', item: `${siteOrigin}/` },
+                {
+                  '@type': 'ListItem',
+                  position: 1,
+                  name: brand.productName,
+                  item: `${siteOrigin}/`,
+                },
                 { '@type': 'ListItem', position: 2, name: application.name, item: application.url },
               ],
             },

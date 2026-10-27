@@ -9,7 +9,7 @@ export default function Alternative() {
       <span className="eyebrow">CHOOSE YOUR PDF WORKFLOW</span>
       <h1>An iLovePDF alternative for local PDF work.</h1>
       <p className="comparison-intro">
-        Paperlight brings twelve common PDF workflows into your browser. Your files, passwords and
+        Havisu PDF brings twelve common PDF workflows into your browser. Your files, passwords and
         signatures are processed on your device, with no account required.
       </p>
       <Link to="/tools/merge" className="button primary">
@@ -33,7 +33,7 @@ export default function Alternative() {
             <thead>
               <tr>
                 <th scope="col">Workflow</th>
-                <th scope="col">Paperlight</th>
+                <th scope="col">Havisu PDF</th>
                 <th scope="col">iLovePDF</th>
               </tr>
             </thead>
@@ -74,10 +74,10 @@ export default function Alternative() {
           <a href="https://www.ilovepdf.com/help/security" rel="noreferrer">
             security documentation
           </a>
-          . Features and policies can change. Paperlight is independent and is not affiliated with
+          . Features and policies can change. Havisu PDF is independent and is not affiliated with
           iLovePDF.
         </p>
-        <h2>Before choosing Paperlight</h2>
+        <h2>Before choosing Havisu PDF</h2>
         <p>{page.limitations}</p>
         <h2>How to get started</h2>
         <ol>

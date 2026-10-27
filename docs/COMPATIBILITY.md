@@ -1,12 +1,12 @@
 # Ordinary-document compatibility
 
-Paperlight's twelve existing tools keep their local select/configure/process/download workflows. This update fixes overly broad preservation errors, adds common form/layer/media assembly, and validates the reported lecture-file cases. Source documents and local private outputs are excluded from Git and CI artifacts.
+Havisu PDF's twelve existing tools keep their local select/configure/process/download workflows. This update fixes overly broad preservation errors, adds common form/layer/media assembly, and validates the reported lecture-file cases. Source documents and local private outputs are excluded from Git and CI artifacts.
 
 ## Selection and document structures
 
 Merge maps every selected source's page content, bookmarks, valid navigation, tags and annotations. Split and Organize use selection-aware navigation: destinations and leaf bookmarks for excluded pages are pruned; headings with retained children survive without an invalid target. Links to excluded pages lose their unavailable action while retaining appearance and annotation/tag associations. Ordinary selection does not raise an omission prompt. Malformed destinations still fail explicitly. Size splits measure rebuilt serialized output.
 
-The primary selected source determines document-level metadata and opening view. Harmless opening destinations/GoTo actions are remapped, and an opening target excluded by extraction is omitted. Embedded file collections and associated files are combined with source-scoped collection keys. Screen/Rendition media annotations keep their annotation/page references and exact payload bytes. Paperlight does not execute embedded media, JavaScript or file-launch actions in its preview; media playback in exported PDFs depends on the reader.
+The primary selected source determines document-level metadata and opening view. Harmless opening destinations/GoTo actions are remapped, and an opening target excluded by extraction is omitted. Embedded file collections and associated files are combined with source-scoped collection keys. Screen/Rendition media annotations keep their annotation/page references and exact payload bytes. Havisu PDF does not execute embedded media, JavaScript or file-launch actions in its preview; media playback in exported PDFs depends on the reader.
 
 Common AcroForm fields retain values, defaults, flags, widget appearances, page references and parent/child trees. Colliding root field names are scoped to their source; duplicated pages get independent fields/widgets. Default appearance font resources are scoped and remapped without substituting fonts. Only retained widgets remain in extraction outputs. Optional-content groups retain default visibility, membership references, locked/radio groups and alternate configuration visibility/order.
 

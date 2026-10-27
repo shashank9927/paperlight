@@ -1,25 +1,25 @@
 # Search visibility and analytics
 
-The canonical site is https://paperlight-kappa.vercel.app. `npm run build` creates HTML for the homepage and all twelve existing tool URLs and the factual iLovePDF-alternative page, a genuine 404 page, sitemap.xml, robots.txt, and a locally generated 1200×630 social card. React hydrates the same page components. PDF engines remain lazy and document processing stays local. Client navigation warms only missing public page HTML, so a tool opened through the directory can also reload offline. The service worker accepts only the fourteen known public paths, deduplicates concurrent warming, and never caches analytics, documents, query strings, or editing state.
+The canonical site is https://pdf.havisu.com. `npm run build` creates HTML for the homepage and all twelve existing tool URLs and the factual iLovePDF-alternative page, a genuine 404 page, sitemap.xml, robots.txt, and a locally generated 1200×630 social card. React hydrates the same page components. PDF engines remain lazy and document processing stays local. Client navigation warms only missing public page HTML, so a tool opened through the directory can also reload offline. The service worker accepts only the fourteen known public paths, deduplicates concurrent warming, and never caches analytics, documents, query strings, or editing state.
 
 ## Deployment
 
 - Vercel: use the committed vercel.json, Node 24, `npm ci`, `npm run build`, and output directory `dist`. Do not add a catch-all rewrite to index.html: each tool has its own generated HTML and unknown paths must return 404.
 - Production Vercel builds (`VERCEL_ENV=production`) permit indexing and enable analytics. Preview/development builds emit noindex metadata and disallow crawling. The analytics runtime additionally requires the exact canonical origin, so previews and local hosts do not send page views.
 - Standalone production hosting can explicitly set `PAPERLIGHT_INDEXABLE=1` when building. It does not enable analytics. Nginx and the supplied static-host redirects serve the same generated tool pages.
-- The canonical domain lives in `src/lib/seo.ts`. If the domain changes, update it, rebuild, and configure permanent redirects from the old public domain.
+- The canonical domain lives in `src/lib/brand.ts`. If the domain changes, update it, rebuild, and configure permanent redirects from the old public domain. The current configuration redirects only public pages from `paperlight-kappa.vercel.app`; workers, assets and service endpoints stay available for existing tabs.
 - If Vercel system environment variables have been disabled in project settings, enable them before rebuilding so the production/preview distinction is available.
 
 ## Google Search Console
 
 1. Sign in to Google Search Console with the site owner's Google account.
-2. Add a **URL-prefix** property for `https://paperlight-kappa.vercel.app/`.
+2. Add a **URL-prefix** property for `https://pdf.havisu.com/`.
 3. Choose HTML-tag verification. Set the provided public verification value as the Vercel production environment variable `GOOGLE_SITE_VERIFICATION` and redeploy. Do not put account credentials in source control.
-4. Verify ownership, then submit `https://paperlight-kappa.vercel.app/sitemap.xml`.
+4. Verify ownership, then submit `https://pdf.havisu.com/sitemap.xml`.
 5. Inspect the homepage and a few tool URLs; request indexing after confirming the published HTML and canonical URL.
 6. Monitor indexing, impressions, clicks, search queries, and Core Web Vitals over time. Search Console measures search visibility; Vercel Analytics measures site visits.
 
-Google determines indexing and ranking. No ranking position, indexing deadline, or visibility for another product's brand searches is guaranteed. Paperlight's iLovePDF-alternative FAQ describes only supported local workflows and makes no affiliation claim. Do not add keyword stuffing, invented reviews, or misleading comparisons.
+Google determines indexing and ranking. No ranking position, indexing deadline, or visibility for another product's brand searches is guaranteed. Havisu PDF's iLovePDF-alternative FAQ describes only supported local workflows and makes no affiliation claim. Do not add keyword stuffing, invented reviews, or misleading comparisons.
 
 ## Analytics boundaries
 

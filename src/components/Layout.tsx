@@ -1,15 +1,27 @@
-import { ArrowUpRight, Menu, X, Layers2, Moon, Sun } from 'lucide-react';
+import { ArrowUpRight, Menu, X, Moon, Sun } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import { applyTheme, readTheme, resolveTheme, saveTheme } from '../lib/theme';
 import type { Theme, ResolvedTheme } from '../lib/theme';
+import { brand, markPaths } from '../lib/brand';
+export function BrandMark() {
+  return (
+    <svg className="brand-mark" viewBox="0 0 160 160" aria-hidden="true" focusable="false">
+      {markPaths.map((path, index) => (
+        <path key={index} className={`brand-${path.tone}`} d={path.d} />
+      ))}
+    </svg>
+  );
+}
 export function Brand() {
   return (
-    <Link to="/" className="brand" aria-label="Paperlight home">
+    <Link to="/" className="brand" aria-label={`${brand.productName} home`}>
       <span className="brand-symbol">
-        <Layers2 size={24} strokeWidth={1.7} />
+        <BrandMark />
       </span>
-      Paperlight
+      <span className="brand-wordmark">
+        {brand.name} <span className="brand-product">PDF</span>
+      </span>
     </Link>
   );
 }
@@ -83,7 +95,9 @@ export function Footer() {
         </Link>
       </div>
       <div className="container footer-bottom">
-        <span>© {new Date().getFullYear()} Paperlight</span>
+        <span>
+          © {new Date().getFullYear()} {brand.name}
+        </span>
         <span>
           No document uploads. No accounts. <Link to="/#privacy">Usage analytics</Link>.{' '}
           <Link to="/alternatives/ilovepdf">iLovePDF alternative</Link>.

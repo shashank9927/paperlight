@@ -1,3 +1,17 @@
+https://paperlight-kappa.vercel.app/ https://pdf.havisu.com/ 301
+https://paperlight-kappa.vercel.app/tools/merge https://pdf.havisu.com/tools/merge 301
+https://paperlight-kappa.vercel.app/tools/split https://pdf.havisu.com/tools/split 301
+https://paperlight-kappa.vercel.app/tools/compress https://pdf.havisu.com/tools/compress 301
+https://paperlight-kappa.vercel.app/tools/organize https://pdf.havisu.com/tools/organize 301
+https://paperlight-kappa.vercel.app/tools/rotate https://pdf.havisu.com/tools/rotate 301
+https://paperlight-kappa.vercel.app/tools/images-to-pdf https://pdf.havisu.com/tools/images-to-pdf 301
+https://paperlight-kappa.vercel.app/tools/pdf-to-images https://pdf.havisu.com/tools/pdf-to-images 301
+https://paperlight-kappa.vercel.app/tools/watermark https://pdf.havisu.com/tools/watermark 301
+https://paperlight-kappa.vercel.app/tools/page-numbers https://pdf.havisu.com/tools/page-numbers 301
+https://paperlight-kappa.vercel.app/tools/protect https://pdf.havisu.com/tools/protect 301
+https://paperlight-kappa.vercel.app/tools/unlock https://pdf.havisu.com/tools/unlock 301
+https://paperlight-kappa.vercel.app/tools/sign https://pdf.havisu.com/tools/sign 301
+https://paperlight-kappa.vercel.app/alternatives/ilovepdf https://pdf.havisu.com/alternatives/ilovepdf 301
 /index.html / 301
 /tools/:tool/index.html /tools/:tool 301
 /tools/:tool/ /tools/:tool 301

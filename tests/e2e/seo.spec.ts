@@ -147,7 +147,7 @@ test('SEO: unknown tool pages hydrate as genuine 404s without a client render mi
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex,follow');
   await page.getByRole('button', { name: 'Switch to light theme' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-  await page.getByRole('link', { name: 'Back to Paperlight', exact: true }).click();
+  await page.getByRole('link', { name: 'Back to Havisu PDF', exact: true }).click();
   await expect(page.locator('h1')).toContainText('Free PDF tools.');
   expect(errors).toEqual([]);
 });

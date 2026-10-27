@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { seoForPath, siteOrigin, structuredData } from '../lib/seo';
+import { brand } from '../lib/brand';
 
 export function Seo() {
   const { pathname } = useLocation();
@@ -14,8 +15,8 @@ export function Seo() {
       }
       Object.entries(attributes).forEach(([key, value]) => element!.setAttribute(key, value));
     };
-    const title = page?.title || 'Page not found | Paperlight';
-    const description = page?.description || 'Explore Paperlight’s free PDF tools.';
+    const title = page?.title || 'Page not found | Havisu PDF';
+    const description = page?.description || 'Explore Havisu PDF’s free PDF tools.';
     document.title = title;
     setMeta('meta[name="description"]', { name: 'description', content: description });
     setMeta('meta[name="robots"]', {
@@ -33,7 +34,7 @@ export function Seo() {
       'og:url': page ? `${siteOrigin}${page.path}` : '',
       'og:image': `${siteOrigin}/social-card.png`,
       'og:type': 'website',
-      'og:site_name': 'Paperlight',
+      'og:site_name': brand.productName,
     }))
       setMeta(`meta[property="${property}"]`, { property, content: value });
     for (const [name, value] of Object.entries({

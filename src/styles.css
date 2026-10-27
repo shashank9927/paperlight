@@ -9,19 +9,22 @@
   font-family: 'Inter Variable', Inter, system-ui, sans-serif;
   font-synthesis: none;
   color-scheme: dark;
-  --bg: #090a0c;
-  --panel: #111216;
-  --raised: #191b21;
-  --hover: #22252d;
-  --ink: #eceef2;
-  --muted: #a2a7b2;
-  --subtle: #818895;
-  --line: #2c2f38;
-  --control: #68707f;
-  --accent: #a6adff;
-  --accent-bg: #24283d;
-  --primary: #eceef2;
-  --primary-ink: #17191e;
+  --bg: #0b0c0e;
+  --panel: #141518;
+  --raised: #1c1d21;
+  --hover: #25262b;
+  --ink: #f1f0ee;
+  --muted: #a8abb2;
+  --subtle: #92969f;
+  --line: #2c2e33;
+  --control: #747983;
+  --accent: #ff8a7b;
+  --accent-bg: #35201f;
+  --primary: #c52b20;
+  --primary-ink: #fff;
+  --logo-ink: #f1f0ee;
+  --logo-soft: #a3a3a3;
+  --brand-red: #e63323;
   --danger: #ffaaa9;
   --danger-bg: #321c20;
   --good: #8ed6b6;
@@ -41,19 +44,21 @@
 }
 :root[data-theme='light'] {
   color-scheme: light;
-  --bg: #fafafa;
+  --bg: #fafaf9;
   --panel: #fff;
-  --raised: #f1f2f5;
-  --hover: #e9ebef;
-  --ink: #181a20;
-  --muted: #5d6370;
-  --subtle: #626976;
-  --line: #dfe1e7;
-  --control: #858c99;
-  --accent: #4b52a4;
-  --accent-bg: #eeefff;
-  --primary: #22242b;
+  --raised: #f1f1ef;
+  --hover: #e9e9e6;
+  --ink: #191a1d;
+  --muted: #60646c;
+  --subtle: #656972;
+  --line: #dfe1e4;
+  --control: #85898f;
+  --accent: #a9251b;
+  --accent-bg: #fbece8;
+  --primary: #c52b20;
   --primary-ink: #fff;
+  --logo-ink: #171717;
+  --logo-soft: #626262;
   --danger: #a72c37;
   --danger-bg: #fff0f0;
   --good: #21664e;
@@ -404,6 +409,32 @@ svg {
 .brand-symbol {
   display: grid;
   place-items: center;
+}
+.brand-mark {
+  width: 34px;
+  height: 34px;
+  display: block;
+  flex: none;
+}
+.brand-ink {
+  fill: var(--logo-ink);
+}
+.brand-soft {
+  fill: var(--logo-soft);
+}
+.brand-accent {
+  fill: var(--brand-red);
+}
+.brand-wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.brand-product {
+  font-size: 12px;
+  font-weight: 550;
+  letter-spacing: 0.04em;
+  color: var(--muted);
 }
 .main-nav {
   display: flex;
@@ -1658,6 +1689,10 @@ svg {
 }
 .can-position .annotation-overlay {
   cursor: move;
+}
+.focus-page-wrap :focus-visible,
+.draw-pad :focus-visible {
+  outline-color: var(--primary);
 }
 .page-navigator {
   display: flex;
