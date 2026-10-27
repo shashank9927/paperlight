@@ -13,8 +13,8 @@ export function OfflineNotice() {
     };
   }, []);
   return offline ? (
-    <aside className="update-notice" role="status">
+    <div className="offline-notice" role="status">
       You’re offline. Previously loaded tools may still work.
-    </aside>
+    </div>
   ) : null;
 }

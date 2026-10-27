@@ -68,13 +68,20 @@ test('install manifest, icons and warmed files remain available offline', async 
     expect(app.errors).toEqual([]);
     expect(app.manifest?.display).toBe('kStandalone');
     const eligibility = await cdp.send('Page.getInstallabilityErrors');
-    expect(eligibility.installabilityErrors).toEqual([]);
+    // Playwright uses a private browser context; Chromium can report that
+    // installation is unavailable in private browsing even for a valid app.
+    expect(
+      eligibility.installabilityErrors.filter((error) => error.errorId !== 'in-incognito'),
+    ).toEqual([]);
     await cdp.detach();
   }
   await context.setOffline(true);
   await expect(
     page.getByText('You’re offline. Previously loaded tools may still work.'),
   ).toBeVisible();
+  expect((await new AxeBuilder({ page }).include('.offline-notice').analyze()).violations).toEqual(
+    [],
+  );
   const offline = await page.evaluate(
     async (items) => Promise.all(items.map(async (path) => (await fetch(path)).status)),
     paths,

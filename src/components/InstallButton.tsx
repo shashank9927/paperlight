@@ -77,8 +77,8 @@ export function InstallButton() {
           </p>
         )}
         <p>
-          Open a tool in the installed app while online before using it offline. Your documents stay
-          on your device.
+          Tools may work offline after their required files have loaded in the installed app. Your
+          documents stay on your device.
         </p>
       </Modal>
     </>

@@ -179,6 +179,13 @@ textarea,
   font-size: 14px;
   flex-wrap: wrap;
 }
+.offline-notice {
+  padding: 12px 24px;
+  background: var(--raised);
+  color: var(--ink);
+  text-align: center;
+  font-size: 14px;
+}
 .comparison-page {
   padding-top: 72px;
   padding-bottom: 64px;
