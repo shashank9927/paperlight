@@ -45,7 +45,7 @@ export function InstallButton() {
           mode === 'ios'
             ? 'Install from your browser’s Share menu.'
             : mode === 'mac'
-              ? 'Install from Safari’s File menu.'
+              ? 'Use Safari on macOS Sonoma or later.'
               : 'You can use your browser’s menu to install.'
         }
       >

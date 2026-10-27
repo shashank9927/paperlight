@@ -280,6 +280,7 @@ test('macOS Safari offers Dock instructions only on supported versions', async (
   const supported = await open(17);
   await supported.page.getByRole('button', { name: 'Install Havisu PDF' }).click();
   const dialog = supported.page.getByRole('dialog', { name: 'Add Havisu PDF to your Dock' });
+  await expect(dialog).toContainText('macOS Sonoma');
   await expect(dialog).toContainText('File');
   await expect(dialog).toContainText('Add to Dock');
   await supported.page.keyboard.press('Escape');
