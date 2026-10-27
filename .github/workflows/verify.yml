@@ -27,7 +27,12 @@ jobs:
         with:
           python-version: '3.13'
       - name: Use the official Ubuntu HTTPS package archive
-        run: sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' /etc/apt/sources.list.d/ubuntu.sources
+        run: |
+          for taskAptSource in /etc/apt/sources.list.d/ubuntu.sources /etc/apt/apt-mirrors.txt; do
+            if [ -f "$taskAptSource" ]; then
+              sudo sed -i -E 's#https?://azure[.]archive[.]ubuntu[.]com/ubuntu#https://archive.ubuntu.com/ubuntu#g' "$taskAptSource"
+            fi
+          done
       - run: sudo apt-get update && sudo apt-get install -y poppler-utils
       - run: python -m pip install -r scripts/requirements-test.txt
       - run: npm ci
