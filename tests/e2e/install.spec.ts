@@ -176,8 +176,10 @@ test('install control follows the browser prompt and does not persist document d
     });
     window.dispatchEvent(event);
   });
-  await button.click();
+  await button.focus();
+  await page.keyboard.press('Enter');
   await expect(button).toBeVisible();
+  await expect(button).toBeFocused();
   await button.click();
   await expect(page.getByRole('dialog', { name: 'Install Havisu PDF' })).toContainText('browser');
   await page.keyboard.press('Escape');

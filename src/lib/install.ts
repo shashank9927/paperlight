@@ -73,25 +73,22 @@ export function initializeInstall() {
 
 export function requestInstall() {
   const current = prompt;
+  if (!current) return;
   prompt = undefined;
   const state = (window as InstallWindow).__havisuInstall;
   if (state) state.prompt = undefined;
-  update();
   // The event is single-use and prompt() must run in the click's user gesture.
   try {
-    if (current)
-      void current
-        .prompt()
-        .then((result) => {
-          if (result?.outcome === 'dismissed') {
-            manual = true;
-            update();
-          }
-        })
-        .catch(() => {
-          manual = true;
-          update();
-        });
+    void current
+      .prompt()
+      .then((result) => {
+        if (result?.outcome === 'dismissed') manual = true;
+        update();
+      })
+      .catch(() => {
+        manual = true;
+        update();
+      });
   } catch {
     manual = true;
     update();
