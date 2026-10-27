@@ -16,6 +16,22 @@ for (const folder of assetFolders)
   for (const name of readdirSync(resolve(assetRoot, folder)))
     pdfDigest.update(folder + '/' + name).update(readFileSync(resolve(assetRoot, folder, name)));
 const pdfAssetBase = '/pdf-assets/' + pdfDigest.digest('hex').slice(0, 12);
+const appManifest = (icon192: string, icon512: string) =>
+  JSON.stringify({
+    id: '/',
+    name: brand.productName,
+    short_name: brand.productName,
+    description: 'Private PDF tools that work on your device.',
+    start_url: '/',
+    scope: '/',
+    display: 'standalone',
+    background_color: '#0b0c0e',
+    theme_color: '#0b0c0e',
+    icons: [
+      { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any' },
+      { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any' },
+    ],
+  });
 const securityHeaders = {
   'Content-Security-Policy':
     "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' blob:; font-src 'self' blob:; connect-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'",
@@ -75,7 +91,14 @@ export default defineConfig(({ isSsrBuild }) => ({
             response.end('Asset not found');
             return;
           }
-          if (path === '/' || path === '/index.html' || path === '/sw.js' || !!publicPage)
+          if (
+            path === '/' ||
+            path === '/index.html' ||
+            path === '/sw.js' ||
+            path === '/manifest.webmanifest' ||
+            path === '/install-capture.js' ||
+            !!publicPage
+          )
             response.setHeader('Cache-Control', 'no-cache');
           if (
             path !== '/' &&
@@ -95,6 +118,27 @@ export default defineConfig(({ isSsrBuild }) => ({
         });
       },
       configureServer(server) {
+        let devAssets: ReturnType<typeof createBrandAssets> | undefined;
+        server.middlewares.use((request, response, next) => {
+          const path = (request.url || '').split('?')[0];
+          if (path === '/manifest.webmanifest') {
+            response.setHeader('Content-Type', 'application/manifest+json');
+            response.setHeader('Cache-Control', 'no-cache');
+            response.end(appManifest('/__havisu-icon-192.png', '/__havisu-icon-512.png'));
+            return;
+          }
+          const match = path.match(/^\/__havisu-icon-(192|512)\.png$/);
+          if (!match) return next();
+          devAssets ??= createBrandAssets();
+          void devAssets
+            .then((assets) => {
+              const icon = assets.find((asset) => asset.name === `havisu-icon-${match[1]}.png`);
+              if (!icon) throw new Error('Missing install icon');
+              response.setHeader('Content-Type', 'image/png');
+              response.end(icon.data);
+            })
+            .catch(next);
+        });
         server.middlewares.use(pdfAssetBase, (request, response, next) => {
           const path = decodeURIComponent((request.url || '').split('?')[0]);
           const match = path.match(/^\/(cmaps|standard_fonts|wasm|iccs)\/([A-Za-z0-9_.-]+)$/);
@@ -126,10 +170,23 @@ export default defineConfig(({ isSsrBuild }) => ({
         const faviconPath = brandPaths
           .find((path) => /^\/assets\/favicon-.*\.svg$/.test(path))!
           .slice(1);
+        const icon192 = brandPaths.find((path) => /^\/assets\/havisu-icon-192-.*\.png$/.test(path));
+        const icon512 = brandPaths.find((path) => /^\/assets\/havisu-icon-512-.*\.png$/.test(path));
+        if (!icon192 || !icon512) throw new Error('Missing install icons');
+        const installCapture = readFileSync(resolve('public/install-capture.js'));
+        const installCapturePath = `assets/install-capture-${createHash('sha256').update(installCapture).digest('hex').slice(0, 12)}.js`;
+        this.emitFile({ type: 'asset', fileName: installCapturePath, source: installCapture });
+        this.emitFile({
+          type: 'asset',
+          fileName: 'manifest.webmanifest',
+          source: appManifest(icon192, icon512),
+        });
         const allowed = Object.keys(bundle)
           .filter((name) => name.startsWith('assets/'))
           .map((name) => `/${name}`);
         if (!allowed.includes(`/${faviconPath}`)) allowed.push(`/${faviconPath}`);
+        allowed.push('/manifest.webmanifest');
+        if (!allowed.includes('/' + installCapturePath)) allowed.push('/' + installCapturePath);
         for (const path of brandPaths) if (!allowed.includes(path)) allowed.push(path);
         for (const folder of assetFolders)
           for (const name of readdirSync(resolve(assetRoot, folder))) {
@@ -161,7 +218,16 @@ export default defineConfig(({ isSsrBuild }) => ({
           fileName: 'sw.js',
           source: serviceWorkerSource(
             'paperlight-pages-v3-' + version,
-            ['/', '/favicon.svg', '/' + faviconPath, ...shell],
+            [
+              '/',
+              '/favicon.svg',
+              '/' + faviconPath,
+              '/manifest.webmanifest',
+              '/' + installCapturePath,
+              icon192,
+              icon512,
+              ...shell,
+            ],
             ['/favicon.svg', ...allowed],
             seoPages.map((page) => page.path),
           ),

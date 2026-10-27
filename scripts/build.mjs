@@ -27,8 +27,13 @@ const touchIcon = (await readdir('dist/assets')).find((file) =>
   /^havisu-icon-180-.*\.png$/.test(file),
 );
 if (!touchIcon) throw new Error('Expected the Havisu touch icon.');
+const capture = (await readdir('dist/assets')).filter((file) =>
+  /^install-capture-[a-f0-9]{12}\.js$/.test(file),
+);
+if (capture.length !== 1) throw new Error('Expected one versioned install bootstrap.');
 const template = (await readFile('dist/index.html', 'utf8'))
   .replace('href="/favicon.svg"', `href="/assets/${icons[0]}"`)
+  .replace('src="/install-capture.js"', `src="/assets/${capture[0]}"`)
   .replace('</head>', `<link rel="apple-touch-icon" href="/assets/${touchIcon}">\n</head>`);
 const pageDigest = createHash('sha256');
 const renderedFiles = [];

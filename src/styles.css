@@ -179,6 +179,13 @@ textarea,
   font-size: 14px;
   flex-wrap: wrap;
 }
+.offline-notice {
+  padding: 12px 24px;
+  background: var(--raised);
+  color: var(--ink);
+  text-align: center;
+  font-size: 14px;
+}
 .comparison-page {
   padding-top: 72px;
   padding-bottom: 64px;
@@ -458,6 +465,15 @@ svg {
   display: flex;
   gap: 12px;
   align-items: center;
+}
+.install-button {
+  min-height: 40px;
+  padding: 8px 12px;
+}
+.install-steps {
+  padding-left: 24px;
+  list-style: decimal;
+  line-height: 1.7;
 }
 .mobile-menu {
   display: none !important;
@@ -2192,6 +2208,13 @@ svg {
   }
 }
 @media (max-width: 520px) {
+  .install-button {
+    width: 40px;
+    padding: 8px;
+  }
+  .install-label {
+    display: none;
+  }
   .container,
   .workspace-container {
     width: calc(100% - 32px);

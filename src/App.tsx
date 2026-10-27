@@ -8,6 +8,7 @@ import { UsageAnalytics } from './components/UsageAnalytics';
 import { getTool } from './lib/tools';
 import { seoForPath } from './lib/seo';
 import { AppBoundary, UpdateNotice } from './components/Recovery';
+import { OfflineNotice } from './components/OfflineNotice';
 const Workspace = lazy(() => import('./pages/Workspace'));
 
 function NotFound() {
@@ -65,6 +66,7 @@ export default function App() {
         Skip to content
       </a>
       <Header />
+      <OfflineNotice />
       <UpdateNotice />
       <AppBoundary key={location.pathname}>
         <Suspense
