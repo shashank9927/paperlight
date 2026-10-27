@@ -6,6 +6,8 @@ import { resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { serviceWorkerSource } from './scripts/service-worker';
 import { seoPages } from './src/lib/seo';
+import { createBrandAssets } from './scripts/brand-assets';
+import { brand, legacyPageRedirect } from './src/lib/brand';
 
 const assetRoot = resolve('node_modules/pdfjs-dist');
 const assetFolders = ['cmaps', 'standard_fonts', 'wasm', 'iccs'];
@@ -37,6 +39,17 @@ export default defineConfig(({ isSsrBuild }) => ({
       name: 'local-pdf-assets',
       configurePreviewServer(server) {
         server.middlewares.use((request, response, next) => {
+          const redirect = legacyPageRedirect(
+            request.headers.host,
+            request.url || '/',
+            seoPages.map((page) => page.path),
+          );
+          if (redirect) {
+            response.statusCode = 308;
+            response.setHeader('Location', redirect);
+            response.end();
+            return;
+          }
           const path = (request.url || '').split('?')[0];
           const file = resolve('dist', path.slice(1));
           const isFile = existsSync(file) && statSync(file).isFile();
@@ -101,15 +114,23 @@ export default defineConfig(({ isSsrBuild }) => ({
           }
         });
       },
-      generateBundle(_options, bundle) {
+      async generateBundle(_options, bundle) {
         if (isSsrBuild) return;
-        const favicon = readFileSync(resolve('public/favicon.svg'));
-        const faviconPath = `assets/favicon-${createHash('sha256').update(favicon).digest('hex').slice(0, 12)}.svg`;
-        this.emitFile({ type: 'asset', fileName: faviconPath, source: favicon });
+        const branded = await createBrandAssets();
+        const brandPaths = branded.map((asset) => {
+          const dot = asset.name.lastIndexOf('.');
+          const path = `assets/${asset.name.slice(0, dot)}-${createHash('sha256').update(asset.data).digest('hex').slice(0, 12)}${asset.name.slice(dot)}`;
+          this.emitFile({ type: 'asset', fileName: path, source: asset.data });
+          return '/' + path;
+        });
+        const faviconPath = brandPaths
+          .find((path) => /^\/assets\/favicon-.*\.svg$/.test(path))!
+          .slice(1);
         const allowed = Object.keys(bundle)
           .filter((name) => name.startsWith('assets/'))
           .map((name) => `/${name}`);
         if (!allowed.includes(`/${faviconPath}`)) allowed.push(`/${faviconPath}`);
+        for (const path of brandPaths) if (!allowed.includes(path)) allowed.push(path);
         for (const folder of assetFolders)
           for (const name of readdirSync(resolve(assetRoot, folder))) {
             allowed.push(`${pdfAssetBase}/${folder}/${name}`);
@@ -152,5 +173,5 @@ export default defineConfig(({ isSsrBuild }) => ({
   build: { target: 'es2022', assetsInlineLimit: 0, chunkSizeWarningLimit: 650 },
   worker: { format: 'es' },
   server: { host: '0.0.0.0' },
-  preview: { headers: securityHeaders },
+  preview: { headers: securityHeaders, allowedHosts: [brand.legacyHost] },
 }));

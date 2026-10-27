@@ -1,6 +1,26 @@
 import assert from 'node:assert/strict';
+import { get as httpGet } from 'node:http';
+import { get as httpsGet } from 'node:https';
 const origin = process.argv[2] || 'http://127.0.0.1:4180';
 const get = (path) => fetch(origin + path, { signal: AbortSignal.timeout(10000) });
+const legacyGet = (path) =>
+  new Promise((resolve, reject) => {
+    const request = (origin.startsWith('https:') ? httpsGet : httpGet)(
+      origin + path,
+      {
+        headers: { host: 'paperlight-kappa.vercel.app' },
+        signal: AbortSignal.timeout(10000),
+      },
+      (response) => {
+        response.resume();
+        response.on('end', () =>
+          resolve({ status: response.statusCode, location: response.headers.location }),
+        );
+        response.on('error', reject);
+      },
+    );
+    request.on('error', reject);
+  });
 const routes = [
   '/',
   '/alternatives/ilovepdf',
@@ -42,8 +62,18 @@ assert.equal(manifestResponse.status, 200);
 const manifest = await manifestResponse.json();
 assert.match(manifest.version, /^[a-f0-9]{12}$/);
 assert.ok(shell.includes(`name="paperlight-release" content="${manifest.version}"`));
-assert.ok(manifest.assets.every(path => path === '/favicon.svg' || /^\/(?:assets\/[A-Za-z0-9_.-]+|pdf-assets\/[a-f0-9]{12}\/(?:cmaps|standard_fonts|wasm|iccs)\/[A-Za-z0-9_.-]+)$/.test(path)));
-const pdfAsset = await get(manifest.assets.find(path => /^\/pdf-assets\/.+\/wasm\/.+\.wasm$/.test(path)));
+assert.ok(
+  manifest.assets.every(
+    (path) =>
+      path === '/favicon.svg' ||
+      /^\/(?:assets\/[A-Za-z0-9_.-]+|pdf-assets\/[a-f0-9]{12}\/(?:cmaps|standard_fonts|wasm|iccs)\/[A-Za-z0-9_.-]+)$/.test(
+        path,
+      ),
+  ),
+);
+const pdfAsset = await get(
+  manifest.assets.find((path) => /^\/pdf-assets\/.+\/wasm\/.+\.wasm$/.test(path)),
+);
 assert.equal(pdfAsset.status, 200);
 assert.equal(pdfAsset.headers.get('content-type'), 'application/wasm');
 assert.match(pdfAsset.headers.get('cache-control'), /immutable/);
@@ -63,6 +93,17 @@ const wasm = sw.match(/"([^\"]+qpdf[^\"]+\.wasm)"/)[1];
 const wasmResponse = await get(wasm);
 assert.equal(wasmResponse.headers.get('content-type'), 'application/wasm');
 await wasmResponse.body?.cancel();
+// Only public pages move origins. Old editing tabs must still load their workers.
+for (const route of routes) {
+  const response = await legacyGet(route + '?source=legacy');
+  assert.ok([301, 308].includes(response.status), `legacy redirect: ${route}`);
+  assert.equal(response.location, `https://pdf.havisu.com${route}?source=legacy`);
+}
+for (const path of [script, wasm, '/sw.js', '/public-assets.json']) {
+  const response = await legacyGet(path);
+  assert.equal(response.status, 200, `legacy editing asset: ${path}`);
+  assert.equal(response.location, undefined);
+}
 for (const path of [
   '/assets/missing.js',
   '/pdf-assets/wasm/missing.wasm',
@@ -81,6 +122,8 @@ console.log(
     {
       origin,
       routes: routes.length,
+      legacyPageRedirects: routes.length,
+      legacyEditingAssets: 4,
       headers: 'passed',
       wasmMime: 'passed',
       javascriptMime: `${modules.length} scripts and module workers passed`,

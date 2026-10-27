@@ -80,7 +80,7 @@ test('theme transition is scoped, settles after rapid toggles, and respects redu
   });
   expect(sample.active).toBe(true);
   expect(sample.duration).toContain('0.24s');
-  expect(sample.color).not.toBe('rgb(250, 250, 250)');
+  expect(sample.color).not.toBe('rgb(250, 250, 249)');
   await page.getByRole('button', { name: 'Switch to dark theme' }).press('Enter');
   await expect(page.locator('html')).not.toHaveClass(/theme-changing/);
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');

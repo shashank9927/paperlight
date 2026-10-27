@@ -1,4 +1,6 @@
-# Paperlight
+# Havisu PDF
+
+Havisu's PDF toolkit lives at https://pdf.havisu.com. See the [brand assets and domain guide](docs/BRAND.md) for the shared identity, generated logo kit and legacy-host compatibility.
 
 A private PDF toolkit with twelve real tools and a restrained interface with a dark/light theme toggle. A previously saved system theme continues to follow the operating system until the user toggles it. Every document operation runs in the browser. There is no document upload endpoint, account system, database, or conversion API. The production Vercel site uses Vercel Web Analytics for public page-view statistics; documents, passwords, signatures, and editing data are never sent to analytics.
 

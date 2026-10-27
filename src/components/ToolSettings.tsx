@@ -444,7 +444,7 @@ export function ToolSettings({
           </Field>
           <p className="field-hint">
             Use 1–127 UTF-8 bytes. Unicode may need more than one byte per character. Choose a
-            strong password and keep it somewhere safe. Paperlight cannot recover it for you.
+            strong password and keep it somewhere safe. Havisu PDF cannot recover it for you.
           </p>
         </>
       )}

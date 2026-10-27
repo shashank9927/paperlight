@@ -45,6 +45,7 @@ import { extractImages } from './extract-images';
 import { assemblePdf, tagWriter, validateAssembly, outputIntentsSignature } from './assembly';
 import type { AssemblyPage } from './assembly';
 import { documentFeaturesSignature } from './document-features';
+import { brand } from './brand';
 
 type Progress = (message: Extract<WorkerResponse, { type: 'progress' }>) => void;
 const pdfFile = (name: string, data: Uint8Array): OutputFile => ({
@@ -575,7 +576,7 @@ async function processSingle(
         });
         page.pushOperators(popGraphicsState());
       }
-      files = [pdfFile('paperlight-images.pdf', await saveBoundedPdf(document))];
+      files = [pdfFile(`${brand.downloadPrefix}-images.pdf`, await saveBoundedPdf(document))];
     } else {
       if (tool === 'organize' && job.pages.some((p) => p.blank)) {
         const blankDoc = await PDFDocument.create();
@@ -711,7 +712,7 @@ async function processSingle(
         files = [
           pdfFile(
             tool === 'merge'
-              ? 'paperlight-merged.pdf'
+              ? `${brand.downloadPrefix}-merged.pdf`
               : `${name}-${tool === 'split' ? 'extracted' : 'organized'}.pdf`,
             await rewriteAssembly(references),
           ),
@@ -1007,7 +1008,7 @@ export async function processJob(
   return {
     files: [
       {
-        name: 'paperlight-' + job.tool + (failed ? '-partial' : '') + '.zip',
+        name: brand.downloadPrefix + '-' + job.tool + (failed ? '-partial' : '') + '.zip',
         type: 'application/zip',
         data: packed,
       },

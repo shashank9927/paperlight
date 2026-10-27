@@ -39,7 +39,10 @@ for (const theme of ['dark', 'light']) {
         );
         const report = await new AxeBuilder({ page }).analyze();
         expect(
-          report.violations.map((v) => ({ id: v.id, targets: v.nodes.map((n) => n.target) })),
+          report.violations.map((v) => ({
+            id: v.id,
+            nodes: v.nodes.map((n) => ({ target: n.target, summary: n.failureSummary })),
+          })),
         ).toEqual([]);
         await page.screenshot({ path: info.outputPath(`${state}.png`), fullPage: true });
       };

@@ -1,4 +1,4 @@
-Paperlight third-party notices
+Havisu PDF third-party notices
 
 The application bundles open-source libraries and local fonts. Their licenses
 and copyright notices are included beside this file. The static build retains

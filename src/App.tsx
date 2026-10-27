@@ -17,7 +17,7 @@ function NotFound() {
       <h1>This page slipped out of the stack.</h1>
       <p>Let’s get you back to the tools.</p>
       <Link to="/" className="button primary">
-        Back to Paperlight
+        Back to Havisu PDF
       </Link>
     </main>
   );

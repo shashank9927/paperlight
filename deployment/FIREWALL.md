@@ -1,6 +1,6 @@
 # Vercel Hobby protection and capacity
 
-Paperlight serves static files. PDF CPU/memory work runs on the visitor's device;
+Havisu PDF serves static files. PDF CPU/memory work runs on the visitor's device;
 there is no upload, processing API, database, or shared document queue to overload.
 The repository cannot configure or prove the account's active firewall settings.
 

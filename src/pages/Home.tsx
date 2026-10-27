@@ -92,7 +92,7 @@ export default function Home() {
               <i />
               <i />
             </span>
-            <span>Paperlight / Merge PDF</span>
+            <span>Havisu PDF / Merge PDF</span>
             <LockKeyhole size={12} />
           </div>
           <div className="product-body">
@@ -133,7 +133,7 @@ export default function Home() {
                   <i />
                 </div>
                 <small>
-                  Paperlight <span>01</span>
+                  Havisu PDF <span>01</span>
                 </small>
               </div>
               <div className="product-caption">Your next document, together.</div>
@@ -236,7 +236,7 @@ export default function Home() {
             leave your device.
           </h2>
           <p>
-            Paperlight processes documents locally in your browser. No document uploads, document
+            Havisu PDF processes documents locally in your browser. No document uploads, document
             history, or accounts. The public site uses Vercel Web Analytics for page-view
             statistics. Documents, passwords, signatures, and editing data are never sent to
             analytics.
@@ -272,7 +272,7 @@ export default function Home() {
           ],
           [
             'Is a signature certified?',
-            'Signatures are visual marks placed on the PDF. Paperlight does not verify identities or create certified digital signatures.',
+            'Signatures are visual marks placed on the PDF. Havisu PDF does not verify identities or create certified digital signatures.',
           ],
           [
             'Which documents are supported?',

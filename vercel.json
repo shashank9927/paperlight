@@ -7,6 +7,160 @@
   "trailingSlash": false,
   "redirects": [
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "paperlight-kappa.vercel.app"
+        }
+      ],
+      "destination": "https://pdf.havisu.com/",
+      "permanent": true
+    },
+    {
+      "source": "/tools/merge",
+      "has": [
+        {
+          "type": "host",
+          "value": "paperlight-kappa.vercel.app"
+        }
+      ],
+      "destination": "https://pdf.havisu.com/tools/merge",
+      "permanent": true
+    },
+    {
+      "source": "/tools/split",
+      "has": [
+        {
+          "type": "host",
+          "value": "paperlight-kappa.vercel.app"
+        }
+      ],
+      "destination": "https://pdf.havisu.com/tools/split",
+      "permanent": true
+    },
+    {
+      "source": "/tools/compress",
+      "has": [
+        {
+          "type": "host",
+          "value": "paperlight-kappa.vercel.app"
+        }
+      ],
+      "destination": "https://pdf.havisu.com/tools/compress",
+      "permanent": true
+    },
+    {
+      "source": "/tools/organize",
+      "has": [
+        {
+          "type": "host",
+          "value": "paperlight-kappa.vercel.app"
+        }
+      ],
+      "destination": "https://pdf.havisu.com/tools/organize",
+      "permanent": true
+    },
+    {
+      "source": "/tools/rotate",
+      "has": [
+        {
+          "type": "host",
+          "value": "paperlight-kappa.vercel.app"
+        }
+      ],
+      "destination": "https://pdf.havisu.com/tools/rotate",
+      "permanent": true
+    },
+    {
+      "source": "/tools/images-to-pdf",
+      "has": [
+        {
+          "type": "host",
+          "value": "paperlight-kappa.vercel.app"
+        }
+      ],
+      "destination": "https://pdf.havisu.com/tools/images-to-pdf",
+      "permanent": true
+    },
+    {
+      "source": "/tools/pdf-to-images",
+      "has": [
+        {
+          "type": "host",
+          "value": "paperlight-kappa.vercel.app"
+        }
+      ],
+      "destination": "https://pdf.havisu.com/tools/pdf-to-images",
+      "permanent": true
+    },
+    {
+      "source": "/tools/watermark",
+      "has": [
+        {
+          "type": "host",
+          "value": "paperlight-kappa.vercel.app"
+        }
+      ],
+      "destination": "https://pdf.havisu.com/tools/watermark",
+      "permanent": true
+    },
+    {
+      "source": "/tools/page-numbers",
+      "has": [
+        {
+          "type": "host",
+          "value": "paperlight-kappa.vercel.app"
+        }
+      ],
+      "destination": "https://pdf.havisu.com/tools/page-numbers",
+      "permanent": true
+    },
+    {
+      "source": "/tools/protect",
+      "has": [
+        {
+          "type": "host",
+          "value": "paperlight-kappa.vercel.app"
+        }
+      ],
+      "destination": "https://pdf.havisu.com/tools/protect",
+      "permanent": true
+    },
+    {
+      "source": "/tools/unlock",
+      "has": [
+        {
+          "type": "host",
+          "value": "paperlight-kappa.vercel.app"
+        }
+      ],
+      "destination": "https://pdf.havisu.com/tools/unlock",
+      "permanent": true
+    },
+    {
+      "source": "/tools/sign",
+      "has": [
+        {
+          "type": "host",
+          "value": "paperlight-kappa.vercel.app"
+        }
+      ],
+      "destination": "https://pdf.havisu.com/tools/sign",
+      "permanent": true
+    },
+    {
+      "source": "/alternatives/ilovepdf",
+      "has": [
+        {
+          "type": "host",
+          "value": "paperlight-kappa.vercel.app"
+        }
+      ],
+      "destination": "https://pdf.havisu.com/alternatives/ilovepdf",
+      "permanent": true
+    },
+    {
       "source": "/index.html",
       "destination": "/",
       "permanent": true

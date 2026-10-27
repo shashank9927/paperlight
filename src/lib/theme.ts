@@ -20,6 +20,9 @@ export function resolveTheme(theme: Theme): ResolvedTheme {
 export function applyTheme(theme: Theme): ResolvedTheme {
   const resolved = resolveTheme(theme);
   document.documentElement.dataset.theme = resolved;
+  document
+    .querySelector('meta[name="theme-color"]')
+    ?.setAttribute('content', resolved === 'dark' ? '#0b0c0e' : '#fafaf9');
   return resolved;
 }
 let transitionTimer: number | undefined;
