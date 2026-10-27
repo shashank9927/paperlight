@@ -20,7 +20,7 @@ export function Brand() {
         <BrandMark />
       </span>
       <span className="brand-wordmark">
-        {brand.name} <span className="brand-product">PDF</span>
+        <span className="brand-name">{brand.name}</span> <span className="brand-product">PDF</span>
       </span>
     </Link>
   );

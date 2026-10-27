@@ -36,7 +36,7 @@ jobs:
       - run: npm run format:check
       - run: npm test
       - run: npm run build
-      - uses: actions/cache@v4
+      - uses: actions/cache/restore@v4
         id: browsers
         with:
           path: ~/.cache/ms-playwright
@@ -49,6 +49,12 @@ jobs:
       - name: Prepare cached browsers and their system libraries
         timeout-minutes: 8
         run: npx playwright install --with-deps chromium firefox webkit
+      - name: Save prepared browsers independently of test results
+        if: steps.browsers.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ runner.arch }}-ubuntu24.04-1.64.1
       - name: Verify WebKit light-theme contrast
         run: npx playwright test tests/e2e/states.spec.ts --project=webkit --grep "light at" --repeat-each=2 --workers=1 --output=.cache/theme-gate
       - name: Verify crawlability, offline navigation and analytics

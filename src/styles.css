@@ -430,6 +430,9 @@ svg {
   align-items: baseline;
   gap: 8px;
 }
+.brand-name {
+  color: var(--ink);
+}
 .brand-product {
   font-size: 12px;
   font-weight: 550;
