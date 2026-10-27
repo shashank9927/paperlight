@@ -11,3 +11,9 @@ The canonical origin, product name and default download prefix share one configu
 The old Vercel hostname permanently redirects the fourteen public page routes to the new origin. Static files, service workers, PDF workers and analytics endpoints are excluded from these redirects so existing editing tabs can continue loading their assets. Normal page aliases remain normalized. Analytics accepts only known public pages on the exact new production origin and removes query strings and fragments.
 
 Deploying this change, confirming DNS and Vercel Analytics ingestion, and updating Google Search Console ownership/sitemap submission remain account-level steps. See [SEO.md](SEO.md). A passing local or CI build does not itself publish the new identity.
+
+## Verification
+
+Local rebrand checks on 27 October 2026 passed: TypeScript, formatting, 118 unit tests, 92 desktop/mobile Chromium functional checks covering all twelve tools, 18 Chromium/WebKit branding and workspace-state checks, and the Chromium performance budget. Both themes were inspected at 390/768/1440 px. Automated accessibility checks passed; 34 text/background color pairs meet 4.5:1 AA, with primary-button text at 5.61:1. Raw HTTP checks cover all fourteen pages and legacy page redirects, four old-origin editing assets, security/cache headers, workers, WASM MIME and real 404s.
+
+Full Linux Chromium/Firefox/WebKit and Nginx evidence is attached to [PR #5](https://github.com/shashank9927/paperlight/pull/5). Verification is pinned to Ubuntu 24.04 to prevent `ubuntu-latest` changing browser native dependencies; browser binaries still reuse the existing cache. Physical mobile devices and public deployment remain outside these checks.
