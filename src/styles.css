@@ -459,6 +459,15 @@ svg {
   gap: 12px;
   align-items: center;
 }
+.install-button {
+  min-height: 40px;
+  padding: 8px 12px;
+}
+.install-steps {
+  padding-left: 24px;
+  list-style: decimal;
+  line-height: 1.7;
+}
 .mobile-menu {
   display: none !important;
 }
@@ -2192,6 +2201,13 @@ svg {
   }
 }
 @media (max-width: 520px) {
+  .install-button {
+    width: 40px;
+    padding: 8px;
+  }
+  .install-label {
+    display: none;
+  }
   .container,
   .workspace-container {
     width: calc(100% - 32px);

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { applyTheme, readTheme, resolveTheme, saveTheme } from '../lib/theme';
 import type { Theme, ResolvedTheme } from '../lib/theme';
 import { brand, markPaths } from '../lib/brand';
+import { InstallButton } from './InstallButton';
 export function BrandMark() {
   return (
     <svg className="brand-mark" viewBox="0 0 160 160" aria-hidden="true" focusable="false">
@@ -56,6 +57,7 @@ export function Header() {
           <Link to="/#privacy">Privacy</Link>
         </nav>
         <div className="header-right">
+          <InstallButton />
           <button
             className="icon-button theme-toggle"
             type="button"

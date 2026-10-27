@@ -3,10 +3,12 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import '@fontsource-variable/inter';
 import { applyTheme, readTheme } from './lib/theme';
+import { initializeInstall } from './lib/install';
 import './styles.css';
 import App from './App';
 
 applyTheme(readTheme());
+initializeInstall();
 
 const root = document.getElementById('root')!;
 const app = (

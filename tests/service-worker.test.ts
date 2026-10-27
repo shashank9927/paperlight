@@ -8,6 +8,8 @@ describe('optional offline caching', () => {
     const stores = new Map<string, Map<string, Response>>();
     const pending: Promise<unknown>[] = [];
     let offline = false;
+    let installManifest = 'first manifest';
+    let installCapture = 'first bootstrap';
     const key = (value: string | { url: string }) =>
       new URL(typeof value === 'string' ? value : value.url, 'https://paperlight.test').pathname;
     const caches = {
@@ -30,7 +32,7 @@ describe('optional offline caching', () => {
       serviceWorkerSource(
         'paperlight-pages-v3-111111111111',
         ['/'],
-        ['/assets/old-111.js'],
+        ['/assets/old-111.js', '/manifest.webmanifest', '/install-capture.js'],
         ['/', '/tools/merge'],
       ),
       {
@@ -52,6 +54,8 @@ describe('optional offline caching', () => {
         fetch: async (request: string | { url: string }) => {
           if (offline) throw Error('Offline');
           const path = key(request);
+          if (path === '/manifest.webmanifest') return new Response(installManifest);
+          if (path === '/install-capture.js') return new Response(installCapture);
           if (path === '/public-assets.json')
             return new Response(
               JSON.stringify({ version: '222222222222', assets: ['/assets/new-222.js'] }),
@@ -84,10 +88,18 @@ describe('optional offline caching', () => {
     await request('/tools/merge', true);
     await request('/assets/new-222.js');
     await request('/assets/unlisted.js');
+    expect(await (await request('/manifest.webmanifest')).text()).toBe('first manifest');
+    installManifest = 'updated manifest';
+    expect(await (await request('/manifest.webmanifest')).text()).toBe('updated manifest');
+    expect(await (await request('/install-capture.js')).text()).toBe('first bootstrap');
+    installCapture = 'updated bootstrap';
+    expect(await (await request('/install-capture.js')).text()).toBe('updated bootstrap');
     expect(stores.get('paperlight-pages-v3-111111111111')?.has('/tools/merge')).toBe(false);
     expect(stores.get('paperlight-pages-v3-222222222222')?.has('/tools/merge')).toBe(true);
     expect([...stores.values()].some((store) => store.has('/assets/unlisted.js'))).toBe(false);
     offline = true;
+    expect(await (await request('/manifest.webmanifest')).text()).toBe('updated manifest');
+    expect(await (await request('/install-capture.js')).text()).toBe('updated bootstrap');
     expect(await (await request('/tools/merge', true)).text()).toContain('New merge page');
     expect(await (await request('/assets/new-222.js')).text()).toBe('public script');
   });

@@ -51,7 +51,29 @@ for (const route of routes) {
   assert.match(response.headers.get('cache-control'), /no-cache/);
   shell = await response.text();
 }
-const script = shell.match(/src="([^\"]+\.js)"/)[1];
+assert.match(shell, /rel="manifest" href="\/manifest\.webmanifest"/);
+const appManifestResponse = await get('/manifest.webmanifest');
+assert.equal(appManifestResponse.status, 200);
+assert.match(appManifestResponse.headers.get('content-type'), /application\/manifest\+json/);
+assert.match(appManifestResponse.headers.get('cache-control'), /no-cache/);
+const appManifest = await appManifestResponse.json();
+assert.equal(appManifest.name, 'Havisu PDF');
+assert.equal(appManifest.start_url, '/');
+assert.equal(appManifest.display, 'standalone');
+for (const size of ['192x192', '512x512']) {
+  const icon = appManifest.icons.find((item) => item.sizes === size);
+  assert.ok(icon && /^\/assets\/havisu-icon-/.test(icon.src));
+  const response = await get(icon.src);
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get('content-type'), /image\/png/);
+  await response.body?.cancel();
+}
+const installCapture = await get('/install-capture.js');
+assert.equal(installCapture.status, 200);
+assert.match(installCapture.headers.get('content-type'), /javascript/);
+assert.match(installCapture.headers.get('cache-control'), /no-cache/);
+await installCapture.body?.cancel();
+const script = shell.match(/src="(\/assets\/[^\"]+\.js)"/)[1];
 const entry = await get(script);
 assert.match(entry.headers.get('content-type'), /javascript/);
 assert.match(entry.headers.get('cache-control'), /immutable/);
@@ -66,6 +88,8 @@ assert.ok(
   manifest.assets.every(
     (path) =>
       path === '/favicon.svg' ||
+      path === '/manifest.webmanifest' ||
+      path === '/install-capture.js' ||
       /^\/(?:assets\/[A-Za-z0-9_.-]+|pdf-assets\/[a-f0-9]{12}\/(?:cmaps|standard_fonts|wasm|iccs)\/[A-Za-z0-9_.-]+)$/.test(
         path,
       ),
@@ -99,7 +123,14 @@ for (const route of routes) {
   assert.ok([301, 308].includes(response.status), `legacy redirect: ${route}`);
   assert.equal(response.location, `https://pdf.havisu.com${route}?source=legacy`);
 }
-for (const path of [script, wasm, '/sw.js', '/public-assets.json']) {
+for (const path of [
+  script,
+  wasm,
+  '/sw.js',
+  '/public-assets.json',
+  '/manifest.webmanifest',
+  '/install-capture.js',
+]) {
   const response = await legacyGet(path);
   assert.equal(response.status, 200, `legacy editing asset: ${path}`);
   assert.equal(response.location, undefined);
@@ -123,7 +154,7 @@ console.log(
       origin,
       routes: routes.length,
       legacyPageRedirects: routes.length,
-      legacyEditingAssets: 4,
+      legacyEditingAssets: 6,
       headers: 'passed',
       wasmMime: 'passed',
       javascriptMime: `${modules.length} scripts and module workers passed`,
