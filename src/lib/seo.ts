@@ -116,7 +116,7 @@ const content: Record<ToolId, ToolContent> = {
     steps: [
       'Choose one or more PDFs.',
       'Select page rendering or embedded-image extraction and configure the output.',
-      'Download clearly named PNG or JPEG images in a ZIP.',
+      'Download the named PNG or JPEG image, or a ZIP when there are multiple results.',
     ],
     features: [
       'Render selected pages as PNG or JPEG',
