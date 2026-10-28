@@ -1,5 +1,6 @@
 import { brand } from './brand';
 import { tools } from './tools';
+import { toolSearchContent } from './tool-search-content';
 import type { ToolId } from './tools';
 
 export const siteOrigin = brand.origin;
@@ -13,6 +14,10 @@ export interface SeoPage {
   limitations: string;
   faqs: { question: string; answer: string }[];
   related: ToolId[];
+  heading?: string;
+  introduction?: string;
+  example?: string;
+  troubleshooting?: string;
 }
 
 type ToolContent = Pick<SeoPage, 'steps' | 'features' | 'limitations' | 'related'>;
@@ -215,6 +220,31 @@ export const homeSeo: SeoPage = {
       answer:
         'Havisu PDF is an independent alternative for twelve common PDF workflows, including merging, splitting, compression, conversion, and visual signing. Files are processed on your device. It is not affiliated with iLovePDF and does not offer every iLovePDF feature, such as cloud services or signature requests.',
     },
+    {
+      question: 'Are my files really private?',
+      answer:
+        'Documents and passwords are processed in your browser and are not uploaded or stored by Havisu PDF. The public site uses Vercel Web Analytics for page-view statistics.',
+    },
+    {
+      question: 'How large can my files be?',
+      answer:
+        'Up to 100 MB of combined input and 500 pages per job, with additional image and memory limits. Large documents may need smaller batches.',
+    },
+    {
+      question: 'Does compression preserve my content?',
+      answer:
+        'Lossless optimization is the default. Image optimization changes image quality while keeping text and vectors. Whole-page rasterization is an explicit advanced option that removes selectable text and interactive content.',
+    },
+    {
+      question: 'Is a signature certified?',
+      answer:
+        'Signatures are visual marks. Havisu PDF does not verify identities or create certified digital signatures.',
+    },
+    {
+      question: 'Which documents are supported?',
+      answer:
+        'Standard PDFs and JPEG, PNG, or WebP images. Some complex PDF structures are rejected when safe preservation cannot be guaranteed.',
+    },
   ],
 };
 
@@ -265,7 +295,7 @@ const specificFaq: Record<ToolId, { question: string; answer: string }> = {
   split: {
     question: 'Can I split a PDF into files below a size limit?',
     answer:
-      'Use Maximum file size to measure actual serialized PDF bytes. A page that cannot fit alone is reported explicitly. Optional image compression requires your selection. Internal links to excluded pages may require a different grouping to preserve navigation.',
+      'Use Maximum file size to measure actual serialized PDF bytes. A page that cannot fit alone is reported explicitly. Optional image compression requires your selection. Links and bookmarks targeting excluded pages are removed or deactivated.',
   },
   compress: {
     question: 'Can I reduce PDF size while keeping selectable text?',
@@ -275,7 +305,7 @@ const specificFaq: Record<ToolId, { question: string; answer: string }> = {
   organize: {
     question: 'Can I combine, duplicate and reorder PDF pages?',
     answer:
-      'Import multiple PDFs, insert blank pages, reorder, rotate, duplicate or delete pages, and undo or redo changes. Links and accessibility relationships are remapped where supported. A selection that leaves unresolved destinations is rejected.',
+      'Import multiple PDFs, insert blank pages, reorder, rotate, duplicate or delete pages, and undo or redo changes. Links and accessibility relationships are remapped where supported. Links to excluded pages are deactivated.',
   },
   rotate: {
     question: 'Can I rotate only landscape or selected PDF pages?',
@@ -324,8 +354,7 @@ export const seoPages: SeoPage[] = [
   ...tools.map((tool): SeoPage => ({
     kind: 'tool',
     path: `/tools/${tool.id}`,
-    title: `${tool.title === 'Page numbers' ? 'Add PDF Page Numbers' : tool.title === 'PDF to images' ? 'PDF to JPG & PNG' : tool.title} Online Free | Havisu PDF`,
-    description: `${tool.detail} Free, private processing in your browser with Havisu PDF. No document uploads or account required.`,
+    ...toolSearchContent[tool.id],
     ...content[tool.id],
     faqs: [
       specificFaq[tool.id],

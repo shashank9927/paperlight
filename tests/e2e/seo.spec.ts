@@ -106,12 +106,19 @@ test('SEO: every public page has useful HTML without JavaScript', async ({ brows
       JSON.parse((await page.locator('#seo-structured-data').textContent()) || '{}')['@context'],
     ).toBe('https://schema.org');
     if (entry.path !== '/') {
+      await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toBeVisible();
       await expect(
         page.getByRole('heading', { name: 'What you can do', exact: true }),
       ).toBeVisible();
       await expect(
         page.getByRole('navigation', { name: 'Related PDF tools' }).getByRole('link'),
       ).toHaveCount(3);
+      if (entry.kind === 'tool') {
+        await expect(page.getByRole('heading', { name: 'Example', exact: true })).toBeVisible();
+        await expect(
+          page.getByRole('heading', { name: 'Troubleshooting', exact: true }),
+        ).toBeVisible();
+      }
     }
   }
   expect(titles.size).toBe(14);

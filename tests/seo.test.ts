@@ -25,6 +25,10 @@ describe('public SEO and analytics contract', () => {
     expect(new Set(seoPages.map((page) => page.description)).size).toBe(14);
     for (const tool of tools) {
       const page = seoForPath(`/tools/${tool.id}`)!;
+      expect(page.heading).toBeTruthy();
+      expect(page.introduction).toBeTruthy();
+      expect(page.example).toBeTruthy();
+      expect(page.troubleshooting).toBeTruthy();
       expect(page.steps).toHaveLength(3);
       expect(page.features.length).toBeGreaterThan(0);
       expect(page.limitations).toBeTruthy();

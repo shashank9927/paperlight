@@ -256,29 +256,7 @@ export default function Home() {
       </section>
       <section id="faq" className="container faq-section">
         <h2>A few useful details.</h2>
-        {[
-          ...homeSeo.faqs.map(({ question, answer }) => [question, answer]),
-          [
-            'Are my files really private?',
-            'Yes. We never upload your documents or passwords. Processing stays in your browser, and no document history is stored.',
-          ],
-          [
-            'How large can my files be?',
-            'Up to 100 MB of combined input and 500 pages per job, with additional image and memory limits. Large documents may need smaller batches.',
-          ],
-          [
-            'Does compression preserve my content?',
-            'Lossless optimization is the default. Image optimization changes image quality while keeping text. Whole-page rasterization is an explicit advanced option that removes interactive content.',
-          ],
-          [
-            'Is a signature certified?',
-            'Signatures are visual marks placed on the PDF. Havisu PDF does not verify identities or create certified digital signatures.',
-          ],
-          [
-            'Which documents are supported?',
-            'Standard PDFs and JPEG, PNG, or WebP images. Some complex PDF structures are rejected when safe preservation cannot be guaranteed.',
-          ],
-        ].map(([q, a]) => (
+        {homeSeo.faqs.map(({ question: q, answer: a }) => (
           <details key={q}>
             <summary>{q}</summary>
             <p>{a}</p>
