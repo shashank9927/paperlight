@@ -1,5 +1,6 @@
 import { brand } from './brand';
 import { tools } from './tools';
+import { toolSearchContent } from './tool-search-content';
 import type { ToolId } from './tools';
 
 export const siteOrigin = brand.origin;
@@ -13,6 +14,10 @@ export interface SeoPage {
   limitations: string;
   faqs: { question: string; answer: string }[];
   related: ToolId[];
+  heading?: string;
+  introduction?: string;
+  example?: string;
+  troubleshooting?: string;
 }
 
 type ToolContent = Pick<SeoPage, 'steps' | 'features' | 'limitations' | 'related'>;
@@ -111,7 +116,7 @@ const content: Record<ToolId, ToolContent> = {
     steps: [
       'Choose one or more PDFs.',
       'Select page rendering or embedded-image extraction and configure the output.',
-      'Download clearly named PNG or JPEG images in a ZIP.',
+      'Download the named PNG or JPEG image, or a ZIP when there are multiple results.',
     ],
     features: [
       'Render selected pages as PNG or JPEG',
@@ -214,6 +219,31 @@ export const homeSeo: SeoPage = {
       question: 'Is Havisu PDF an iLovePDF alternative?',
       answer:
         'Havisu PDF is an independent alternative for twelve common PDF workflows, including merging, splitting, compression, conversion, and visual signing. Files are processed on your device. It is not affiliated with iLovePDF and does not offer every iLovePDF feature, such as cloud services or signature requests.',
+    },
+    {
+      question: 'Are my files really private?',
+      answer:
+        'Documents and passwords are processed in your browser and are not uploaded or stored by Havisu PDF. The public site uses Vercel Web Analytics for page-view statistics.',
+    },
+    {
+      question: 'How large can my files be?',
+      answer:
+        'Up to 100 MB of combined input and 500 pages per job, with additional image and memory limits. Large documents may need smaller batches.',
+    },
+    {
+      question: 'Does compression preserve my content?',
+      answer:
+        'Lossless optimization is the default. Image optimization changes image quality while keeping text and vectors. Whole-page rasterization is an explicit advanced option that removes selectable text and interactive content.',
+    },
+    {
+      question: 'Is a signature certified?',
+      answer:
+        'Signatures are visual marks. Havisu PDF does not verify identities or create certified digital signatures.',
+    },
+    {
+      question: 'Which documents are supported?',
+      answer:
+        'Standard PDFs and JPEG, PNG, or WebP images. Some complex PDF structures are rejected when safe preservation cannot be guaranteed.',
     },
   ],
 };
@@ -324,8 +354,7 @@ export const seoPages: SeoPage[] = [
   ...tools.map((tool): SeoPage => ({
     kind: 'tool',
     path: `/tools/${tool.id}`,
-    title: `${tool.title === 'Page numbers' ? 'Add PDF Page Numbers' : tool.title === 'PDF to images' ? 'PDF to JPG & PNG' : tool.title} Online Free | Havisu PDF`,
-    description: `${tool.detail} Free, private processing in your browser with Havisu PDF. No document uploads or account required.`,
+    ...toolSearchContent[tool.id],
     ...content[tool.id],
     faqs: [
       specificFaq[tool.id],

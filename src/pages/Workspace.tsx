@@ -37,6 +37,7 @@ import { PagePreview } from '../components/PagePreview';
 import { SortableItem, SortableList } from '../components/Sortable';
 import { ToolSettings } from '../components/ToolSettings';
 import { Modal } from '../components/Modal';
+import { seoForPath } from '../lib/seo';
 import { ToolGuide } from '../components/ToolGuide';
 
 interface PasswordRequest {
@@ -505,21 +506,24 @@ export default function Workspace() {
   return (
     <main id="main" className="workspace-page">
       <div className="container workspace-container">
-        <Link className="back-link" to="/#tools">
-          <ArrowLeft size={14} /> Back to all tools
-        </Link>
+        <nav className="breadcrumb" aria-label="Breadcrumb">
+          <Link className="back-link" to="/">
+            <ArrowLeft size={14} /> Havisu PDF
+          </Link>
+          <span aria-current="page"> / {tool.title}</span>
+        </nav>
         <div className="workspace-heading">
           <span className={`tool-icon ${tool.color}`}>
             <tool.icon size={26} strokeWidth={1.6} />
           </span>
           <div>
             <div className="workspace-title-row">
-              <h1>{tool.title}</h1>
+              <h1>{seoForPath(`/tools/${tool.id}`)?.heading || tool.title}</h1>
               <span className="local-label">
                 <span className="status-dot" /> LOCAL & PRIVATE
               </span>
             </div>
-            <p>{tool.detail}</p>
+            <p>{seoForPath(`/tools/${tool.id}`)?.introduction || tool.detail}</p>
           </div>
           <button
             className="icon-button help-button"

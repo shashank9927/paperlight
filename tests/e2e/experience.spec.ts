@@ -22,7 +22,10 @@ test('homepage: search, categories, keyboard navigation, FAQ and accessibility',
   await expect(page.locator('.tool-card')).toHaveCount(2);
   await page.getByRole('button', { name: /All tools/ }).click();
   await page.getByText('Are my files really private?', { exact: true }).click();
-  await expect(page.locator('details[open]')).toContainText('never upload');
+  const privacyAnswer = page.locator('details[open]');
+  await expect(privacyAnswer).toContainText('processed in your browser');
+  await expect(privacyAnswer).toContainText('not uploaded or stored');
+  await expect(privacyAnswer).toContainText('Vercel Web Analytics');
   const report = await new AxeBuilder({ page }).analyze();
   expect(report.violations.map((v) => ({ id: v.id, nodes: v.nodes.map((n) => n.target) }))).toEqual(
     [],

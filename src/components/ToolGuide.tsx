@@ -27,6 +27,10 @@ export function ToolGuide({ toolId }: { toolId: ToolId }) {
           <p>{page.limitations}</p>
         </div>
       </div>
+      <h2>Example</h2>
+      <p>{page.example}</p>
+      <h2>Troubleshooting</h2>
+      <p>{page.troubleshooting}</p>
       <h2>Useful details</h2>
       {page.faqs.map(({ question, answer }) => (
         <details key={question}>

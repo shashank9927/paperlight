@@ -6,6 +6,10 @@ export default function Alternative() {
   const page = alternativeSeo;
   return (
     <main id="main" className="container comparison-page">
+      <nav className="breadcrumb" aria-label="Breadcrumb">
+        <Link to="/">Havisu PDF</Link>
+        <span aria-current="page"> / Havisu PDF as an iLovePDF alternative</span>
+      </nav>
       <span className="eyebrow">CHOOSE YOUR PDF WORKFLOW</span>
       <h1>An iLovePDF alternative for local PDF work.</h1>
       <p className="comparison-intro">
@@ -66,7 +70,7 @@ export default function Alternative() {
           </table>
         </div>
         <p>
-          Scope checked on October 25, 2026 using the{' '}
+          Scope checked on October 28, 2026 using the{' '}
           <a href="https://www.ilovepdf.com/" rel="noreferrer">
             official iLovePDF tool directory
           </a>{' '}
