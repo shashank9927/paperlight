@@ -2,6 +2,34 @@ import type { ProcessingJob } from './types';
 
 export function validateJob(job: ProcessingJob) {
   const o = job.options;
+  if (
+    !o ||
+    typeof o !== 'object' ||
+    !o.permissions ||
+    typeof o.permissions !== 'object' ||
+    Array.isArray(o.permissions) ||
+    !['print', 'copy', 'modify', 'annotate', 'forms', 'assemble'].every(
+      (key) => typeof o.permissions[key as keyof typeof o.permissions] === 'boolean',
+    ) ||
+    !Array.isArray(o.annotations) ||
+    !Array.isArray(job.pages) ||
+    !Array.isArray(job.sources) ||
+    job.pages.some((p) => !p || typeof p !== 'object') ||
+    job.sources.some(
+      (source) =>
+        !source ||
+        typeof source !== 'object' ||
+        !source.file ||
+        typeof source.file.size !== 'number' ||
+        typeof source.file.arrayBuffer !== 'function',
+    ) ||
+    [o.text, o.range, o.groups, o.numberTemplate].some((value) => typeof value !== 'string') ||
+    o.annotations.some(
+      (a) =>
+        !a || typeof a !== 'object' || typeof a.text !== 'string' || typeof a.range !== 'string',
+    )
+  )
+    throw new Error('Check the tool settings and try again.');
   const values: [unknown, readonly unknown[]][] = [
     [o.splitMode, ['extract', 'individual', 'ranges', 'fixed', 'size']],
     [o.compression, ['lossless', 'optimized', 'image']],

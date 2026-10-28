@@ -265,7 +265,7 @@ const specificFaq: Record<ToolId, { question: string; answer: string }> = {
   split: {
     question: 'Can I split a PDF into files below a size limit?',
     answer:
-      'Use Maximum file size to measure actual serialized PDF bytes. A page that cannot fit alone is reported explicitly. Optional image compression requires your selection. Internal links to excluded pages may require a different grouping to preserve navigation.',
+      'Use Maximum file size to measure actual serialized PDF bytes. A page that cannot fit alone is reported explicitly. Optional image compression requires your selection. Links and bookmarks targeting excluded pages are removed or deactivated.',
   },
   compress: {
     question: 'Can I reduce PDF size while keeping selectable text?',
@@ -275,7 +275,7 @@ const specificFaq: Record<ToolId, { question: string; answer: string }> = {
   organize: {
     question: 'Can I combine, duplicate and reorder PDF pages?',
     answer:
-      'Import multiple PDFs, insert blank pages, reorder, rotate, duplicate or delete pages, and undo or redo changes. Links and accessibility relationships are remapped where supported. A selection that leaves unresolved destinations is rejected.',
+      'Import multiple PDFs, insert blank pages, reorder, rotate, duplicate or delete pages, and undo or redo changes. Links and accessibility relationships are remapped where supported. Links to excluded pages are deactivated.',
   },
   rotate: {
     question: 'Can I rotate only landscape or selected PDF pages?',

@@ -72,7 +72,12 @@ export function configureJob(job: ProcessingJob): ConfiguredJob {
   } as ConfiguredJob;
 }
 export function expandJob(job: ConfiguredJob): ProcessingJob {
-  if (!Object.hasOwn(keys, job.tool)) throw new Error('Choose a supported PDF tool.');
+  if (!job || typeof job !== 'object' || !Object.hasOwn(keys, job.tool))
+    throw new Error('Choose a supported PDF tool.');
+  if (!job.options || typeof job.options !== 'object' || Array.isArray(job.options))
+    throw new Error('Check the tool settings and try again.');
+  if (!Array.isArray(job.sources) || !Array.isArray(job.pages))
+    throw new Error('Choose your files and pages again.');
   const supplied = job.options as unknown as Record<string, unknown>;
   const options = {
     ...defaultOptions,
