@@ -6,7 +6,7 @@ export default function Alternative() {
   const page = alternativeSeo;
   return (
     <main id="main" className="container comparison-page">
-      <nav aria-label="Breadcrumb">
+      <nav className="breadcrumb" aria-label="Breadcrumb">
         <Link to="/">Havisu PDF</Link>
         <span aria-current="page"> / Havisu PDF as an iLovePDF alternative</span>
       </nav>

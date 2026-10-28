@@ -506,7 +506,7 @@ export default function Workspace() {
   return (
     <main id="main" className="workspace-page">
       <div className="container workspace-container">
-        <nav aria-label="Breadcrumb">
+        <nav className="breadcrumb" aria-label="Breadcrumb">
           <Link className="back-link" to="/">
             <ArrowLeft size={14} /> Havisu PDF
           </Link>

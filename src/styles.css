@@ -78,6 +78,9 @@ body {
   color: var(--ink);
   background: var(--bg);
 }
+.breadcrumb [aria-current='page'] {
+  color: var(--ink);
+}
 .theme-changing,
 .theme-changing
   :is(
