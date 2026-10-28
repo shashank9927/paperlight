@@ -12,12 +12,16 @@ The canonical site is https://pdf.havisu.com. `npm run build` creates HTML for t
 
 ## Google Search Console
 
+Havisu is the parent brand; Havisu PDF is this product's preferred site name. The homepage's existing `WebSite` structured data declares `name: "Havisu PDF"` and `alternateName: "Havisu"`. Open Graph continues to use Havisu PDF. Both initial HTML and client navigation use the same structured-data generator.
+
 1. Sign in to Google Search Console with the site owner's Google account.
 2. Add a **URL-prefix** property for `https://pdf.havisu.com/`.
 3. Choose HTML-tag verification. Set the provided public verification value as the Vercel production environment variable `GOOGLE_SITE_VERIFICATION` and redeploy. Do not put account credentials in source control.
 4. Verify ownership, then submit `https://pdf.havisu.com/sitemap.xml`.
 5. Inspect the homepage and a few tool URLs; request indexing after confirming the published HTML and canonical URL.
 6. Monitor indexing, impressions, clicks, search queries, and Core Web Vitals over time. Search Console measures search visibility; Vercel Analytics measures site visits.
+
+After deploying a site-name change, inspect `https://pdf.havisu.com/` in Search Console, choose **Test live URL**, confirm the updated homepage is accessible, and select **Request indexing**. Google chooses the displayed site name; recrawling and processing can take days to weeks, and the preferred name is not guaranteed. See [Google's site-name guidance](https://developers.google.com/search/docs/appearance/site-names).
 
 Google determines indexing and ranking. No ranking position, indexing deadline, or visibility for another product's brand searches is guaranteed. Havisu PDF's iLovePDF-alternative FAQ describes only supported local workflows and makes no affiliation claim. Do not add keyword stuffing, invented reviews, or misleading comparisons.
 

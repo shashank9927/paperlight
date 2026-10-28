@@ -3,6 +3,52 @@ import AxeBuilder from '@axe-core/playwright';
 import { seoPages, siteOrigin } from '../../src/lib/seo';
 import { makeFixtures } from '../fixtures';
 import { pdfInput } from './helpers';
+import { brand } from '../../src/lib/brand';
+
+test('SEO: product and parent-brand site names survive client navigation', async ({
+  page,
+  request,
+}) => {
+  const websites = (data: { '@graph': Record<string, unknown>[] }) =>
+    data['@graph'].filter((entry) => entry['@type'] === 'WebSite');
+  const expected = [
+    {
+      '@type': 'WebSite',
+      '@id': `${siteOrigin}/#website`,
+      name: brand.productName,
+      alternateName: brand.name,
+      url: `${siteOrigin}/`,
+    },
+  ];
+  const response = await request.get('/');
+  expect(response.status()).toBe(200);
+  const initial = (await response.text()).match(
+    /<script id="seo-structured-data" type="application\/ld\+json">(.*?)<\/script>/,
+  );
+  expect(initial).not.toBeNull();
+  expect(websites(JSON.parse(initial![1]))).toEqual(expected);
+
+  await page.goto('/');
+  await page.getByRole('link', { name: /Merge PDF Combine/ }).click();
+  await expect(page).toHaveURL(/\/tools\/merge$/);
+  await expect
+    .poll(async () =>
+      websites(JSON.parse((await page.locator('#seo-structured-data').textContent())!)),
+    )
+    .toEqual([]);
+  await page.goBack();
+  await expect(page).toHaveURL(/\/$/);
+  await expect
+    .poll(async () =>
+      websites(JSON.parse((await page.locator('#seo-structured-data').textContent())!)),
+    )
+    .toEqual(expected);
+  await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute(
+    'content',
+    brand.productName,
+  );
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `${siteOrigin}/`);
+});
 
 test('SEO: comparison stays accessible in both themes at mobile, tablet and desktop widths', async ({
   page,

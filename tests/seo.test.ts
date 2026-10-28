@@ -2,8 +2,23 @@ import { describe, expect, it } from 'vitest';
 import { tools } from '../src/lib/tools';
 import { seoPages, seoForPath, siteOrigin, structuredData } from '../src/lib/seo';
 import { publicAnalyticsUrl } from '../src/lib/analytics';
+import { brand } from '../src/lib/brand';
 
 describe('public SEO and analytics contract', () => {
+  it('identifies the product site with the parent brand as its alternative name', () => {
+    const websites = structuredData(seoForPath('/')!)['@graph'].filter(
+      (entry) => entry['@type'] === 'WebSite',
+    );
+    expect(websites).toEqual([
+      {
+        '@type': 'WebSite',
+        '@id': `${siteOrigin}/#website`,
+        name: brand.productName,
+        alternateName: brand.name,
+        url: `${siteOrigin}/`,
+      },
+    ]);
+  });
   it('covers all tools with distinct, usable content and valid related routes', () => {
     expect(seoPages).toHaveLength(14);
     expect(new Set(seoPages.map((page) => page.title)).size).toBe(14);

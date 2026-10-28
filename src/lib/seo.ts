@@ -375,6 +375,7 @@ export function structuredData(page: SeoPage) {
               '@type': 'WebSite',
               '@id': `${siteOrigin}/#website`,
               name: brand.productName,
+              alternateName: brand.name,
               url: `${siteOrigin}/`,
             },
             application,
