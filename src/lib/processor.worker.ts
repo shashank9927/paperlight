@@ -8,7 +8,7 @@ import { PreservationError } from './assembly';
 console.log = console.warn = console.error = console.info = console.debug = () => {};
 
 self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
-  if (event.data.type !== 'process') return;
+  if (!event.data || event.data.type !== 'process') return;
   const send = (message: WorkerResponse) => self.postMessage(message);
   try {
     const result = await processJob(expandJob(event.data.job), send);
