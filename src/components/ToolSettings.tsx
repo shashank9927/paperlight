@@ -139,8 +139,17 @@ export function ToolSettings({
               <option value="size">Maximum file size</option>
             </select>
           </Field>
-          {range}
-          <p className="field-hint">Multiple PDFs are packed together in a ZIP.</p>
+          {o.splitMode !== 'ranges' && range}
+          <p className="field-hint">
+            {o.splitMode === 'extract' || (o.splitMode === 'ranges' && o.combineRanges)
+              ? 'Selected pages are combined into one PDF.'
+              : 'Each page or group becomes a separate PDF. Multiple output files download together in a ZIP.'}
+          </p>
+          {o.splitMode !== 'ranges' && (
+            <p className="field-hint">
+              Use the page checkboxes or enter a range. Keep at least one page selected.
+            </p>
+          )}
         </>
       )}
       {tool === 'compress' && (

@@ -20,6 +20,8 @@ Extracting pages 1–8 of the reported 16-page Foundations document produces eig
 
 ## Twelve-tool acceptance map
 
+The [29 October workflow audit](TOOL-WORKFLOW-AUDIT.md) records the current iLovePDF workflow comparison, split/download fixes, independent encryption cases, exact verification results and remaining uncertainty about the reported Unlock input.
+
 The complete control/processing/output mapping remains in [REDESIGN.md](REDESIGN.md). The release suite exercises every existing route:
 
 | Tools                         | Output checks                                                                                                                                 |
