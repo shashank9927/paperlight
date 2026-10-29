@@ -25,7 +25,8 @@ import type {
   Annotation,
 } from './types';
 import { MAX_BYTES, MAX_PAGES } from './types';
-import { parseRange, safeStem } from './utils';
+import { parseRange, parsePageGroups, safeStem } from './utils';
+import { selectedPages } from './page-selection';
 import { viewToPdf, visibleSize, visibleBox, annotationPosition } from './geometry';
 import { qpdfSession } from './qpdf';
 import { checkDocument } from './preservation';
@@ -608,7 +609,7 @@ async function processSingle(
         };
       }
       const count = documents[0].getPageCount();
-      const selected = parseRange(options.range, count);
+      const selected = selectedPages(tool, options, count);
       if (inputPages > MAX_PAGES) throw new Error('Choose no more than 500 pages per job.');
       if (tool === 'split' && options.splitMode !== 'extract') {
         const extract = async (indices: number[]) =>
@@ -628,10 +629,7 @@ async function processSingle(
         let groups: number[][] = [];
         if (options.splitMode === 'individual') groups = selected.map((i) => [i]);
         if (options.splitMode === 'ranges') {
-          const ranges = options.groups.split(';').map((s) => s.trim());
-          if (ranges.some((s) => !s))
-            throw new Error('Separate nonempty page groups with semicolons.');
-          groups = ranges.map((range) => parseRange(range, count));
+          groups = parsePageGroups(options.groups, count);
           if (options.combineRanges) groups = [groups.flat()];
         }
         if (options.splitMode === 'fixed')

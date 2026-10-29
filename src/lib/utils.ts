@@ -19,6 +19,12 @@ export function parseRange(value: string, count: number): number[] {
   }
   return result;
 }
+export function parsePageGroups(value: string, count: number): number[][] {
+  const groups = value.split(';').map((part) => part.trim());
+  if (groups.some((group) => !group))
+    throw new Error('Separate nonempty page groups with semicolons.');
+  return groups.map((group) => parseRange(group, count));
+}
 export const safeStem = (name: string) =>
   name
     .replace(/\.[^.]+$/, '')

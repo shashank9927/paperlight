@@ -1,5 +1,5 @@
 import { loadPdfSafely, checkPreviewImages } from './safe-pdf';
-import { qpdfSession } from './qpdf';
+import { qpdfSession, PdfEngineLoadError } from './qpdf';
 import { MAX_BYTES } from './types';
 import { validatePassword } from './password';
 
@@ -32,9 +32,10 @@ self.onmessage = async ({ data }: MessageEvent<{ file: File; password?: string }
     self.postMessage({
       ok: false,
       password: error instanceof Error && error.name === 'PasswordException',
-      message: limited
-        ? message
-        : 'This PDF is damaged or uses an unsupported structure. Open and repair it in a trusted PDF editor first.',
+      message:
+        limited || error instanceof PdfEngineLoadError
+          ? message
+          : 'This PDF is damaged or uses an unsupported structure. Open and repair it in a trusted PDF editor first.',
     });
   } finally {
     qpdf.dispose();

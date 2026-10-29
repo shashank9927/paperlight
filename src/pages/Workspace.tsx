@@ -29,10 +29,11 @@ import {
 } from 'lucide-react';
 import { getTool } from '../lib/tools';
 import { configureJob } from '../lib/tool-config';
+import { selectedPages } from '../lib/page-selection';
 import { defaultOptions, MAX_BYTES, MAX_PAGES } from '../lib/types';
 import type { PageRef, ProcessingResult, ToolOptions, WorkerResponse } from '../lib/types';
 import type { PreviewFile } from '../lib/preview';
-import { downloadFile, formatBytes, parseRange, uuid } from '../lib/utils';
+import { downloadFile, formatBytes, uuid } from '../lib/utils';
 import { PagePreview } from '../components/PagePreview';
 import { SortableItem, SortableList } from '../components/Sortable';
 import { ToolSettings } from '../components/ToolSettings';
@@ -54,6 +55,7 @@ const rearrange = <T,>(items: T[], from: number, to: number) => {
 };
 const initialOptions = (tool: string): ToolOptions => ({
   ...defaultOptions,
+  ...(tool === 'split' ? { splitMode: 'individual' as const } : {}),
   ...(tool === 'page-numbers'
     ? { fontSize: 12, color: '#30343b', y: 0.92, textAngle: 0, opacity: 1 }
     : {}),
@@ -185,9 +187,7 @@ export default function Workspace() {
     for (const file of [...files, ...blanks.values()]) {
       let indices: number[] = [];
       try {
-        indices = parseRange(options.range, file.pages.length).filter(
-          (index) => !(toolId === 'page-numbers' && options.coverPage && index === 0),
-        );
+        indices = selectedPages(tool!.id, options, file.pages.length);
       } catch {
         /* Submit reports invalid selections. */
       }
@@ -198,7 +198,16 @@ export default function Workspace() {
       });
     }
     return result;
-  }, [files, blanks, options.range, options.coverPage, toolId]);
+  }, [
+    files,
+    blanks,
+    options.range,
+    options.coverPage,
+    options.splitMode,
+    options.groups,
+    options.annotations,
+    toolId,
+  ]);
   useEffect(() => {
     window.dispatchEvent(
       new CustomEvent('paperlight-workspace-state', {
@@ -231,12 +240,7 @@ export default function Workspace() {
   const count = files.reduce((sum, file) => sum + file.pages.length, 0);
   const displayCount = tool.id === 'organize' ? pages.length : count;
   const previewedFile = files.find((file) => file.id === filePreview?.sourceId);
-  let rangeIndices: number[] = [];
-  try {
-    rangeIndices = parseRange(options.range, files[0]?.pages.length || 0);
-  } catch {
-    /* Invalid ranges are shown when submitted; previews remain available. */
-  }
+  const rangeIndices = files.length ? [...(selections.get(files[0].id)?.selected || [])] : [];
   const selectedSet = new Set(rangeIndices);
   const pageChange = (next: PageRef[]) => {
     setHistory((previous) => [...previous.slice(-19), pages]);
@@ -372,7 +376,7 @@ export default function Workspace() {
       if (
         !['merge', 'organize', 'images-to-pdf', 'compress', 'protect', 'unlock'].includes(tool.id)
       )
-        parseRange(options.range, count);
+        selectedPages(tool.id, options, count);
       if (
         tool.id === 'protect' &&
         (!options.advancedProtection || options.restrictAccess) &&
@@ -972,7 +976,7 @@ export default function Workspace() {
                         </div>
                         {['sign', 'watermark', 'page-numbers'].includes(tool.id) && (
                           <p className="preview-instruction">
-                            {selectedSet.has(focusPage.index)
+                            {selections.get(focusPage.sourceId)?.selected.has(focusPage.index)
                               ? 'Drag the annotation to position it. Use settings to resize.'
                               : 'This page is outside your selected page range.'}
                           </p>
@@ -1082,9 +1086,28 @@ export default function Workspace() {
                       <div className="page-grid">
                         {pages.map((page, index) => (
                           <div key={page.id} className="page-grid-item">
+                            {tool.id === 'split' && options.splitMode !== 'ranges' && (
+                              <label className="checkbox-field">
+                                <input
+                                  type="checkbox"
+                                  aria-label={`Include page ${index + 1}`}
+                                  checked={selectedSet.has(page.index)}
+                                  disabled={
+                                    busy || (selectedSet.has(page.index) && selectedSet.size === 1)
+                                  }
+                                  onChange={(event) => {
+                                    const next = event.target.checked
+                                      ? [...rangeIndices, page.index].sort((a, b) => a - b)
+                                      : rangeIndices.filter((i) => i !== page.index);
+                                    onOptionsChange({ range: next.map((i) => i + 1).join(', ') });
+                                  }}
+                                />
+                                Include page {index + 1}
+                              </label>
+                            )}
                             <button
                               key={page.id}
-                              className={`page-card preview-page-button ${selectedSet.has(page.index) ? 'in-range' : ''}`}
+                              className={`page-card preview-page-button ${selections.get(page.sourceId)?.selected.has(page.index) ? 'in-range' : ''}`}
                               aria-label={`View page ${index + 1}`}
                               onClick={() => {
                                 setFocus(index);
@@ -1094,7 +1117,9 @@ export default function Workspace() {
                               {preview(page)}
                               <span className="simple-page-number">
                                 {index + 1}
-                                {selectedSet.has(page.index) && <Check size={11} />}
+                                {selections.get(page.sourceId)?.selected.has(page.index) && (
+                                  <Check size={11} />
+                                )}
                               </span>
                             </button>
                             {tool.id === 'rotate' && (

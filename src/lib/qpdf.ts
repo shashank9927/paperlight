@@ -1,5 +1,14 @@
 import { checkOutput } from './limits';
 
+export class PdfEngineLoadError extends Error {
+  constructor() {
+    super(
+      'The local PDF engine could not load. Check your connection and retry, or reload the app. Your original file is unchanged.',
+    );
+    this.name = 'PdfEngineLoadError';
+  }
+}
+
 type Qpdf = {
   callMain(args: string[]): number;
   FS: {
@@ -38,14 +47,20 @@ export function qpdfSession() {
       };
       try {
         if (!module) {
-          const [{ default: init }, { default: wasm }] = await Promise.all([
-            import('@neslinesli93/qpdf-wasm'),
-            import('../generated/qpdf.wasm?url'),
-          ]);
-          module = await (init as unknown as (options: object) => Promise<Qpdf>)({
-            locateFile: () => wasm,
-            noInitialRun: true,
-          });
+          try {
+            const [{ default: init }, { default: wasm }] = await Promise.all([
+              import('@neslinesli93/qpdf-wasm'),
+              import('../generated/qpdf.wasm?url'),
+            ]);
+            module = await (init as unknown as (options: object) => Promise<Qpdf>)({
+              locateFile: () => wasm,
+              noInitialRun: true,
+            });
+          } catch {
+            // No document has been handed to WASM yet. An asset/network/init
+            // failure must never tell people their PDF is damaged.
+            throw new PdfEngineLoadError();
+          }
           const fs = module.FS;
           const write = fs.write;
           fs.write = function (stream, buffer, offset, length, position) {

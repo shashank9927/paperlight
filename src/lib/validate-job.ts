@@ -93,10 +93,11 @@ export function validateJob(job: ProcessingJob) {
   )
     throw new Error('Choose a supported font and color.');
   if (
-    !Number.isInteger(o.groupSize) ||
-    !finite(o.groupSize, 1, 500) ||
-    !finite(o.maximumKiB, 1, 131072) ||
-    o.groups.length > 4000
+    job.tool === 'split' &&
+    ((o.splitMode === 'fixed' &&
+      (!Number.isInteger(o.groupSize) || !finite(o.groupSize, 1, 500))) ||
+      (o.splitMode === 'size' && !finite(o.maximumKiB, 1, 131072)) ||
+      (o.splitMode === 'ranges' && o.groups.length > 4000))
   )
     throw new Error('Check the split group size and maximum file size.');
   if (

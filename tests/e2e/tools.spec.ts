@@ -44,6 +44,7 @@ test('split: selected ranges, reordered extraction, and individual PDFs in ZIP',
   page,
 }) => {
   await openTool(page, 'split', pdfInput(fixtures.pdf));
+  await page.getByLabel('Split mode').selectOption('extract');
   await page.getByLabel('Pages', { exact: true }).fill('2, 1');
   const extracted = await finish(page);
   const document = await inspectPdf(extracted.bytes);
