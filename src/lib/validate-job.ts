@@ -102,8 +102,10 @@ export function validateJob(job: ProcessingJob) {
     throw new Error('Check the split group size and maximum file size.');
   if (
     !finite(o.numberMargin, 0, 144) ||
-    !finite(o.watermarkWidth, 0.01, 1) ||
-    o.numberTemplate.length > 500 ||
+    (job.tool === 'watermark' &&
+      o.watermarkType === 'image' &&
+      !finite(o.watermarkWidth, 0.01, 1)) ||
+    (job.tool === 'page-numbers' && o.numberStyle === 'custom' && o.numberTemplate.length > 500) ||
     ![90, 75, 50].includes(o.compressionLevel)
   )
     throw new Error('A setting is outside its supported range.');

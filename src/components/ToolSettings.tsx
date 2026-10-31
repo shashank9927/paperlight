@@ -218,8 +218,9 @@ export function ToolSettings({
       {tool === 'rotate' && (
         <>
           {range}
-          <Field label="Rotate clockwise">
-            <div className="segmented">
+          <div className="field">
+            <span>Rotate clockwise</span>
+            <div className="segmented" role="group" aria-label="Rotate clockwise">
               {[90, 180, 270].map((angle) => (
                 <button
                   type="button"
@@ -232,7 +233,7 @@ export function ToolSettings({
                 </button>
               ))}
             </div>
-          </Field>
+          </div>
         </>
       )}
       {tool === 'images-to-pdf' && (
@@ -303,17 +304,19 @@ export function ToolSettings({
               <option value="jpeg">JPEG — smaller files</option>
             </select>
           </Field>
-          <Field label="Resolution">
-            <select
-              aria-label="Resolution"
-              value={o.dpi}
-              onChange={(event) => onChange({ dpi: Number(event.target.value) })}
-            >
-              <option value={72}>72 DPI — screen</option>
-              <option value={144}>144 DPI — balanced</option>
-              <option value={216}>216 DPI — high detail</option>
-            </select>
-          </Field>
+          {o.exportMode === 'pages' && (
+            <Field label="Resolution">
+              <select
+                aria-label="Resolution"
+                value={o.dpi}
+                onChange={(event) => onChange({ dpi: Number(event.target.value) })}
+              >
+                <option value={72}>72 DPI — screen</option>
+                <option value={144}>144 DPI — balanced</option>
+                <option value={216}>216 DPI — high detail</option>
+              </select>
+            </Field>
+          )}
           {o.imageFormat === 'jpeg' && (
             <Range
               label="Image quality"
@@ -326,8 +329,10 @@ export function ToolSettings({
             />
           )}
           <p className="field-hint">
-            Images are capped at 4096 pixels on their longest side. Multiple pages download as a
-            ZIP.
+            {o.exportMode === 'extract'
+              ? 'Extraction keeps native image dimensions within the safe image limits. Resolution settings apply only to page rendering.'
+              : 'Rendered pages are capped at 4096 pixels on their longest side.'}{' '}
+            Multiple images download as a ZIP.
           </p>
         </>
       )}

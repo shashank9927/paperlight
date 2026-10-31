@@ -1,0 +1,418 @@
+{
+  "verifiedOn": "2026-10-31",
+  "baseRevision": "c4cd1d3da041b4d09ed41afcb44bd2ff56524027",
+  "finalRevision": "Recorded by the follow-up PR head and CI release-manifest.json",
+  "artifact": {
+    "treeSha256": "568c686a8021fddea12ae270c5e8d5eb542cd1d8cde261d7fb2e80a100928cdc",
+    "files": 301,
+    "bytes": 12202362,
+    "lockfileSha256": "c3a79bb4c193e8bc2f1689d47610f9bb323a96efe1438a12124a77b55de09d11",
+    "imageId": "sha256:d4e59308f6f24230b5d4b47e0ff0849f6134e0e601983c3ad7f619219db19c69",
+    "node": "24.22.1",
+    "indexing": false,
+    "analytics": false
+  },
+  "tests": {
+    "unit": {
+      "files": 14,
+      "seconds": 7.46,
+      "passed": 129
+    },
+    "fullBrowserSuite": {
+      "failed": 0,
+      "retries": 0,
+      "minutes": 18.2,
+      "skipped": 0,
+      "passed": 452
+    },
+    "lifecycleGate": {
+      "minutes": 4.4,
+      "failed": 0,
+      "scenariosPerBrowser": 16,
+      "passed": 144,
+      "retries": 0,
+      "skipped": 0,
+      "repetitions": 3
+    },
+    "performance": {
+      "samplesPerBrowser": 6,
+      "seconds": 28.7,
+      "passed": 3
+    },
+    "note": "The final batch-cancellation case was added after the local full run began; all three browsers passed it three times in the lifecycle gate. CI runs all 455 cases together."
+  },
+  "hosting": {
+    "origin": "http://127.0.0.1:4185",
+    "routes": 14,
+    "canonicalRedirects": 40,
+    "legacyPageRedirects": 14,
+    "legacyEditingAssets": 6,
+    "headers": "passed",
+    "wasmMime": "passed",
+    "javascriptMime": "18 scripts and module workers passed",
+    "static404": "passed",
+    "checkedAt": "2026-10-29T18:38:37.103Z"
+  },
+  "load": {
+    "origin": "http://127.0.0.1:4185",
+    "checkedAt": "2026-10-29T18:39:18.451Z",
+    "bytes": 12656078,
+    "reports": [
+      {
+        "concurrency": 1,
+        "requests": 30,
+        "errors": [],
+        "durationMs": 123,
+        "p50Ms": 3,
+        "p95Ms": 4,
+        "maxMs": 39
+      },
+      {
+        "concurrency": 10,
+        "requests": 100,
+        "errors": [],
+        "durationMs": 103,
+        "p50Ms": 10,
+        "p95Ms": 16,
+        "maxMs": 19
+      },
+      {
+        "concurrency": 50,
+        "requests": 250,
+        "errors": [],
+        "durationMs": 181,
+        "p50Ms": 34,
+        "p95Ms": 54,
+        "maxMs": 66
+      },
+      {
+        "concurrency": 100,
+        "requests": 400,
+        "errors": [],
+        "durationMs": 256,
+        "p50Ms": 60,
+        "p95Ms": 98,
+        "maxMs": 107
+      }
+    ],
+    "limitation": "Bounded local HTTP concurrency verification; not a global CDN capacity or sustained-traffic guarantee."
+  },
+  "privateCorpusAggregate": {
+    "structural": "passed",
+    "renderedPages": 295,
+    "pixelComparison": "exact",
+    "videoBytes": 773546,
+    "splitPages": 8,
+    "reports": [
+      {
+        "tool": "merge",
+        "pages": 295,
+        "tagsValid": true,
+        "outlines": 295,
+        "encrypted": false
+      },
+      {
+        "tool": "split",
+        "pages": 8,
+        "tagsValid": true,
+        "outlines": 8,
+        "encrypted": false
+      },
+      {
+        "tool": "organize",
+        "pages": 8,
+        "tagsValid": true,
+        "outlines": 8,
+        "encrypted": false
+      },
+      {
+        "tool": "watermark",
+        "pages": 16,
+        "tagsValid": true,
+        "outlines": 16,
+        "encrypted": false
+      },
+      {
+        "tool": "page-numbers",
+        "pages": 16,
+        "tagsValid": true,
+        "outlines": 16,
+        "encrypted": false
+      },
+      {
+        "tool": "sign",
+        "pages": 16,
+        "tagsValid": true,
+        "outlines": 16,
+        "encrypted": false
+      },
+      {
+        "tool": "protect",
+        "pages": 16,
+        "tagsValid": true,
+        "outlines": 16,
+        "encrypted": true
+      },
+      {
+        "tool": "unlock",
+        "pages": 16,
+        "tagsValid": true,
+        "outlines": 16,
+        "encrypted": false
+      },
+      {
+        "tool": "rotate",
+        "zipEntries": 12
+      },
+      {
+        "tool": "compress",
+        "zipEntries": 12
+      }
+    ]
+  },
+  "benchmarks": [
+    {
+      "browser": "chromium",
+      "version": "156.0.8078.4",
+      "host": {
+        "platform": "linux",
+        "release": "6.18.54.1-microsoft-standard-WSL2",
+        "cpu": "AMD Ryzen 7 7840HS w/ Radeon 780M Graphics",
+        "logicalCpus": 16,
+        "ramBytes": 7897776128
+      },
+      "fixture": {
+        "bytes": 809787,
+        "pages": 3,
+        "kinds": "text + rotated/cropped text + seeded scanned image"
+      },
+      "caveat": "Local loopback, no throttling. Page JS heap excludes workers, WASM, GPU and native allocations; not peak process memory. Automated desktop browsers are not physical mobile devices.",
+      "results": [
+        {
+          "sample": 0,
+          "warm": false,
+          "loadMs": 134.01913000000002,
+          "previewMs": 420.9306399999999,
+          "processingMs": 270.89239099999986,
+          "maxGapMs": 25.699999999953434,
+          "ticks": 17,
+          "pageJsHeapBytes": 21700000
+        },
+        {
+          "sample": 0,
+          "warm": true,
+          "loadMs": 73.934395,
+          "previewMs": 313.4472740000001,
+          "processingMs": 260.4170690000001,
+          "maxGapMs": 27.100000000093132,
+          "ticks": 16,
+          "pageJsHeapBytes": 21700000
+        },
+        {
+          "sample": 1,
+          "warm": false,
+          "loadMs": 129.36146899999994,
+          "previewMs": 406.677005,
+          "processingMs": 252.22261100000014,
+          "maxGapMs": 23.800000000046566,
+          "ticks": 16,
+          "pageJsHeapBytes": 21700000
+        },
+        {
+          "sample": 1,
+          "warm": true,
+          "loadMs": 73.66129300000011,
+          "previewMs": 306.4832699999997,
+          "processingMs": 252.2647139999999,
+          "maxGapMs": 27.200000000186265,
+          "ticks": 16,
+          "pageJsHeapBytes": 21700000
+        },
+        {
+          "sample": 2,
+          "warm": false,
+          "loadMs": 121.31322799999998,
+          "previewMs": 411.6181409999999,
+          "processingMs": 240.74507100000028,
+          "maxGapMs": 30.199999999953434,
+          "ticks": 15,
+          "pageJsHeapBytes": 21700000
+        },
+        {
+          "sample": 2,
+          "warm": true,
+          "loadMs": 91.70536100000027,
+          "previewMs": 315.8630519999997,
+          "processingMs": 254.15539699999954,
+          "maxGapMs": 18.199999999953434,
+          "ticks": 16,
+          "pageJsHeapBytes": 21700000
+        }
+      ]
+    },
+    {
+      "browser": "firefox",
+      "version": "157.0",
+      "host": {
+        "platform": "linux",
+        "release": "6.18.54.1-microsoft-standard-WSL2",
+        "cpu": "AMD Ryzen 7 7840HS w/ Radeon 780M Graphics",
+        "logicalCpus": 16,
+        "ramBytes": 7897776128
+      },
+      "fixture": {
+        "bytes": 809787,
+        "pages": 3,
+        "kinds": "text + rotated/cropped text + seeded scanned image"
+      },
+      "caveat": "Local loopback, no throttling. Page JS heap excludes workers, WASM, GPU and native allocations; not peak process memory. Automated desktop browsers are not physical mobile devices.",
+      "results": [
+        {
+          "sample": 0,
+          "warm": false,
+          "loadMs": 414.169799,
+          "previewMs": 947.8416609999999,
+          "processingMs": 337.35179199999993,
+          "maxGapMs": 33,
+          "ticks": 17,
+          "pageJsHeapBytes": null
+        },
+        {
+          "sample": 0,
+          "warm": true,
+          "loadMs": 110.5604229999999,
+          "previewMs": 385.23528699999997,
+          "processingMs": 189.8637859999999,
+          "maxGapMs": 24,
+          "ticks": 10,
+          "pageJsHeapBytes": null
+        },
+        {
+          "sample": 1,
+          "warm": false,
+          "loadMs": 142.42504399999962,
+          "previewMs": 391.53932499999974,
+          "processingMs": 341.0321239999994,
+          "maxGapMs": 32,
+          "ticks": 19,
+          "pageJsHeapBytes": null
+        },
+        {
+          "sample": 1,
+          "warm": true,
+          "loadMs": 115.98971600000004,
+          "previewMs": 378.47610799999984,
+          "processingMs": 195.91500199999973,
+          "maxGapMs": 30,
+          "ticks": 10,
+          "pageJsHeapBytes": null
+        },
+        {
+          "sample": 2,
+          "warm": false,
+          "loadMs": 150.020528,
+          "previewMs": 384.2772009999999,
+          "processingMs": 346.4775520000003,
+          "maxGapMs": 38,
+          "ticks": 18,
+          "pageJsHeapBytes": null
+        },
+        {
+          "sample": 2,
+          "warm": true,
+          "loadMs": 104.03719000000001,
+          "previewMs": 381.25243599999976,
+          "processingMs": 194.75930999999946,
+          "maxGapMs": 28,
+          "ticks": 10,
+          "pageJsHeapBytes": null
+        }
+      ]
+    },
+    {
+      "browser": "webkit",
+      "version": "27.2",
+      "host": {
+        "platform": "linux",
+        "release": "6.18.54.1-microsoft-standard-WSL2",
+        "cpu": "AMD Ryzen 7 7840HS w/ Radeon 780M Graphics",
+        "logicalCpus": 16,
+        "ramBytes": 7897776128
+      },
+      "fixture": {
+        "bytes": 809787,
+        "pages": 3,
+        "kinds": "text + rotated/cropped text + seeded scanned image"
+      },
+      "caveat": "Local loopback, no throttling. Page JS heap excludes workers, WASM, GPU and native allocations; not peak process memory. Automated desktop browsers are not physical mobile devices.",
+      "results": [
+        {
+          "sample": 0,
+          "warm": false,
+          "loadMs": 200.832406,
+          "previewMs": 1013.0721310000001,
+          "processingMs": 550.3722019999996,
+          "maxGapMs": 84,
+          "ticks": 24,
+          "pageJsHeapBytes": null
+        },
+        {
+          "sample": 0,
+          "warm": true,
+          "loadMs": 218.7524309999999,
+          "previewMs": 920.552232,
+          "processingMs": 391.7608730000002,
+          "maxGapMs": 58,
+          "ticks": 16,
+          "pageJsHeapBytes": null
+        },
+        {
+          "sample": 1,
+          "warm": false,
+          "loadMs": 170.16406200000074,
+          "previewMs": 1084.7234979999994,
+          "processingMs": 451.5166360000003,
+          "maxGapMs": 80,
+          "ticks": 18,
+          "pageJsHeapBytes": null
+        },
+        {
+          "sample": 1,
+          "warm": true,
+          "loadMs": 203.7974290000002,
+          "previewMs": 1035.2460629999996,
+          "processingMs": 478.36549899999955,
+          "maxGapMs": 48,
+          "ticks": 22,
+          "pageJsHeapBytes": null
+        },
+        {
+          "sample": 2,
+          "warm": false,
+          "loadMs": 197.8282760000002,
+          "previewMs": 984.4413690000001,
+          "processingMs": 483.22345400000086,
+          "maxGapMs": 62,
+          "ticks": 17,
+          "pageJsHeapBytes": null
+        },
+        {
+          "sample": 2,
+          "warm": true,
+          "loadMs": 199.24889999999868,
+          "previewMs": 992.0857449999985,
+          "processingMs": 464.63177899999937,
+          "maxGapMs": 61,
+          "ticks": 21,
+          "pageJsHeapBytes": null
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Bounded synthetic fixtures and the local lecture corpus; not every PDF producer.",
+    "Physical iPhone, Android and macOS qualification remains unverified.",
+    "Local loopback performance is not real-user Core Web Vitals or global CDN capacity.",
+    "Public deployment and account configuration remain separate."
+  ]
+}

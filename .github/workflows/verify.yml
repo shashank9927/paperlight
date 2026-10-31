@@ -13,7 +13,7 @@ jobs:
   processing:
     # Keep browser native dependencies reproducible when ubuntu-latest changes.
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 45
     env:
       PAPERLIGHT_STRICT_BROWSERS: '1'
       PAPERLIGHT_PREBUILT: '1'
@@ -41,6 +41,7 @@ jobs:
       - run: npm run format:check
       - run: npm test
       - run: npm run build
+      - run: node scripts/release-manifest.mjs
       - uses: actions/cache/restore@v4
         id: browsers
         with:
@@ -65,6 +66,8 @@ jobs:
       - name: Verify crawlability, offline navigation and analytics
         run: npx playwright test tests/e2e/seo.spec.ts tests/e2e/analytics.spec.ts --output=.cache/seo-gate
       - run: npm run test:e2e -- --grep-invert "measured cold/warm"
+      - name: Repeat cancellation, stale-result and engine-retry regressions
+        run: npx playwright test tests/e2e/release-workflows.spec.ts tests/e2e/hardening.spec.ts tests/e2e/unlock-compatibility.spec.ts tests/e2e/experience.spec.ts --grep "invalid admission cancellation|rapid reset|unavailable PDF engine|cancellation and reset|batch cancellation" --repeat-each=3 --workers=2 --output=.cache/lifecycle-gate
       - run: npm run test:e2e -- tests/e2e/benchmark.spec.ts --workers=1 --output=.cache/benchmarks
         env:
           PLAYWRIGHT_HTML_OUTPUT_DIR: .cache/benchmark-report
@@ -80,6 +83,8 @@ jobs:
             .cache/benchmark-report/
             .cache/theme-gate/
             .cache/seo-gate/
+            .cache/lifecycle-gate/
+            .cache/release-manifest.json
           retention-days: 14
   static-host:
     runs-on: ubuntu-24.04

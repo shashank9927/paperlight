@@ -117,6 +117,28 @@ const wasm = sw.match(/"([^\"]+qpdf[^\"]+\.wasm)"/)[1];
 const wasmResponse = await get(wasm);
 assert.equal(wasmResponse.headers.get('content-type'), 'application/wasm');
 await wasmResponse.body?.cancel();
+// Canonical redirects must retain the public origin behind a port mapping/proxy.
+let canonicalRedirects = 0;
+for (const route of routes) {
+  for (const alias of route === '/'
+    ? ['/index.html']
+    : [route + '/', route + '/index.html', route + '.html']) {
+    const response = await fetch(origin + alias + '?source=canonical', {
+      redirect: 'manual',
+      signal: AbortSignal.timeout(10000),
+    });
+    assert.equal(response.status, 308, `canonical redirect: ${alias}`);
+    assert.equal(
+      new URL(response.headers.get('location'), origin).href,
+      origin + route + '?source=canonical',
+      `canonical origin/path/query: ${alias}`,
+    );
+    const followed = await get(alias + '?source=canonical');
+    assert.equal(followed.status, 200, `canonical destination: ${alias}`);
+    await followed.body?.cancel();
+    canonicalRedirects++;
+  }
+}
 // Only public pages move origins. Old editing tabs must still load their workers.
 for (const route of routes) {
   const response = await legacyGet(route + '?source=legacy');
@@ -141,6 +163,7 @@ for (const path of [
   '/missing/path',
   '/tools',
   '/tools/',
+  '/tools/split/indexXhtml',
   '/assets/',
   '/licenses/',
 ]) {
@@ -153,6 +176,7 @@ console.log(
     {
       origin,
       routes: routes.length,
+      canonicalRedirects,
       legacyPageRedirects: routes.length,
       legacyEditingAssets: 6,
       headers: 'passed',

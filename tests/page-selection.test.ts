@@ -35,3 +35,27 @@ it('uses independent signature-field targets instead of a hidden legacy range', 
   };
   expect(selectedPages('sign', options, 3)).toEqual([1]);
 });
+
+it('ignores inactive image-width and number-template controls after switching modes', () => {
+  const source = { id: 'a', file: new File(['fixture'], 'test.pdf') };
+  const watermark = {
+    tool: 'watermark' as const,
+    sources: [source],
+    pages: [],
+    options: { ...defaultOptions, watermarkWidth: 0 },
+  };
+  expect(() => validateJob(watermark)).not.toThrow();
+  expect(() =>
+    validateJob({ ...watermark, options: { ...watermark.options, watermarkType: 'image' } }),
+  ).toThrow('supported range');
+  const numbers = {
+    tool: 'page-numbers' as const,
+    sources: [source],
+    pages: [],
+    options: { ...defaultOptions, numberTemplate: 'x'.repeat(501) },
+  };
+  expect(() => validateJob(numbers)).not.toThrow();
+  expect(() =>
+    validateJob({ ...numbers, options: { ...numbers.options, numberStyle: 'custom' } }),
+  ).toThrow('supported range');
+});
