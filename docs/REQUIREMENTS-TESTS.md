@@ -1,5 +1,7 @@
 # Requirement-to-test matrix
 
+For the latest control-level acceptance contract and final-run evidence, see [ACCEPTANCE-MATRIX.md](ACCEPTANCE-MATRIX.md) and [RELEASE-AUDIT.md](RELEASE-AUDIT.md).
+
 Current ordinary-document compatibility and the lecture-file verification are described in [COMPATIBILITY.md](COMPATIBILITY.md). Its selection/form/layer/media behavior supersedes earlier rejection cases below; dated release evidence remains historical.
 
 The twelve existing routes are the acceptance baseline available in this checkout. The later redesign/completion specification and new acceptance mapping are recorded in [REDESIGN.md](REDESIGN.md). Search visibility, generated HTML, and production-only Vercel Analytics are covered in [SEO.md](SEO.md). The table below retains the earlier hardening baseline. Tests operate on generated synthetic fixtures; never run trace-recording tests with private documents.

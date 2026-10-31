@@ -998,11 +998,19 @@ export async function processJob(
   }
   if (!outputs.length)
     return { files: [], entries, note: 'No files could be processed. Review the errors below.' };
+  const failed = entries.filter((e) => e.status === 'failed').length;
+  if (outputs.length === 1)
+    return {
+      files: outputs,
+      entries,
+      note: failed
+        ? `Partial result: ${entries.length - failed} succeeded, ${failed} failed. The successful file is available below.`
+        : 'One output file is available below.',
+    };
   const packed = zipSync(Object.fromEntries(outputs.map((file) => [file.name, file.data])), {
     level: 1,
   });
   checkOutput(packed.length);
-  const failed = entries.filter((e) => e.status === 'failed').length;
   return {
     files: [
       {

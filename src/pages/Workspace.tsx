@@ -289,6 +289,9 @@ export default function Workspace() {
     setError('');
     setResult(null);
     const gen = generation.current;
+    // Admission is sequential and editing is disabled while it runs. Each
+    // successful import is one history operation, with sources retained for redo.
+    let importedPages = pages;
     const controller = new AbortController();
     inspection.current = controller;
     try {
@@ -330,15 +333,21 @@ export default function Workspace() {
         }
         const source: PreviewFile = { ...loaded, id: uuid() };
         replaceFiles([...filesRef.current, source]);
-        setPages((previous) => [
-          ...previous,
+        if (tool.id === 'organize' && importedPages.length) {
+          const beforeImport = importedPages;
+          setHistory((previous) => [...previous.slice(-19), beforeImport]);
+          setFuture([]);
+        }
+        importedPages = [
+          ...importedPages,
           ...source.pages.map((_, index) => ({
             id: uuid(),
             sourceId: source.id,
             index,
             rotation: 0,
           })),
-        ]);
+        ];
+        setPages(importedPages);
       }
     } catch (failure) {
       if (gen === generation.current)
@@ -445,6 +454,7 @@ export default function Workspace() {
         stopWorker();
       };
       instance.onmessageerror = () => {
+        if (worker.current !== instance) return;
         stopWorker();
         setProgress(null);
         setError(
