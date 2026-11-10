@@ -10,7 +10,7 @@ Evidence codes refer to test files under `tests/`: **T** `e2e/tools.spec.ts`, **
 
 PDF downloads are read by PDF.js and independently by pypdf/Poppler. Assembly checks also inspect object relationships; rendering alone does not establish preservation. Image output is decoded independently; ZIPs are unpacked and each entry checked. Synthetic fixtures include the three-page mixed/cropped/rotated document, one-page text document, transparent artwork, populated structured PDFs, and independently encrypted form PDFs. Private lecture evidence publishes only aggregate results.
 
-All 103 capability rows below have passing automated evidence for the named bounded fixtures. “Verified” covers those assertions, not every possible PDF or combination. The release report records exact run results and qualification limits. Existing unsupported structures remain explicit restrictions, not passing feature-parity cases.
+The original 103 capability rows below record the October 2026 baseline. The [UI inventory](UI-INVENTORY.md) records the November audit's control identifiers and fresh evidence. “Verified” covers the documented assertions and fixtures. The release reports record exact results and qualification limits. Existing unsupported structures remain explicit restrictions.
 
 ## Merge — [reference](https://www.ilovepdf.com/merge_pdf)
 

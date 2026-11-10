@@ -31,11 +31,19 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      testIgnore: '**/mobile.spec.ts',
+      testIgnore: ['**/mobile.spec.ts', '**/ui-review.spec.ts'],
       use: { ...devices['Desktop Chrome'], launchOptions: { executablePath: chromiumPath } },
     },
-    { name: 'firefox', testIgnore: '**/mobile.spec.ts', use: { ...devices['Desktop Firefox'] } },
-    { name: 'webkit', testIgnore: '**/mobile.spec.ts', use: { ...devices['Desktop Safari'] } },
+    {
+      name: 'firefox',
+      testIgnore: ['**/mobile.spec.ts', '**/ui-review.spec.ts'],
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      testIgnore: ['**/mobile.spec.ts', '**/ui-review.spec.ts'],
+      use: { ...devices['Desktop Safari'] },
+    },
     {
       name: 'mobile-chromium',
       use: {
@@ -44,6 +52,11 @@ export default defineConfig({
         launchOptions: { executablePath: chromiumPath },
       },
       testMatch: '**/mobile.spec.ts',
+    },
+    {
+      name: 'ui-review',
+      use: { ...devices['Desktop Chrome'], launchOptions: { executablePath: chromiumPath } },
+      testMatch: '**/ui-review.spec.ts',
     },
   ],
 });

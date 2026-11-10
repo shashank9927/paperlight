@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
+  AlertTriangle,
   ArrowDown,
   ArrowLeft,
   ArrowRight,
@@ -119,6 +120,9 @@ export default function Workspace() {
   const progressRegion = useRef<HTMLDivElement>(null);
   const resultRegion = useRef<HTMLDivElement>(null);
   const settingsTitle = useRef<HTMLDivElement>(null);
+  const helpButton = useRef<HTMLButtonElement>(null);
+  const previewButton = useRef<HTMLButtonElement>(null);
+  const chooseFilesButton = useRef<HTMLButtonElement>(null);
   const onError = useCallback((message: string) => setError(message), []);
   const onOptionsChange = useCallback(
     (change: Partial<ToolOptions>) => setOptions((previous) => ({ ...previous, ...change })),
@@ -236,6 +240,7 @@ export default function Workspace() {
   const multiple = !['split', 'sign'].includes(tool.id);
   const fileList = isImages || tool.id === 'merge';
   const busy = adding || !!progress;
+  const hasDownload = !!result?.files.length;
   const totalBytes = files.reduce((sum, file) => sum + file.file.size, 0);
   const count = files.reduce((sum, file) => sum + file.pages.length, 0);
   const displayCount = tool.id === 'organize' ? pages.length : count;
@@ -540,6 +545,7 @@ export default function Workspace() {
             <p>{seoForPath(`/tools/${tool.id}`)?.introduction || tool.detail}</p>
           </div>
           <button
+            ref={helpButton}
             className="icon-button help-button"
             aria-label="Tool help"
             onClick={() => setHelp(true)}
@@ -547,16 +553,25 @@ export default function Workspace() {
             <HelpCircle size={20} />
           </button>
         </div>
-        <div className="flow-steps" aria-label="Processing steps">
-          <span className={files.length ? 'complete' : 'current'}>
+        <div className="flow-steps" role="group" aria-label="Processing steps">
+          <span
+            className={files.length ? 'complete' : 'current'}
+            aria-current={!files.length ? 'step' : undefined}
+          >
             <i>{files.length ? <Check size={11} /> : '1'}</i>Select files
           </span>
           <div />
-          <span className={files.length && !result ? 'current' : result ? 'complete' : ''}>
-            <i>{result ? <Check size={11} /> : '2'}</i>Configure
+          <span
+            className={files.length && !hasDownload ? 'current' : hasDownload ? 'complete' : ''}
+            aria-current={files.length && !hasDownload ? 'step' : undefined}
+          >
+            <i>{hasDownload ? <Check size={11} /> : '2'}</i>Configure
           </span>
           <div />
-          <span className={result ? 'current' : ''}>
+          <span
+            className={hasDownload ? 'current' : ''}
+            aria-current={hasDownload ? 'step' : undefined}
+          >
             <i>3</i>Download
           </span>
         </div>
@@ -565,11 +580,16 @@ export default function Workspace() {
             ref={input}
             type="file"
             className="visually-hidden"
+            tabIndex={-1}
             aria-label="Choose files"
             accept={isImages ? 'image/png,image/jpeg,image/webp' : 'application/pdf,.pdf'}
             multiple={multiple}
             disabled={busy}
-            onChange={(event) => void addFiles(Array.from(event.target.files || []))}
+            onChange={(event) => {
+              const incoming = Array.from(event.currentTarget.files || []);
+              event.currentTarget.value = '';
+              void addFiles(incoming);
+            }}
           />
         )}
         {error && (
@@ -586,6 +606,7 @@ export default function Workspace() {
         )}
         <div className={`workspace-layout ${!files.length ? 'empty-layout' : ''}`}>
           <section className="workspace-main" aria-label="Document workspace">
+            {files.length > 0 && <h2 className="visually-hidden">Selected documents</h2>}
             {!files.length ? (
               <div
                 className={`dropzone ${dragging ? 'drag-over' : ''}`}
@@ -629,6 +650,7 @@ export default function Workspace() {
                     : `Drag and drop your ${isImages ? 'images' : multiple ? 'PDFs' : 'PDF'} here, or choose from your device.`}
                 </p>
                 <button
+                  ref={chooseFilesButton}
                   className="button primary"
                   disabled={!ready || busy}
                   onClick={() => input.current?.click()}
@@ -740,6 +762,7 @@ export default function Workspace() {
                     )}
                     {multiple && (
                       <button
+                        ref={chooseFilesButton}
                         className="button small secondary"
                         disabled={busy}
                         onClick={() => input.current?.click()}
@@ -835,7 +858,10 @@ export default function Workspace() {
                           className="file-thumbnail"
                           aria-label={`Preview ${source.file.name}`}
                           disabled={busy}
-                          onClick={() => setFilePreview({ sourceId: source.id, index: 0 })}
+                          onClick={(event) => {
+                            previewButton.current = event.currentTarget;
+                            setFilePreview({ sourceId: source.id, index: 0 });
+                          }}
                         >
                           <PagePreview
                             source={source}
@@ -1124,7 +1150,7 @@ export default function Workspace() {
                                 setPreviewMode('focus');
                               }}
                             >
-                              {preview(page)}
+                              <div aria-hidden="true">{preview(page)}</div>
                               <span className="simple-page-number">
                                 {index + 1}
                                 {selections.get(page.sourceId)?.selected.has(page.index) && (
@@ -1203,10 +1229,12 @@ export default function Workspace() {
                 role="status"
                 aria-live="polite"
               >
-                <span className="result-icon">
-                  <CheckCheck size={29} />
+                <span className={hasDownload ? 'result-icon' : 'result-icon failed'}>
+                  {hasDownload ? <CheckCheck size={29} /> : <AlertTriangle size={27} />}
                 </span>
-                <span className="eyebrow">PROCESSING COMPLETE</span>
+                <span className="eyebrow">
+                  {hasDownload ? 'PROCESSING COMPLETE' : 'EXPORT NEEDS ATTENTION'}
+                </span>
                 <h2>
                   {result.files.length ? 'Your files are ready.' : 'Processing could not complete.'}
                 </h2>
@@ -1273,6 +1301,7 @@ export default function Workspace() {
                     className="text-link"
                     onClick={() => {
                       setResult(null);
+                      setSettingsOpen(true);
                       requestAnimationFrame(() => settingsTitle.current?.focus());
                     }}
                   >
@@ -1292,16 +1321,24 @@ export default function Workspace() {
             type="button"
             className="button mobile-settings-toggle"
             aria-expanded={settingsOpen}
-            onClick={() => setSettingsOpen((v) => !v)}
+            aria-controls="tool-settings-panel"
+            onClick={() => {
+              setSettingsOpen(!settingsOpen);
+              if (!settingsOpen) requestAnimationFrame(() => settingsTitle.current?.focus());
+            }}
           >
             <SlidersHorizontal size={16} />
             {settingsOpen ? 'Hide settings' : 'Settings & export'}
           </button>
-          <aside className={'settings-panel ' + (!settingsOpen ? 'mobile-collapsed' : '')}>
+          <aside
+            id="tool-settings-panel"
+            aria-labelledby="tool-settings-heading"
+            className={'settings-panel ' + (!settingsOpen ? 'mobile-collapsed' : '')}
+          >
             <div className="settings-title" ref={settingsTitle} tabIndex={-1}>
               <span className="settings-step">02</span>
               <div>
-                <h2>Tool settings</h2>
+                <h2 id="tool-settings-heading">Tool settings</h2>
                 <p>Configure your output.</p>
               </div>
             </div>
@@ -1375,6 +1412,7 @@ export default function Workspace() {
       </div>
       <Modal
         open={help}
+        returnFocusTo={helpButton}
         onClose={() => setHelp(false)}
         title={`Help with ${tool.title.toLowerCase()}`}
         description={tool.detail}
@@ -1399,6 +1437,7 @@ export default function Workspace() {
       </Modal>
       <Modal
         open={!!previewedFile && !!filePreview}
+        returnFocusTo={previewButton}
         onClose={() => setFilePreview(null)}
         title={previewedFile?.file.name || 'File preview'}
         description={`Original file preview. Page ${(filePreview?.index || 0) + 1} of ${previewedFile?.pages.length || 1}.`}
@@ -1444,6 +1483,7 @@ export default function Workspace() {
       </Modal>
       <Modal
         open={!!passwordRequest}
+        returnFocusTo={chooseFilesButton}
         onClose={() => closePassword(null)}
         title="Password required"
         description={passwordRequest?.message || 'Enter the current document password.'}

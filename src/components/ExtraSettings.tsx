@@ -546,11 +546,12 @@ export function SignFields({
       >
         Add field
       </button>
-      <div className="annotation-list" aria-label="Signature fields">
+      <div className="annotation-list" role="group" aria-label="Signature fields">
         {o.annotations.map((a, i) => (
           <button
             type="button"
             key={a.id}
+            aria-pressed={active === a.id}
             className={active === a.id ? 'active' : ''}
             onClick={() => setActive(a.id)}
           >
