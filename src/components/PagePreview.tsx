@@ -229,7 +229,14 @@ export const PagePreview = memo(function PagePreview({
           }}
         />
       )}
-      {!visible && <span className="preview-placeholder">{page.index + 1}</span>}
+      {!visible && (
+        <span className="preview-placeholder" aria-hidden="true">
+          <svg width="16" height="20" viewBox="0 0 16 20" fill="none" stroke="currentColor">
+            <rect x="1" y="1" width="14" height="18" rx="2" />
+            <path d="M4 6h8M4 10h8M4 14h5" />
+          </svg>
+        </span>
+      )}
       {renderError && <span className="preview-error">Preview unavailable</span>}
       {options && visible && (
         <PreviewAnnotations

@@ -10,13 +10,15 @@ export class AppBoundary extends Component<{ children: ReactNode }, { failed: bo
   render() {
     if (!this.state.failed) return this.props.children;
     return (
-      <main id="main" className="not-found" role="alert">
-        <h1>Havisu PDF couldn’t open this workspace.</h1>
-        <p>
-          A required app component may be unavailable. Your original files on your device are
-          unchanged.
-        </p>
-        <p>Reloading clears files and edits held in this tab.</p>
+      <main id="main" className="not-found">
+        <div role="alert">
+          <h1>Havisu PDF couldn’t open this workspace.</h1>
+          <p>
+            A required app component may be unavailable. Your original files on your device are
+            unchanged.
+          </p>
+          <p>Reloading clears files and edits held in this tab.</p>
+        </div>
         <button className="button primary" onClick={() => window.location.reload()}>
           Reload Havisu PDF
         </button>
@@ -71,8 +73,8 @@ export function UpdateNotice() {
   if (!waiting) return null;
   const blocked = workspace.hasDocuments || workspace.busy;
   return (
-    <aside className="update-notice" role="status">
-      <span>
+    <div className="update-notice">
+      <span role="status">
         {blocked
           ? 'An update is ready. Finish and clear your workspace before updating.'
           : 'A new version of Havisu PDF is ready.'}
@@ -87,6 +89,6 @@ export function UpdateNotice() {
       >
         Update Havisu PDF
       </button>
-    </aside>
+    </div>
   );
 }

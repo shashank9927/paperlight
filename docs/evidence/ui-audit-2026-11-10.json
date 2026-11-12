@@ -1,0 +1,328 @@
+{
+  "auditStarted": "2026-11-10",
+  "base": "50524d32428eee1ebada66dd68257bdd29662e21",
+  "runtime": "Node 24.22.1",
+  "artifact": {
+    "treeSha256": "255f0d2f4f292718708f31885f0d75ce3f81e4fe39fe43261d12713c66b7c336",
+    "files": 301,
+    "bytes": 12206572,
+    "imageId": "sha256:54b15d346b748f7e6d8c0e6e1683f1761d0d0492a5a81e3a764d6e2772bec3d9"
+  },
+  "localTests": {
+    "unit": 129,
+    "focusedBrowser": 57,
+    "followUpTheme": 2,
+    "followUpNavigationAndPreview": 9,
+    "screenshots": 476,
+    "benchmark": 3,
+    "auditVulnerabilities": 0,
+    "note": "The follow-up theme run adds actual system preference and tablet Axe checks. The full CI run is authoritative for the combined final suite."
+  },
+  "hosting": {
+    "origin": "http://127.0.0.1:4187",
+    "routes": 14,
+    "canonicalRedirects": 40,
+    "legacyPageRedirects": 14,
+    "legacyEditingAssets": 6,
+    "headers": "passed",
+    "wasmMime": "passed",
+    "javascriptMime": "18 scripts and module workers passed",
+    "static404": "passed",
+    "checkedAt": "2026-11-10T22:40:33.284Z"
+  },
+  "load": {
+    "origin": "http://127.0.0.1:4187",
+    "checkedAt": "2026-11-10T22:40:33.928Z",
+    "bytes": 12753907,
+    "reports": [
+      {
+        "concurrency": 1,
+        "requests": 30,
+        "errors": [],
+        "durationMs": 109,
+        "p50Ms": 2,
+        "p95Ms": 4,
+        "maxMs": 38
+      },
+      {
+        "concurrency": 10,
+        "requests": 100,
+        "errors": [],
+        "durationMs": 73,
+        "p50Ms": 7,
+        "p95Ms": 13,
+        "maxMs": 15
+      },
+      {
+        "concurrency": 50,
+        "requests": 250,
+        "errors": [],
+        "durationMs": 169,
+        "p50Ms": 32,
+        "p95Ms": 55,
+        "maxMs": 59
+      },
+      {
+        "concurrency": 100,
+        "requests": 400,
+        "errors": [],
+        "durationMs": 213,
+        "p50Ms": 48,
+        "p95Ms": 80,
+        "maxMs": 94
+      }
+    ],
+    "limitation": "Bounded local HTTP concurrency verification; not a global CDN capacity or sustained-traffic guarantee."
+  },
+  "privateCorpus": {
+    "inputs": 12,
+    "mergedPages": 295,
+    "splitPages": 8,
+    "mergeOutlines": 295,
+    "tagValidation": "passed",
+    "renderedPagesWithExactPixels": 303,
+    "preservedPayloadSizes": [
+      773546
+    ],
+    "sourceHashesUnchanged": true
+  },
+  "benchmarks": [
+    {
+      "browser": "chromium",
+      "version": "156.0.8078.4",
+      "host": {
+        "platform": "linux",
+        "release": "6.18.58.1-microsoft-standard-WSL2",
+        "cpu": "AMD Ryzen 7 7840HS w/ Radeon 780M Graphics",
+        "logicalCpus": 16,
+        "ramBytes": 7897743360
+      },
+      "fixture": {
+        "bytes": 809787,
+        "pages": 3,
+        "kinds": "text + rotated/cropped text + seeded scanned image"
+      },
+      "caveat": "Local loopback, no throttling. Page JS heap excludes workers, WASM, GPU and native allocations; not peak process memory. Automated desktop browsers are not physical mobile devices.",
+      "results": [
+        {
+          "sample": 0,
+          "warm": false,
+          "loadMs": 186.65852299999995,
+          "previewMs": 461.84926799999994,
+          "processingMs": 290.52384600000005,
+          "maxGapMs": 28.200000000186265,
+          "ticks": 18,
+          "pageJsHeapBytes": 21700000
+        },
+        {
+          "sample": 0,
+          "warm": true,
+          "loadMs": 115.02489600000013,
+          "previewMs": 389.9541770000001,
+          "processingMs": 259.82060599999977,
+          "maxGapMs": 17.700000000186265,
+          "ticks": 16,
+          "pageJsHeapBytes": 21700000
+        },
+        {
+          "sample": 1,
+          "warm": false,
+          "loadMs": 143.94763300000022,
+          "previewMs": 962.9580939999996,
+          "processingMs": 246.6082879999999,
+          "maxGapMs": 21.100000000093132,
+          "ticks": 15,
+          "pageJsHeapBytes": 21700000
+        },
+        {
+          "sample": 1,
+          "warm": true,
+          "loadMs": 84.75367199999982,
+          "previewMs": 366.6687149999998,
+          "processingMs": 264.98371399999996,
+          "maxGapMs": 18.799999999813735,
+          "ticks": 17,
+          "pageJsHeapBytes": 21700000
+        },
+        {
+          "sample": 2,
+          "warm": false,
+          "loadMs": 169.70213200000035,
+          "previewMs": 946.2405610000005,
+          "processingMs": 288.98457699999926,
+          "maxGapMs": 23.40000000037253,
+          "ticks": 18,
+          "pageJsHeapBytes": 21700000
+        },
+        {
+          "sample": 2,
+          "warm": true,
+          "loadMs": 108.08066899999994,
+          "previewMs": 422.5327440000001,
+          "processingMs": 255.155624,
+          "maxGapMs": 27.399999999906868,
+          "ticks": 16,
+          "pageJsHeapBytes": 21700000
+        }
+      ]
+    },
+    {
+      "browser": "firefox",
+      "version": "157.0",
+      "host": {
+        "platform": "linux",
+        "release": "6.18.58.1-microsoft-standard-WSL2",
+        "cpu": "AMD Ryzen 7 7840HS w/ Radeon 780M Graphics",
+        "logicalCpus": 16,
+        "ramBytes": 7897743360
+      },
+      "fixture": {
+        "bytes": 809787,
+        "pages": 3,
+        "kinds": "text + rotated/cropped text + seeded scanned image"
+      },
+      "caveat": "Local loopback, no throttling. Page JS heap excludes workers, WASM, GPU and native allocations; not peak process memory. Automated desktop browsers are not physical mobile devices.",
+      "results": [
+        {
+          "sample": 0,
+          "warm": false,
+          "loadMs": 723.4164129999999,
+          "previewMs": 501.06878800000004,
+          "processingMs": 473.35164699999996,
+          "maxGapMs": 49,
+          "ticks": 22,
+          "pageJsHeapBytes": null
+        },
+        {
+          "sample": 0,
+          "warm": true,
+          "loadMs": 138.6061910000003,
+          "previewMs": 881.4911790000001,
+          "processingMs": 202.05401800000072,
+          "maxGapMs": 26,
+          "ticks": 10,
+          "pageJsHeapBytes": null
+        },
+        {
+          "sample": 1,
+          "warm": false,
+          "loadMs": 182.45952399999987,
+          "previewMs": 404.7192699999996,
+          "processingMs": 419.89434600000004,
+          "maxGapMs": 40,
+          "ticks": 20,
+          "pageJsHeapBytes": null
+        },
+        {
+          "sample": 1,
+          "warm": true,
+          "loadMs": 169.93377300000066,
+          "previewMs": 428.5025249999999,
+          "processingMs": 329.5824540000003,
+          "maxGapMs": 35,
+          "ticks": 17,
+          "pageJsHeapBytes": null
+        },
+        {
+          "sample": 2,
+          "warm": false,
+          "loadMs": 379.80662400000074,
+          "previewMs": 437.72002800000064,
+          "processingMs": 362.45716100000027,
+          "maxGapMs": 41,
+          "ticks": 18,
+          "pageJsHeapBytes": null
+        },
+        {
+          "sample": 2,
+          "warm": true,
+          "loadMs": 120.38802999999825,
+          "previewMs": 898.106342000001,
+          "processingMs": 209.7753499999999,
+          "maxGapMs": 41,
+          "ticks": 10,
+          "pageJsHeapBytes": null
+        }
+      ]
+    },
+    {
+      "browser": "webkit",
+      "version": "27.2",
+      "host": {
+        "platform": "linux",
+        "release": "6.18.58.1-microsoft-standard-WSL2",
+        "cpu": "AMD Ryzen 7 7840HS w/ Radeon 780M Graphics",
+        "logicalCpus": 16,
+        "ramBytes": 7897743360
+      },
+      "fixture": {
+        "bytes": 809787,
+        "pages": 3,
+        "kinds": "text + rotated/cropped text + seeded scanned image"
+      },
+      "caveat": "Local loopback, no throttling. Page JS heap excludes workers, WASM, GPU and native allocations; not peak process memory. Automated desktop browsers are not physical mobile devices.",
+      "results": [
+        {
+          "sample": 0,
+          "warm": false,
+          "loadMs": 360.286466,
+          "previewMs": 1136.660491,
+          "processingMs": 466.91074899999967,
+          "maxGapMs": 61,
+          "ticks": 19,
+          "pageJsHeapBytes": null
+        },
+        {
+          "sample": 0,
+          "warm": true,
+          "loadMs": 240.0136819999998,
+          "previewMs": 1018.4789429999996,
+          "processingMs": 439.55099699999937,
+          "maxGapMs": 67,
+          "ticks": 16,
+          "pageJsHeapBytes": null
+        },
+        {
+          "sample": 1,
+          "warm": false,
+          "loadMs": 220.70673800000077,
+          "previewMs": 1047.877724,
+          "processingMs": 966.910362999999,
+          "maxGapMs": 68,
+          "ticks": 44,
+          "pageJsHeapBytes": null
+        },
+        {
+          "sample": 1,
+          "warm": true,
+          "loadMs": 181.54233400000157,
+          "previewMs": 1015.2231269999993,
+          "processingMs": 500.13701500000025,
+          "maxGapMs": 65,
+          "ticks": 19,
+          "pageJsHeapBytes": null
+        },
+        {
+          "sample": 2,
+          "warm": false,
+          "loadMs": 234.06854600000042,
+          "previewMs": 1097.6306239999994,
+          "processingMs": 512.2606739999992,
+          "maxGapMs": 63,
+          "ticks": 21,
+          "pageJsHeapBytes": null
+        },
+        {
+          "sample": 2,
+          "warm": true,
+          "loadMs": 182.47301300000072,
+          "previewMs": 1016.6681719999997,
+          "processingMs": 474.10703300000023,
+          "maxGapMs": 88,
+          "ticks": 18,
+          "pageJsHeapBytes": null
+        }
+      ]
+    }
+  ]
+}

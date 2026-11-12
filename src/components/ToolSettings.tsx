@@ -80,7 +80,8 @@ export function ToolSettings({
   );
   const position = (
     <>
-      <Field label="Position">
+      <div className="field">
+        <span>Position</span>
         <div className="position-grid" role="group" aria-label="Annotation position">
           {[0.08, 0.5, 0.92].flatMap((y) =>
             [0.15, 0.5, 0.85].map((x) => (
@@ -97,7 +98,7 @@ export function ToolSettings({
             )),
           )}
         </div>
-      </Field>
+      </div>
       <p className="field-hint inline-hint">
         <Move size={13} /> Drag the preview annotation to fine-tune.
       </p>
@@ -108,14 +109,14 @@ export function ToolSettings({
       <ExtraSettings tool={tool} options={o} onChange={onChange} onError={onError} />
       {tool === 'merge' && (
         <div className="settings-explainer">
-          <h4>Merge in order</h4>
+          <h3>Merge in order</h3>
           <p>Files are merged in the order shown. Drag a file or use its arrows to move it.</p>
           <p>All pages from every file will be included.</p>
         </div>
       )}
       {tool === 'organize' && (
         <div className="settings-explainer">
-          <h4>Arrange your document</h4>
+          <h3>Arrange your document</h3>
           <p>Reorder, rotate, duplicate, or remove pages using the controls on each card.</p>
           <p>
             Select pages to extract them into a separate PDF. The original file stays untouched.
@@ -464,7 +465,7 @@ export function ToolSettings({
       )}
       {tool === 'unlock' && (
         <div className="settings-explainer">
-          <h4>Remove password protection</h4>
+          <h3>Remove password protection</h3>
           <p>
             If this file is password protected, you’ll be asked for its current password when you
             select it.

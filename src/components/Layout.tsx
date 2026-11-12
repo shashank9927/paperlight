@@ -28,6 +28,8 @@ export function Brand() {
 }
 export function Header() {
   const [open, setOpen] = useState(false);
+  const navigation = useRef<HTMLElement>(null);
+  const menuButton = useRef<HTMLButtonElement>(null);
   // Match generated HTML, then restore once without temporarily applying the fallback theme.
   const theme = useRef<Theme>('dark');
   const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>('dark');
@@ -46,10 +48,23 @@ export function Header() {
     return () => media.removeEventListener('change', update);
   }, []);
   return (
-    <header className="site-header">
+    <header
+      className="site-header"
+      onKeyDown={(event) => {
+        if (open && event.key === 'Escape') {
+          setOpen(false);
+          menuButton.current?.focus();
+        }
+      }}
+    >
       <div className="container header-inner">
         <Brand />
-        <nav className={open ? 'main-nav open' : 'main-nav'} aria-label="Main navigation">
+        <nav
+          ref={navigation}
+          id="main-navigation"
+          className={open ? 'main-nav open' : 'main-nav'}
+          aria-label="Main navigation"
+        >
           <Link to="/#tools" className={location.pathname !== '/' ? 'active' : ''}>
             Tools
           </Link>
@@ -74,10 +89,16 @@ export function Header() {
             {resolvedTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
           <button
+            ref={menuButton}
             className="icon-button mobile-menu"
             aria-label={open ? 'Close navigation' : 'Open navigation'}
             aria-expanded={open}
-            onClick={() => setOpen(!open)}
+            aria-controls="main-navigation"
+            onClick={(event) => {
+              setOpen(!open);
+              if (!open && event.detail === 0)
+                requestAnimationFrame(() => navigation.current?.querySelector('a')?.focus());
+            }}
           >
             {open ? <X size={20} /> : <Menu size={20} />}
           </button>

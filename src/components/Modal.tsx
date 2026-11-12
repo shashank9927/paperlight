@@ -1,6 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 
 export function Modal({
   open,
@@ -8,12 +8,14 @@ export function Modal({
   title,
   description,
   children,
+  returnFocusTo,
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
   description: string;
   children: ReactNode;
+  returnFocusTo?: RefObject<HTMLElement | null>;
 }) {
   return (
     <Dialog.Root
@@ -24,7 +26,15 @@ export function Modal({
     >
       <Dialog.Portal>
         <Dialog.Overlay className="modal-overlay" />
-        <Dialog.Content className="modal-content">
+        <Dialog.Content
+          className="modal-content"
+          onCloseAutoFocus={(event) => {
+            if (returnFocusTo?.current?.isConnected) {
+              event.preventDefault();
+              returnFocusTo.current.focus();
+            }
+          }}
+        >
           <Dialog.Title>{title}</Dialog.Title>
           <Dialog.Description>{description}</Dialog.Description>
           <Dialog.Close className="icon-button modal-close" aria-label="Close dialog">

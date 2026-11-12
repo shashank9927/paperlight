@@ -118,10 +118,16 @@ test('a waiting deployment update cannot activate while documents remain in the 
     await openTool(page, 'rotate', pdfInput(f.tiny));
     const update = page.getByRole('button', { name: 'Update Havisu PDF', exact: true });
     await expect(update).toBeDisabled();
+    const checkNotice = async () => {
+      const report = await new AxeBuilder({ page }).include('.update-notice').analyze();
+      expect(report.violations.map(({ id }) => id)).toEqual([]);
+    };
+    await checkNotice();
     await finish(page);
     await expect(update).toBeDisabled();
     await page.getByRole('button', { name: /Start fresh/ }).click();
     await expect(update).toBeEnabled();
+    await checkNotice();
     await update.click();
     expect(
       await page.evaluate(
